@@ -1,7 +1,7 @@
 Adcase.js  - a DFP wrapper for Rich Media and PWA
 ======================================================
 
-Adcase script simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP) by Google. This is not an official Google product.
+Adcase script simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP). This is not an official Google product, and it is also not officially supported by Google.
 
 It also provides a high performance solution for safeframe, single request, single page app HTML5 creatives. 
 
@@ -20,7 +20,7 @@ Setup
 
 You can add ad units to your page in any location that you would like to display an ad.
 
-This script will look for objects of class `ad-slot`. It will then use the data-adtype attribute to declare the detailed slot properties, as size.
+This script will look for objects with class `ad-slot`. It will then use the data-adtype attribute to declare the detailed slot properties, as size.
 
 ```html
 <div id='right1' class='ad-slot' data-adtype='box'></div>
@@ -28,39 +28,51 @@ This script will look for objects of class `ad-slot`. It will then use the data-
 <div id='right3' class='ad-slot' data-adtype='box'></div>
 ```
 
-In the example above the ID of the div element will be used to look up a corresponding ad unit in DFP. The dimensions will be defined in the `box` properties.
+In the example above the ID of the div element will be used to look up a corresponding ad unit in DFP. The dimensions will be defined by the `box` properties.
 
 
+Configuration Script
+--------------------
+The whole library resides inside the `window.ads` object. The configuration for it resides in `config.js` file.
 
-You can also specify multiple dimensions sets:
+The minimum configuration you need to set:
+- Ad slot sizes
+- DFP Network Id
+- Ad unit path
 
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176,450x500"></div>
-```
-
-Also you can optionally specify custom targeting on a per ad unit basis in the following way:
-
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176" data-targeting='{"city_id":"1"}'></div>
-```
-
-Also you can optionally specify custom exclusion category on a per ad unit basis in the following way:
+Using the divs defined above, we'll set the `box` ad type to handle both 300x250 and 300x600 sizes, and then set serving from these ad units:
 
 ```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176" data-exclusions="firstcategory,secondcategory"></div>
+/21634433536/sports/right1
+/21634433536/sports/right2
+/21634433536/sports/right3
 ```
 
-To create an out of page ad unit set the data-outofpage property on the ad unit. Dimensions are not required for out of page ad units.
 
 ```html
-<div class="adunit" data-adunit="Ad_unit_id" data-outofpage="true"></div>
+var ads = { cmd:[], 
+      loaded:false,
+      adTypes: { 
+                box: { sizes: [[300,250],[300,600]] } 
+               },
+      network: 21634433536
+      }; 
 ```
 
-In order to identify an ad unit on the page that is a video companion ad, set the data-companion attribute on that unit.
+and then, set the ad unit path change the ads.router() method
+
 
 ```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176" data-companion="true"></div>
+ads.router = function(url) {
+  var path = "/sports/";
+  return path;
+
+}
 ```
+
+
+
+
 
 Usage
 -----
