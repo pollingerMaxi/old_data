@@ -1,18 +1,17 @@
-jQuery DFP - A jQuery implementation for Google DFP
+Adcase.js  - a DFP wrapper for Rich Media and PWA
 ======================================================
 
-[![Build Status](https://travis-ci.org/coop182/jquery.dfp.js.png?branch=master)](https://travis-ci.org/coop182/jquery.dfp.js)
+Adcase script simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP) by Google. This is not an official Google product.
 
-This script is a drop in solution for getting Double Click for Publishers (DFP) by Google working on your page. By including this script on your page and then initialising it in the ways described below you should find it very easy to get DFP working.
+It also provides a high performance solution for safeframe, single request, single page app HTML5 creatives. 
 
-Do not include any of the generated DFP script tags from the DFP admin on your page, this script replaces them.
+Some ideas were inspired from [jquery.dfp](https://github.com/coop182/jquery.dfp.js) library.
 
-This script also works with [Zepto.js](http://zeptojs.com/)
 
 Demo / Ad unit tester
 ---------------------
 
-You can use [this page](http://coop182.github.io/jquery.dfp.js/dfptests/test.html?google_console=1&networkID=15572793&adunitID=Leader&dimensions=728x90) to test your DFP ads using the jquery.dfp.js script. There is some debug code included to help debug the ad delivery.
+You can use [this page](http://coop182.github.io/jquery.dfp.js/dfptests/test.html?google_console=1&networkID=15572793&adunitID=Leader&dimensions=728x90) to test your DFP ads using the adcase.js script. There is some debug code included to help debug the ad delivery.
 
 You can also use the [Google Console](https://support.google.com/dfp_sb/answer/181070?hl=en-GB) to debug your ad units. This is done by by adding a "google_console=1" or "google_debug=1" to the url, and toggling the console by pressing CTRL + F10. Subsequent pagerequests will not require the parameters, and the console can be toggled. Adding the querystring "googfc" to an url, will also load the console, but also show it, without having to press CTRL + F10.
 
@@ -21,23 +20,17 @@ Setup
 
 You can add ad units to your page in any location that you would like to display an ad.
 
-By default this script will look for ad units with a class of `adunit` but you can of course use jQuery selectors as well.
-
-The minimum information required for an ad unit to function is having the ad unit specified. To do this you can use the id parameter of the element, for example:
+This script will look for objects of class `ad-slot`. It will then use the data-adtype attribute to declare the detailed slot properties, as size.
 
 ```html
-<div class="adunit" id="Ad_unit_id"></div>
+<div id='right1' class='ad-slot' data-adtype='box'></div>
+<div id='right2' class='ad-slot' data-adtype='box'></div>
+<div id='right3' class='ad-slot' data-adtype='box'></div>
 ```
 
-In the example above the ID of the div element will be used to look up a corresponding ad unit in DFP and the dimensions of the adunit will be set to the same dimensions of the div which could be defined in your CSS.
+In the example above the ID of the div element will be used to look up a corresponding ad unit in DFP. The dimensions will be defined in the `box` properties.
 
-You can optionally specify the adunit name and dimensions in the following way:
 
-```html
-<div class="adunit" data-adunit="Ad_unit_id" data-dimensions="393x176"></div>
-```
-
-This method can be useful for including multiple copies of an ad unit with the same name which when part of a DFP placement will then pull in as many different creatives as possible.
 
 You can also specify multiple dimensions sets:
 
