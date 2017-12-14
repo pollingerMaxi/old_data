@@ -15,12 +15,12 @@ You can use [this page](http://coop182.github.io/jquery.dfp.js/dfptests/test.htm
 
 You can also use the [Google Console](https://support.google.com/dfp_sb/answer/181070?hl=en-GB) to debug your ad units. This is done by by adding a "google_console=1" or "google_debug=1" to the url, and toggling the console by pressing CTRL + F10. Subsequent pagerequests will not require the parameters, and the console can be toggled. Adding the querystring "googfc" to an url, will also load the console, but also show it, without having to press CTRL + F10.
 
-Setup
------
+Page Setup
+----------
 
 You can add ad units to your page in any location that you would like to display an ad.
 
-This script will look for objects with class `ad-slot`. It will then use the data-adtype attribute to declare the detailed slot properties, as size.
+This script will look for objects with class `ad-slot`. It will then use the data-adtype attribute to declare the detailed slot properties, i.e available sizes.
 
 ```html
 <div id='right1' class='ad-slot' data-adtype='box'></div>
@@ -28,7 +28,7 @@ This script will look for objects with class `ad-slot`. It will then use the dat
 <div id='right3' class='ad-slot' data-adtype='box'></div>
 ```
 
-In the example above the ID of the div element will be used to look up a corresponding ad unit in DFP. The dimensions will be defined by the `box` properties.
+In the example above the ID of the div elements will be used to look up a corresponding ad units in DFP. The dimensions are shared, defined by the `box` properties.
 
 
 Configuration Script
@@ -50,6 +50,7 @@ Using the divs defined above, we'll set the `box` ad type to handle both 300x250
 
 
 ```html
+//config.js
 var ads = { cmd:[], 
       loaded:false,
       adTypes: { 
@@ -64,9 +65,7 @@ and then, set the ad unit path change the ads.router() method
 
 ```html
 ads.router = function(url) {
-  var path = "/sports/";
-  return path;
-
+  return "/sports/";
 }
 ```
 
