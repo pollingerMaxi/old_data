@@ -1,4 +1,3 @@
-// version 7.12.1
 
 // Load googletag library
 var googletag = { cmd:[] };
@@ -11,49 +10,10 @@ ads.formats = [];
 ads.existingSlotIds = {}; // these should be destroyed before being called
 
 var ev= null;
-// SETUP PAGE PARAMETERS
-googletag.cmd.push(function() {
-  googletag.destroySlots();
-  
-  ads.setTargeting();
-
-  googletag.pubads().addEventListener('slotRenderEnded', function(event) {
-    var div = document.getElementById(event.slot.getSlotElementId());
-    var adType = div.parentElement.dataset.adtype;  // zocalo_mobile
-    var adFormat = "default";
-    var params = { div: div, containerDiv: div.parentElement, adType: adType, width: event.size[0], height: event.size[1], event:event } 
-    
-    // in case there is a predefined format, like #7 footerFixed
-    div.parentElement.style.display = 'block';
-    div.parentElement.style.width = "100%";//event.size[0]+"px";
-
-    if (!event.isEmpty) {
-      if(ads.adTypes[adType] && ads.adTypes[adType].adFormat && ads.formats[ads.adTypes[adType].adFormat]) {
-        adFormat = ads.adTypes[adType].adFormat;
-        if(adFormat!="interstitial") {
-          params.adFormat = adFormat;
-          ads.formats[adFormat](params);
-        }
-    }
-        //div.parentElement.style.height = event.size[1]+"px";
-       
-
-
-//console.log("call ads.slotRendered",event);
-    ads.slotRendered(event);
-
-    }
-  //  console.log({action:"RenderAd", slotId:div.id, width:event.size[0], height:event.size[1], event:event })
-  });
-  googletag.pubads().setCentering(true);
-  googletag.pubads().collapseEmptyDivs();
-  googletag.pubads().enableAsyncRendering();
-  googletag.pubads().enableSingleRequest(); 
-  googletag.enableServices();
-});
 
 ads.run = function() {
   
+  ads.setAdTypes();
   ads.adTexts = [];
   ads.adSlotHandles = [];
   //ads.adSlotList = [];
@@ -100,7 +60,7 @@ ads.setTargeting = function() {
     googletag.pubads().setTargeting("dfpTest", ads.getDfpTestValue);
   }
   for(var i in kv) {
-    console.log("KV",i,kv[i].toString());
+    console.log("Page level Key-value",i,kv[i].toString());
     googletag.pubads().setTargeting(i, kv[i].toString()); 
   }
 
@@ -118,6 +78,10 @@ ads.pageLoaded = function(path) {
   for(var i = 0; i < divs.length; i++) { 
     var parent = divs.item(i);
     var adType = parent.dataset.adtype;
+    if(!ads.adTypes[adType]) {
+      console.log("**ERROR : COULD NOT FIND SIZE DEFINITION FOR " + adType);
+      continue;
+    }
 
     if(!ads.checkDivList(parent.id, parent.dataset.manual)) {
       // if div is set as data-manual, and there is no specific slot list to run
@@ -236,7 +200,7 @@ ads.slotRendered = function (adEvent) {
   // check if there is a custom event defined
   var parentId = document.getElementById(id).parentElement.id;
   if(ads.slotRenderedCallback[parentId]) {
-    console.log("call SlotRendered de"+parentId);
+    //console.log("call SlotRendered de"+parentId);
     ads.slotRenderedCallback[parentId](adEvent);
   }
 
@@ -323,6 +287,94 @@ ads.formats.getWindow = function(format) {
   console.log("getWindow", format);
   ads.get("window-"+format);
 }
+
+/* convert adTypesMap into adTypes */
+ads.setAdTypes = function() {
+  ads.setDevice();
+
+  if(!ads.adTypesMap) {
+    return;
+  }
+  ads.adTypes = {};
+
+  for(var i in ads.adTypesMap) {
+    let t = ads.adTypesMap[i];
+    t.minWidth = t.minWidth || 0;
+    
+    // check device type
+    if(t.deviceType) {
+      if( ads.device.isMobile && t.deviceType.toLowerCase().indexOf("mobile")<0 ||
+          ads.device.isDesktop && t.deviceType.toLowerCase().indexOf("desktop")<0) {
+        continue;
+      } 
+    }
+    
+    // check screen size
+    let width = window.innerWidth;
+    if(t.minWidth && t.minWidth > window.innerWidth) {
+      continue;
+    }
+
+    // add current config to adTypes. 
+    if(!ads.adTypes[t.type] || ads.adTypes[t.type].minWidth < t.minWidth) { 
+      // Replaces only if current minWith > last one
+      ads.adTypes[t.type] = { sizes:t.sizes, adFormat: (t.adFormat || false), minWidth: t.minWidth }
+    }
+  }
+
+
+}
+
+ads.setDevice = function() {
+  ads.device = { 
+    isMobile : (/Mobi/.test(navigator.userAgent)),
+    isTablet : (screen.width<800 || screen.height<800),
+    isDesktop: !(/Mobi/.test(navigator.userAgent))
+  }
+}
+
+ads.setAdTypes();
+
+// SETUP PAGE PARAMETERS
+googletag.cmd.push(function() {
+  googletag.destroySlots();
+  
+  ads.setTargeting();
+
+  googletag.pubads().addEventListener('slotRenderEnded', function(event) {
+    var div = document.getElementById(event.slot.getSlotElementId());
+    var adType = div.parentElement.dataset.adtype;  // zocalo_mobile
+    var adFormat = "default";
+    var params = { div: div, containerDiv: div.parentElement, adType: adType, width: event.size[0], height: event.size[1], event:event } 
+    
+    // in case there is a predefined format, like #7 footerFixed
+    div.parentElement.style.display = 'block';
+    div.parentElement.style.width = "100%";//event.size[0]+"px";
+
+    if (!event.isEmpty) {
+      if(ads.adTypes[adType] && ads.adTypes[adType].adFormat && ads.formats[ads.adTypes[adType].adFormat]) {
+        adFormat = ads.adTypes[adType].adFormat;
+        if(adFormat!="interstitial") {
+          params.adFormat = adFormat;
+          ads.formats[adFormat](params);
+        }
+    }
+        //div.parentElement.style.height = event.size[1]+"px";
+       
+
+
+//console.log("call ads.slotRendered",event);
+    ads.slotRendered(event);
+
+    }
+  //  console.log({action:"RenderAd", slotId:div.id, width:event.size[0], height:event.size[1], event:event })
+  });
+  googletag.pubads().setCentering(true);
+  googletag.pubads().collapseEmptyDivs();
+  googletag.pubads().enableAsyncRendering();
+  googletag.pubads().enableSingleRequest(); 
+  googletag.enableServices();
+});
 
 ads.formats.footerFixed = function(params) {
   console.log("This is footerFixed",params);
