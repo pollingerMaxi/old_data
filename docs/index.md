@@ -6,10 +6,10 @@ It also provides a high performance solution for safeframe, single request, sing
 Some ideas were inspired from [jquery.dfp](https://github.com/coop182/jquery.dfp.js) library.
 
 
-Demo / Ad unit tester
----------------------
+Demo Page
+---------
 
-You can use [this page](http://coop182.github.io/jquery.dfp.js/dfptests/test.html?google_console=1&networkID=15572793&adunitID=Leader&dimensions=728x90) to test your DFP ads using the adcase.js script. There is some debug code included to help debug the ad delivery.
+You can use [this page](https://adcase.github.io/adcase.js/examples/simple.html) to test your DFP ads using the adcase.js script.
 
 You can also use the [Google Console](https://support.google.com/dfp_sb/answer/181070?hl=en-GB) to debug your ad units. This is done by by adding a "google_console=1" or "google_debug=1" to the url, and toggling the console by pressing CTRL + F10. Subsequent pagerequests will not require the parameters, and the console can be toggled. Adding the querystring "googfc" to an url, will also load the console, but also show it, without having to press CTRL + F10.
 
