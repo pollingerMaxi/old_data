@@ -23,9 +23,9 @@ You can add ad units to your page in any location that you would like to display
 This script will look for objects with class `ad-slot`. It will then use the data-adtype attribute to declare the detailed slot properties, i.e available sizes.
 
 ```html
-<div id='right1' class='ad-slot' data-adtype='box'></div>
-<div id='right2' class='ad-slot' data-adtype='box'></div>
-<div id='right3' class='ad-slot' data-adtype='box'></div>
+<div id='box1' class='ad-slot' data-adtype='box'></div>
+<div id='box2' class='ad-slot' data-adtype='box'></div>
+<div id='box3' class='ad-slot' data-adtype='box'></div>
 ```
 
 In the example above the ID of the div elements will be used to look up a corresponding ad units in DFP. The dimensions are shared, defined by the `box` properties.
@@ -76,30 +76,79 @@ ads.router = function(url) {
 Usage
 -----
 
-Calling the script:
+An example html page:
 
 ```html
-<html>
-<head>
-    <title>DFP TEST</title>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="jquery.dfp.min.js"></script>
-</head>
+<!DOCTYPE HTML> 
+<html lang="en-us">
+<style>body { text-align:center;font-family:Verdana;}</style>
 <body>
 
-    <div class="adunit" id="Middle_Feature" data-dimensions="393x176" data-targeting='{"city_id":"1"}'></div>
+box1 (type "box" [300,250])
+<div id='box1' class='ad-slot' data-adtype='box'></div>
 
-    <script>
+box2 (type "box" [300,250])
+<div id='box2' class='ad-slot' data-adtype='box'></div>
 
-        $.dfp({
-            dfpID: 'xxxxxxxxx'
-        });
+box3 (type "box" [300,250])
+<div id='box3' class='ad-slot' data-adtype='box'></div>
 
-    </script>
+expanding 1
+<div id='push_tag' class='ad-slot' data-adtype='970x90x250'></div>
 
-</body>
+<script>let s = document.createElement('script'); s.async = true; s.src = "https://adcase.io/demo/config.js"; document.head.appendChild(s);</script>
+</body> 
 </html>
+``` 
+
+With the corresponding config.js
+```html
+var ads = { cmd:[], 
+  // change to your own js location
+  lib: "https://adcase.io/adcase.js?",
+  
+  // ad slot types. This must be the same as 'data-adtype' attributes
+  adTypes: { 
+              box: { sizes: [300,250] },
+              bigbox: { sizes: [[300,250],[300,600]] },
+              "970x90x250": { sizes: [[970,250]], adFormat: "expand970x250" }, 
+  },
+  
+  // dfp network id
+  network: 21634433536, 
+
+  // callback functions, can be set for each ad slot
+  slotRenderedCallback: {
+    box1 : function(event) { console.log("slotID box1 has been rendered. Slot " + (event.isEmpty?"is":"is not") + " empty.") }
+  },
+
+  // page level key-values
+  kv: { section:"sports", article:"1234" }
+
+}; 
+
+// router may use if/case/regex to select the correct DFP path, depending on document url
+// in this example it is fixed 
+ads.router = function(url) {
+  return "/special/";
+}
+
+// no need to change anything from here to end of file
+ads.ready = function(params) {
+  params = params || {};
+  if(!ads.loaded) { 
+    var s = document.createElement('script');s.async = true; 
+    s.src = ads.lib; document.head.appendChild(s); 
+  } 
+  ads.cmd.push( {cmd:"run", path: ads.router(), manualSlotList: (params.slots || false) } ); 
+  ads.run && ads.run();
+}
+
+
+ads.ready();
 ```
+
+
 
 Using a bootstrap file (take a look at [example-bootstrap.js](https://github.com/coop182/jquery.dfp.js/blob/master/example-bootstrap.js)):
 
@@ -151,9 +200,9 @@ $('selector').dfp({
     dfpID:'xxxxxxxxx',
     sizeMapping: {
         'my-default': [
-        	{browser: [1024, 768], ad_sizes: [980, 185]},
-	        {browser: [ 980, 600], ad_sizes: [[728, 90], [640, 480]]},
-	        {browser: [   0,   0], ad_sizes: [88, 31]}
+            {browser: [1024, 768], ad_sizes: [980, 185]},
+            {browser: [ 980, 600], ad_sizes: [[728, 90], [640, 480]]},
+            {browser: [   0,   0], ad_sizes: [88, 31]}
         ],
     }
 });
