@@ -33,14 +33,18 @@ In the example above the ID of the div elements will be used to look up a corres
 
 Configuration Script
 --------------------
-The whole library resides inside the `window.ads` object. The configuration for it resides in `config.js` file.
+The whole library resides inside the `window.ads` object. You should not have another `window.ads` in your application.
+
+The configuration setup is made in `config.js` file.
 
 The minimum configuration you need to set:
 - Ad slot sizes
 - DFP Network Id
 - Ad unit path
 
-Using the divs defined above, we'll set the `box` ad type to handle both 300x250 and 300x600 sizes, and then set serving from these ad units:
+
+Using the divs defined above, we'll set the `box` ad type to handle both 300x250, and `bigbox` both 300x250 and 300x600 sizes. We'll then serve ads from these ad units:
+
 
 ```html
 /21634433536/sports/right1
@@ -51,8 +55,7 @@ Using the divs defined above, we'll set the `box` ad type to handle both 300x250
 
 ```html
 //config.js
-var ads = { cmd:[], 
-      loaded:false,
+var ads = { 
       adTypesMap: [ { type:"box",  sizes: [300,250] } ],
       network: 21634433536
       }; 

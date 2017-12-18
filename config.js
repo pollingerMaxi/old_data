@@ -1,4 +1,4 @@
-var ads = { cmd:[], 
+var ads = { 
   // change to your own js location
   lib: "https://adcase.io/adcase.js?",
   
@@ -41,6 +41,7 @@ ads.ready = function(params) {
     var s = document.createElement('script');s.async = true; 
     s.src = ads.lib; document.head.appendChild(s); 
   } 
+  ads.cmd = ads.cmd || [];
   ads.cmd.push( {cmd:"run", path: ads.router(), manualSlotList: (params.slots || false) } ); 
   ads.run && ads.run();
 }
