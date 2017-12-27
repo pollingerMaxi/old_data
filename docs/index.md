@@ -13,6 +13,12 @@ You can use [this page](https://adcase.github.io/adcase.js/examples/simple.html)
 
 You can also use the [Google Console](https://support.google.com/dfp_sb/answer/181070?hl=en-GB) to debug your ad units. This is done by by adding a "google_console=1" or "google_debug=1" to the url, and toggling the console by pressing CTRL + F10. Subsequent pagerequests will not require the parameters, and the console can be toggled. Adding the querystring "googfc" to an url, will also load the console, but also show it, without having to press CTRL + F10.
 
+Ad Builder
+----------
+
+Once you have implemented DFP, you can use the [Ad Builder](https://adcase.io/builder) to build your HTML5 creatives.
+
+
 Page Setup
 ----------
 
