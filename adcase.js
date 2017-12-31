@@ -1,67 +1,84 @@
 
 // Load googletag library
-var googletag = { cmd:[] };
+/* to enable logs:
+
+javascript:sessionStorage.setItem('ads.showLog',true);
+javascript:sessionStorage.setItem('ads.showAdDetails',true);
+
+*/
+
+var googletag = {
+  cmd: []
+};
 var script = document.createElement('script');
 script.async = true;
 script.src = "https://www.googletagservices.com/tag/js/gpt.js";
 document.head.appendChild(script);
 
 ads.formats = [];
-ads.existingSlotIds = {}; // these should be destroyed before being called
+ads.existingSlotIds = {}; 
+ads.scrollTimeout = true;
+ads.printedSlots = {};
+ads.showLog = sessionStorage.getItem('ads.showLog');
+ads.showAdDetails = sessionStorage.getItem('ads.showAdDetails');
 
-var ev= null;
+var ev = null;
 
 ads.run = function() {
-  
+
+  ads.list = {};
+
   ads.setAdTypes();
   ads.adTexts = [];
-  ads.adSlotHandles = [];
-  //ads.adSlotList = [];
+  ads.adSlotHandles = {};
+  ads.adSlotHandlesWindows = {};
   ads.adEvents = [];
   ads.values = {};
 
+
   var cmd = ads.cmd;
   ads.cmd = [];
-  for(var c in cmd) {
-    if(cmd[c].cmd == "run") {
+  for (var c in cmd) {
+    if (cmd[c].cmd == "run") {
       ads.set("manualSlotList", cmd[c].manualSlotList);
-      ads.pageLoaded( "/" + ads.network + cmd[c].path);
+      ads.pageLoaded("/" + ads.network + cmd[c].path);
     }
   }
 }
 
 ads.checkDivList = function(divId, isManual) {
   var manualSlotList = ads.get("manualSlotList");
-  //console.log("check:"+divId,isManual,ads.get("manualSlotList"));
-  if(manualSlotList) {
+  if (manualSlotList) {
     // there is a list, check if divId is included
-    for(var i = 0; i < manualSlotList.length; i++) {
-      if(manualSlotList[i] == divId) {
+    for (var i = 0; i < manualSlotList.length; i++) {
+      if (manualSlotList[i] == divId) {
         return true;
       }
     }
     return false;
-  } 
+  }
   if (isManual) {
     // there is no list and current slot is set as manual
     return false;
-  } 
+  }
   // default call: No list, item normal
-  return true;  
-  
+  return true;
+
 }
 
 ads.setTargeting = function() {
-  
+
   var kv = ads.kv;
 
   googletag.pubads().clearTargeting();
-  if(ads.getDfpTestValue) {
+  if (ads.getDfpTestValue) {
     googletag.pubads().setTargeting("dfpTest", ads.getDfpTestValue);
   }
-  for(var i in kv) {
-    console.log("Page level Key-value",i,kv[i].toString());
-    googletag.pubads().setTargeting(i, kv[i].toString()); 
+  if(Object.keys(ads.kv).length > 0) {
+    ads.log("Page level Key-values", kv);
+  }
+  for (var i in kv) {
+    googletag.pubads().setTargeting(i, kv[i].toString());
   }
 
 }
@@ -70,165 +87,185 @@ ads.pageLoaded = function(path) {
 
   // PREPARE SLOTS
   ads.adSlotList = [];
+  ads.googleTagSlots = {};
   var divs = document.getElementsByTagName("ad-slot");
-  if(divs.length == 0) {
+  if (divs.length == 0) {
     divs = document.getElementsByClassName("ad-slot");
   }
 
-  for(var i = 0; i < divs.length; i++) { 
+  for (var i = 0; i < divs.length; i++) {
     var parent = divs.item(i);
     var adType = parent.dataset.adtype;
-    if(!ads.adTypes[adType]) {
-      console.log("**ERROR : COULD NOT FIND SIZE DEFINITION FOR " + adType);
+    if (!ads.adTypes[adType]) {
+      ads.log("%c**ERROR** : COULD NOT FIND SIZE DEFINITION FOR " + adType, "color:red");
       continue;
     }
 
-    if(!ads.checkDivList(parent.id, parent.dataset.manual)) {
+    if (!ads.checkDivList(parent.id, parent.dataset.manual)) {
       // if div is set as data-manual, and there is no specific slot list to run
       continue;
     }
-    //parent.style.display = "none";
 
-    while (parent.firstChild) { // reuse existing div
+    while (parent.firstChild) { // clean and reuse existing div
       parent.removeChild(parent.firstChild);
     }
-    if(adType == "interstitial") { // floating element
-      var newDiv = document.createElement("div");
-      newDiv.style.display = "none";
-      newDiv.className = 'interstitial';
-      newDiv.innerHTML = "<div id='"+parent.id+"_ad'></div>";  
 
-      document.body.appendChild(newDiv);
-    } else {
-      parent.innerHTML = "<div id='"+parent.id+"_ad'></div>";  
+    parent.style.overflow="hidden";
+    parent.innerHTML = "<div id='" + parent.id + "_ad'></div>";
+
+    if(ads.list[parent.id + "_ad"]) {
+      ads.log("%cSlot id \"" + parent.id + "\" is duplicated. Cancelling ads!", "background:red; font-size:large");
+      return false;
     }
-    
-    //parent.style.display = "none";
-    ads.adSlotList.push( { divId: parent.id + "_ad", 
-                           dfpPath: path + parent.id, 
-                           sizes: ads.adTypes[adType].sizes,
-                           adFormat: ads.adTypes[adType].adFormat });
+    ads.list[parent.id + "_ad"] = {
+      dfpPath: path + parent.id,
+      sizes: ads.adTypes[adType].sizes,
+      adFormat: ads.adTypes[adType].adFormat,
+    };
+    ads.adSlotList.push({
+      divId: parent.id + "_ad",
+      dfpPath: path + parent.id,
+      sizes: ads.adTypes[adType].sizes,
+      adFormat: ads.adTypes[adType].adFormat
+    });
   }
-  
+
 
 
   // Actual DFP slot creation
   googletag.cmd.push(function() {
-    if(!ads.get("manualSlotList")) {
-      googletag.destroySlots();  
+    if (!ads.get("manualSlotList")) {
+      googletag.destroySlots();
     }
-    
+
     for (var i in ads.adSlotList) {
       var d = ads.adSlotList[i];
-      googletag.defineSlot(d.dfpPath, d.sizes, d.divId).addService(googletag.pubads());
+      ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).addService(googletag.pubads());
     }
 
     for (var i in ads.adSlotList) {
       googletag.display(ads.adSlotList[i].divId);
     }
+    if (ads.lazy) {
+      ads.scroll();
+    }
 
   });
 }
 
-ads.set = function(k,v) { ads.values[k] = v; }
-ads.get = function(k) { return ads.values[k] || null; }
-
-
-
-window.addEventListener("message", _rm_Message, false);
-function _rm_Message(e)
-{
-
- //console.log("msg e.data:",e.data)
-  // TODO: catch window.top.postMessage({type: "_rm_ad", adType:"interstitial_800x600", bgColor: "#cccccc"}, "*"); that comes from creative, and paint the background
-  var eType = (e.data && e.data.type) ? e.data.type : "";
-  var adType = (e.data && e.data.adType) ? e.data.adType : "";
-//ads.lastEvent=e;
-    if (e.data.msg && e.data.msg=="registerAd"){
-      ads.formats.setWindow(e.data.format, e.source); 
-
-    } else if (e.data.msg && e.data.msg=="interstitialAdLoaded"){
-      if(e.data.params) {
-        console.log("--interstitial Loaded");
-        ads.formats.interstitial(e.data.params);
-      } else {
-        /*
-        var params = { width: e.data.width,
-                       height: e.data.height,
-                       bgColor: e.data.bgColor,
-                       autoclose: (e.data.autoclose || 8),
-                       closeIconURL: (e.data.closeIconURL || "/close.png"),
-                       windowSource: e.source
-                      }
-        ads.formats.interstitial(params);
-        */
-      }
-
-    } else if (e.data.msg && e.data.msg=="pushAdLoaded" && e.data.text){
-        console.log("--push Loaded");
-        //console.log("msg e.data:",e.data);
-        ads.adTexts.push({text:e.data.text, slotWindow:e.source});
-
-        ads.matchAds();
-    } else if (e.data.msg && e.data.msg=="expandSlot" && e.data.handle && (ads.adSlotHandles[e.data.handle] || e.data.handle==1)){
-        
-        console.log("msg e.data:",e.data);
-        if(e.data.handle==1) {
-          document.getElementById("adContent_ad").firstChild.style.height="250px";
-          document.getElementById("adContent_ad").style.height="250px";
-          console.log(250);
-        } else {
-          var slot = ads.adSlotHandles[e.data.handle];
-          slot.style.height="250px";
-        }
-    } else if (e.data.msg && e.data.msg=="collapseSlot" && e.data.handle && (ads.adSlotHandles[e.data.handle] || e.data.handle==1)){
-        console.log("msg e.data:",e.data);
-        if(e.data.handle==1) {
-          document.getElementById("adContent_ad").firstChild.style.height="90px";
-          document.getElementById("adContent_ad").style.height="90px";
-          console.log(90);
-        } else {
-          var slot = ads.adSlotHandles[e.data.handle];
-          slot.style.height="90px";
-        }
-    }
+ads.set = function(k, v) {
+  ads.values[k] = v;
+}
+ads.get = function(k) {
+  return ads.values[k] || null;
 }
 
-ads.slotRendered = function (adEvent) {
-  var id = adEvent.slot.getSlotElementId();
+ads.setAdSlotWindow = function(divId, slotWindow) {
+  for (var i in ads.adSlotList) {
+    if (ads.adSlotList[i].divId == divId) {
+      ads.adSlotList[i].slotWindow = slotWindow;
+    }
+  }
+}
 
-  // check if there is a custom event defined
-  var parentId = document.getElementById(id).parentElement.id;
-  if(ads.slotRenderedCallback[parentId]) {
-    //console.log("call SlotRendered de"+parentId);
-    ads.slotRenderedCallback[parentId](adEvent);
+ads.readMessage = function(e) {
+  var msg = (e.data && e.data.msg) ? e.data.msg : "";
+  if (msg == "adcase") {
+    var format = (e.data && e.data.format) ? e.data.format : false;
+    if (format && ads.formats[format] && ads.formats[format].msg) {
+      e.data.params = e.data.params || {};
+      e.data.params.adSlot = false;
+      if(e.data.params.handle && ads.adSlotHandles[e.data.params.handle]) {
+        e.data.params.adSlot = ads.adSlotHandles[e.data.params.handle];
+      }
+      ads.formats[format].msg(e.data.params, e.source);
+    }
+  }
+}
+window.addEventListener("message", ads.readMessage, false);
+
+ads.showAdDetails = function(event) {
+  var divId = event.slot.getSlotElementId();
+  var div = document.getElementById(divId);
+  var network = event.slot.getAdUnitPath().split("/")[1];
+  var orderURL = "https://www.google.com/dfp/"+network+"?#delivery/OrderDetail/orderId="+event.campaignId;
+  var lineItemURL = "https://www.google.com/dfp/"+network+"?#delivery/LineItemDetail/lineItemId="+event.lineItemId;
+  var creativeURL = "https://www.google.com/dfp/"+network+"?#delivery/CreativeDetail/creativeId="+event.creativeId;
+
+  var logHTML = "<table style='margin:0 auto;background-color:white;'>" 
+                +"<tr><td style='text-align:left' colspan=2><b>" + div.parentElement.id + "</b>: " + event.slot.getAdUnitPath() +"</td></tr>"
+                +"<tr><td width=10 style='text-align:left'>Size:</td><td style='text-align:left'>" + event.size[0] + " x " + event.size[1] +"</td></tr>"
+                +"<tr><td style='text-align:left'>Advertiser:</td><td style='text-align:left'>" + event.advertiserId +"</td></tr>"
+                +"<tr><td style='text-align:left'>Order:</td><td style='text-align:left'><a href='"+orderURL+"' target=_blank>"+event.campaignId+"</a></td></tr>" 
+                +"<tr><td style='text-align:left'>LineItem:</td><td style='text-align:left'><a href='"+lineItemURL+"' target=_blank>"+event.lineItemId+"</a></td></tr>" 
+                +"<tr><td style='text-align:left'>Creative:</td><td style='text-align:left'><a href='"+creativeURL+"' target=_blank>"+event.creativeId+"</a></td></tr>" 
+//                +"<br>Targeting: " + event.slot.getTargetingKeys() 
+
+               +"</table>"
+
+  div.parentElement.style.position = "relative";
+  newDiv=document.createElement("div");
+  newDiv.style.position="absolute";
+  newDiv.style.top=0;
+  newDiv.style.fontSize="11px";
+  newDiv.style.textAlign="center";
+  newDiv.style.zIndex=10000;
+  newDiv.style.opacity=0.9;
+  newDiv.style.width="100%";
+  newDiv.style.height="100%";
+  newDiv.innerHTML = logHTML;
+  div.parentElement.appendChild(newDiv);
+}
+ads.slotRendered = function(event) {
+  var divId = event.slot.getSlotElementId();
+  var div = document.getElementById(divId);
+  if(ads.showAdDetails) {
+    ads.showAdDetails(event);
   }
 
-  //console.log("SlotRendered Format",ads.getFormatFromDivId(id),id,adEvent);
 
-  if(ads.getFormatFromDivId(id) == "expand970x250"){
-    if(adEvent.size[1]==250) {
-            //console.log("-------------push slot rendered");
-            ads.adEvents.push(adEvent);
-            ads.matchAds();
-      ads.runPush_970x250(document.getElementById(id), {});
+  var parentId = document.getElementById(divId).parentElement.id;
+  var adFormat = ads.list[divId].adFormat;
+  var params = {
+    div: div,
+    containerDiv: div.parentElement,
+    width: event.size[0],
+    height: event.size[1],
+    event: event
+  };
+  if (!event.isEmpty) {
+    if(ads.showLog) {
+      var logTxt = { " path": event.slot.getAdUnitPath(),
+                     advertiserId: event.advertiserId, 
+                     orderId: event.campaignId,
+                     lineItemId: event.lineItemId,
+                     creativeId: event.creativeId,
+                     sizeWidth: event.size[0],
+                     sizeHeight: event.size[1],
+                     slotTargeting: event.slot.getTargetingKeys()
+                    };
+      ads.log(logTxt);
+    }
 
-    } 
-  } else {
-//    console.log("slotRenderedEvent - unknown slot", id,adEvent);
+    div.parentElement.style.display = 'block';
+    div.parentElement.style.width = "100%"; 
+    if (ads.formats[adFormat] && ads.formats[adFormat].rendered) {
+      ads.formats[adFormat].rendered(params);
+    }
+  }
 
+  if (ads.slotRenderedCallback[parentId]) {
+    ads.slotRenderedCallback[parentId](adEvent);
   }
 }
 
 
 ads.matchAds = function() {
-  console.log("matchads");
-    for(var i in ads.adTexts) {
+  for (var i in ads.adTexts) {
     var text = ads.adTexts[i].text;
-    //console.log(text);
-    for(var j in text.split(/\r\n|\r|\n/)) {
+    for (var j in text.split(/\r\n|\r|\n/)) {
       j2 = text.split("\n")[j].split("=");
-      if(j2[1] && j2[1]>10000) {
+      if (j2[1] && j2[1] > 10000) {
         ads.searchSlots(j2[1], ads.adTexts[i].slotWindow);
       }
     }
@@ -237,13 +274,14 @@ ads.matchAds = function() {
 }
 
 ads.searchSlots = function(param, slotWindow) {
-  for(var i in ads.adEvents) {
+  for (var i in ads.adEvents) {
     var slot = ads.adEvents[i].slot;
-    for(var j in slot) {
+    for (var j in slot) {
       if (slot[j] == param && !ads.adEvents[i].slotWindow) {
         ads.adEvents[i].slotWindow = slotWindow;
-        var handle = Math.round(Math.random()*10000000) + 10000000;
+        var handle = Math.round(Math.random() * 10000000) + 10000000;
         ads.adSlotHandles[handle] = document.getElementById(slot.getSlotElementId());
+        ads.adSlotHandlesWindows[handle] = slotWindow;
         var adParams = ads.styles.expand970x250;
         adParams.setSlotHandle = handle;
         slotWindow.postMessage(adParams, "*");
@@ -256,21 +294,19 @@ ads.searchSlots = function(param, slotWindow) {
 
 ads.getFormatFromDivId = function(divId) {
   var adFormat = null;
-  for(var i in ads.adSlotList) {
-    if(ads.adSlotList[i].divId == divId && ads.adSlotList[i].adFormat) {
+  for (var i in ads.adSlotList) {
+    if (ads.adSlotList[i].divId == divId && ads.adSlotList[i].adFormat) {
       adFormat = ads.adSlotList[i].adFormat;
       break;
     }
   }
   return adFormat;
 }
-ads.getDivIdFromFormat = function (format) {
+ads.getDivIdFromFormat = function(format) {
   var divId = null;
-  console.log("ads.adSlotList", ads.adSlotList);
 
-  for(var i in ads.adSlotList) {
-    if(ads.adSlotList[i].adFormat == format) {
-      console.log(ads.adSlotList[i].adFormat);
+  for (var i in ads.adSlotList) {
+    if (ads.adSlotList[i].adFormat == format) {
       divId = ads.adSlotList[i].divId;
       break;
     }
@@ -278,47 +314,41 @@ ads.getDivIdFromFormat = function (format) {
   return divId;
 }
 
-ads.formats.setWindow = function(format, windowHandle) { 
-  console.log("setWindow", format, windowHandle);
-  ads.set("window-"+format, windowHandle);
-}
-
-ads.formats.getWindow = function(format) { 
-  console.log("getWindow", format);
-  ads.get("window-"+format);
-}
-
 /* convert adTypesMap into adTypes */
 ads.setAdTypes = function() {
   ads.setDevice();
 
-  if(!ads.adTypesMap) {
+  if (!ads.adTypesMap) {
     return;
   }
   ads.adTypes = {};
 
-  for(var i in ads.adTypesMap) {
+  for (var i in ads.adTypesMap) {
     let t = ads.adTypesMap[i];
     t.minWidth = t.minWidth || 0;
-    
+
     // check device type
-    if(t.deviceType) {
-      if( ads.device.isMobile && t.deviceType.toLowerCase().indexOf("mobile")<0 ||
-          ads.device.isDesktop && t.deviceType.toLowerCase().indexOf("desktop")<0) {
+    if (t.deviceType) {
+      if (ads.device.isMobile && t.deviceType.toLowerCase().indexOf("mobile") < 0 ||
+        ads.device.isDesktop && t.deviceType.toLowerCase().indexOf("desktop") < 0) {
         continue;
-      } 
+      }
     }
-    
+
     // check screen size
     let width = window.innerWidth;
-    if(t.minWidth && t.minWidth > window.innerWidth) {
+    if (t.minWidth && t.minWidth > window.innerWidth) {
       continue;
     }
 
     // add current config to adTypes. 
-    if(!ads.adTypes[t.type] || ads.adTypes[t.type].minWidth < t.minWidth) { 
+    if (t.minWidth == 0 || (ads.adTypes[t.type] && ads.adTypes[t.type].minWidth && ads.adTypes[t.type].minWidth < t.minWidth)) {
       // Replaces only if current minWith > last one
-      ads.adTypes[t.type] = { sizes:t.sizes, adFormat: (t.adFormat || false), minWidth: t.minWidth }
+      ads.adTypes[t.type] = {
+        sizes: t.sizes,
+        adFormat: (t.adFormat || false),
+        minWidth: t.minWidth
+      }
     }
   }
 
@@ -326,55 +356,83 @@ ads.setAdTypes = function() {
 }
 
 ads.setDevice = function() {
-  ads.device = { 
-    isMobile : (/Mobi/.test(navigator.userAgent)),
-    isTablet : (screen.width<800 || screen.height<800),
+  ads.device = {
+    isMobile: (/Mobi/.test(navigator.userAgent)),
+    isTablet: (screen.width < 800 || screen.height < 800),
     isDesktop: !(/Mobi/.test(navigator.userAgent))
   }
 }
 
-ads.setAdTypes();
+ads.scroll = function() {
+  ads.scrollTimeout = false;
+  setTimeout(function() {
+    ads.scrollTimeout = true;
+  }, 100);
 
-// SETUP PAGE PARAMETERS
+  for (var i in ads.adSlotList) {
+    var d = ads.adSlotList[i];
+    if (ads.elementInViewport(document.getElementById(d.divId)) && !ads.printedSlots[d.divId]) {
+
+      ads.printedSlots[d.divId] = true;
+      ads.log(d.divId + " scroll");
+      ads.refresh(d.divId);
+    }
+  }
+}
+
+ads.elementInViewport = function(el) {
+  var rect = el.getBoundingClientRect()
+
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.top <= (window.innerHeight || document.documentElement.clientHeight)
+  ) || (rect.top < 0 && rect.top > -300)
+}
+
+ads.refresh = function(divId) {
+  ads.log("Refresh divId:" + divId);
+  googletag.cmd.push(function() {
+    googletag.pubads().refresh([ads.googleTagSlots[divId]])
+  })
+}
+
+if (ads.lazy) {
+  window.addEventListener("scroll", function() {
+    if (ads.scrollTimeout) {
+      ads.scroll()
+    }
+  });
+}
+
+
 googletag.cmd.push(function() {
   googletag.destroySlots();
-  
+
   ads.setTargeting();
 
-  googletag.pubads().addEventListener('slotRenderEnded', function(event) {
-    var div = document.getElementById(event.slot.getSlotElementId());
-    var adType = div.parentElement.dataset.adtype;  // zocalo_mobile
-    var adFormat = "default";
-    var params = { div: div, containerDiv: div.parentElement, adType: adType, width: event.size[0], height: event.size[1], event:event } 
-    
-    // in case there is a predefined format, like #7 footerFixed
-    div.parentElement.style.display = 'block';
-    div.parentElement.style.width = "100%";//event.size[0]+"px";
-
-    if (!event.isEmpty) {
-      if(ads.adTypes[adType] && ads.adTypes[adType].adFormat && ads.formats[ads.adTypes[adType].adFormat]) {
-        adFormat = ads.adTypes[adType].adFormat;
-        if(adFormat!="interstitial") {
-          params.adFormat = adFormat;
-          ads.formats[adFormat](params);
-        }
+  googletag.pubads().addEventListener('slotRenderEnded',
+    function(event) {
+      ads.adEvents.push(event);
+      ads.slotRendered(event);
     }
-        //div.parentElement.style.height = event.size[1]+"px";
-       
-
-
-//console.log("call ads.slotRendered",event);
-    ads.slotRendered(event);
-
-    }
-  //  console.log({action:"RenderAd", slotId:div.id, width:event.size[0], height:event.size[1], event:event })
-  });
+  );
   googletag.pubads().setCentering(true);
   googletag.pubads().collapseEmptyDivs();
   googletag.pubads().enableAsyncRendering();
-  googletag.pubads().enableSingleRequest(); 
+  googletag.pubads().enableSingleRequest();
+  if (ads.lazy) {
+    googletag.pubads().disableInitialLoad();
+  }
   googletag.enableServices();
 });
+
+ads.log = function() { 
+  if(!ads.showLog) {
+    return (function() {})
+  } 
+  return Function.prototype.bind.call(console.log);
+}();
 
 ads.formats.footerFixed = function(params) {
   console.log("This is footerFixed",params);
@@ -396,8 +454,25 @@ ads.formats.footerFixed = function(params) {
   if(params.height == 250) {
     // Expanding mouseover footer
     var w = ads.formats.getWindow("footerFixed");
-    div.addEventListener("mouseover", function() { document.getElementById("footerFixed-adText").style.display="none"; containerDiv.style.height = "250px"; }, false);
-    div.addEventListener("mouseout", function() { document.getElementById("footerFixed-adText").style.display=""; containerDiv.style.height = "90px"; }, false);
+    div.addEventListener("mouseover", 
+      function() { 
+        document.getElementById("footerFixed-adText").style.display="none"; 
+        containerDiv.style.height = "250px"; 
+
+        let slotWindow = ads.getHandleWindowFromDivId("zocalo_desktop_ad");
+        if(slotWindow) {
+          slotWindow.postMessage({ msg: "expandSlot" }, "*");
+        } else {
+          console.log("**No slotWindow for div "+div.id,div);
+        }
+      }
+
+      , false);
+    div.addEventListener("mouseout", 
+      function() { 
+        document.getElementById("footerFixed-adText").style.display=""; 
+        containerDiv.style.height = "90px"; }
+      , false);
     containerDiv.style.height = "90px";
   }
   window.setTimeout(function() { document.getElementById("footerFixed-adText").style.display="";  }, 3000);
@@ -415,20 +490,27 @@ ads.formats.footerFixed = function(params) {
   containerDiv.appendChild(div);
   containerDiv.style.display = "block"
 };
-ads.formats.interstitial = function(params) {
 
+ads.getHandleWindowFromDivId = function(divId) {
+for(var handle in ads.adSlotHandles) {
+    if(ads.adSlotHandles[handle].id == divId) {
+      return ads.adSlotHandlesWindows[handle];
+    }
+  }
+  return false;
+}
+ads.formats.interstitial = {}
+
+ads.formats.interstitial.msg = function(params) {
 
   var divId = ads.getDivIdFromFormat("interstitial");
-
-  console.log("******interstitial divId:" + divId);
-  console.log("params:" , params);
-
 
   var div = document.getElementById(divId);
   var parent = div.parentElement;
   div.style.position = "fixed";
   div.style.left = "0px";
   div.style.top = "0px";
+  if(!params.backgroundColor || params.backgroundColor=="") { params.backgroundColor = "white"; }
   div.style.backgroundColor = params.backgroundColor;
   div.style.width = "100%";
   div.style.height = "100%";
@@ -458,7 +540,7 @@ if(params.width == 9999) {
     ads.resizeEventTimeout = ads.resizeEventTimeout || false;
     window.clearTimeout(ads.resizeEventTimeout);
     ads.resizeEventTimeout = window.setTimeout(function() { 
-      //console.log("called windowSize");
+
       var w = window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
       var h = window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
       params.windowSource.postMessage({ msg: "setSize", width: w, height: h}, "*");
@@ -495,10 +577,8 @@ if(params.width == 9999) {
   +"right:" + iconRight + "px; top:" + iconTop + "px;z-index:10000;cursor:pointer' onclick='document.getElementById(\"" + div.id + '").style.display="none";document.body.style.overflow="";document.getElementById("' + div.id + "\").innerHTML=\"\"'>"
   + ads.styles.interstitial.img + "</div>";
   div.appendChild(iconDiv);
-  console.log("iconDiv"+iconDiv);
 
   window.clearTimeout(ads.interstitialTimeout);
-  console.log("autoclose",params.autoclose);
   if(params.autoclose > 0) {
     ads.interstitialTimeout = window.setTimeout(function() { 
      // parent.style.display = "none";
@@ -509,15 +589,24 @@ if(params.width == 9999) {
   window.setTimeout(function() { document.getElementById("interstitialIconDiv") && (document.getElementById("interstitialIconDiv").style.display=""); }, 500); // show [X]
 }
 
-ads.runPush_970x250 = function(containerDiv, data) {
+ads.formats.push = {};
 
-  containerDiv.classList.remove("expandable");
-  //containerDiv.addEventListener("mouseover", function(){ ads.set("push_mouseOver", containerDiv); });
-//  containerDiv.style.height="250px";
-  containerDiv.style.overflow="hidden";
-  containerDiv.style.transition="height 0.25s ease-in";
-  containerDiv.style.height="90px";
-
+ads.formats.push.msg = function(params, slotWindow) {
+  var adSlot = params.adSlot;
+  if(params.action == "pushLoaded") {
+    ads.adTexts.push({text:params.text, slotWindow: slotWindow});
+    ads.matchAds();
+  } 
+  if(adSlot) {
+  if(params.transition) {
+    adSlot.parentElement.style.transition = "height "+(params.transition/1000)+"s ease-in"; 
+  }
+  if(params.action == "collapse") {
+    adSlot.parentElement.style.height = "90px"; 
+    } else if(params.action == "expand") {
+    adSlot.parentElement.style.height = "250px"; 
+  }
+  }   
 }
 
 ads.styles = ads.styles || {};
