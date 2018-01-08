@@ -1,5 +1,5 @@
 //
-// Adcase.js JavaScript Library v8.1.1. 2/Jan/2018
+// Adcase.js JavaScript Library v8.1.4. 2/Jan/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://jquery.io/license 
@@ -13,7 +13,6 @@ javascript:sessionStorage.setItem('ads.showLog',true);
 javascript:sessionStorage.setItem('ads.showAdDetails',true);
 
 */
-console.log("core.js 8.1.3");
 if(document.location.href.toLowerCase().indexOf("showdfpdebug")>0) {
   sessionStorage.setItem('ads.showAdDetails',1);  
   sessionStorage.setItem('ads.showLog',1);
@@ -140,6 +139,8 @@ ads.pageLoaded = function(path) {
     ads.id[d].sizes = ads.adTypes[adType].sizes;
     ads.id[d].format = format;
     ads.id[d].startDisplay();
+    
+    ads.adSlotList.push (ads.id[d]);
   }
 
 
@@ -164,6 +165,8 @@ ads.pageLoaded = function(path) {
 
   });
 }
+ads.adSlotList = [];
+
 ads.formats.default = function (t) { };
 ads.formats.footerFixed = function (t) { };
 
@@ -190,15 +193,15 @@ ads.readMessage = function(e) {
     var format = (e.data && e.data.format) ? e.data.format : false;
     e.data.params = e.data.params || {};
     if(e.data.params.handle && e.data.params.handle > 1) {
-console.log("MSG Format 0   :",e.data)
+//console.log("MSG Format 0   :",e.data)
       ads.id[ads.getIdFromHandle(e.data.params.handle)].msg(e.data.params);  
     } else if (e.data.params.text){
-console.log("MSG Format 1   :",e.data)
+//console.log("MSG Format 1   :",e.data)
       console.log("e.data.params.text",e.data.params.text);
       ads.adTexts.push({text:e.data.params.text, slotWindow: e.source});
       ads.matchAds();
     } else if (format) {
-console.log("MSG Format 2   :",format,ads.id[ads.getIdFromFormat(format)], e.data)
+//console.log("MSG Format 2   :",format,ads.id[ads.getIdFromFormat(format)], e.data)
       ads.id[ads.getIdFromFormat(format)].msg(e.data.params);  
 
     }
@@ -612,15 +615,16 @@ ads.formats.push = function(t) {
 
   t.msg = function(p) {
 
-    if(p.transition) {
-      t.parentSlot.style.transition = "height "+(p.transition/1000)+"s ease-in";  
-    }
+    t.parentSlot.style.overflow = "hidden";
+  if(p.transition) {
+    t.parentSlot.style.transition = "height "+(p.transition/1000)+"s ease-in;"; 
+  }
 
-    if(p.action == "collapse") {
+  if(p.action == "collapse") {
       t.parentSlot.style.height = "90px"; 
     } else if(p.action == "expand") {
       t.parentSlot.style.height = "250px"; 
-    }
+  }
   }
 
 }
@@ -633,7 +637,6 @@ ads.styles.expand970x250 = ads.styles.expand970x250 || {iconsStyle : "width:45px
                             openIconHTML: "Abrir",
                             closeIconHTML: "Cerrar"
                           }
-
 
 console.log("adcase v8.1.3");
 
