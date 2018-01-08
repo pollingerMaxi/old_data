@@ -66,10 +66,8 @@ tpl.syncSize = function() {
         }, [[transitionTimeMs]]);
 
     }
-    if(tpl.slotHandle > 1) {
-      window.top.postMessage({ msg: "adcase", format:"push", 
+    window.top.postMessage({ msg: "adcase", format:"push", 
             params: { handle: tpl.slotHandle, action: (tpl.expanded?"expand":"collapse"), transition: [[transitionTimeMs]] }}, "*");
-    }
 }
 
 if(autoClose > 0) {

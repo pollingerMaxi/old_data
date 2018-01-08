@@ -10,7 +10,7 @@ table { width:90%;}
 
 <div class="row mt-5">
 <div class='col-lg-12 col-md-12'>
-    <p class="h5 left" style='margin-top:14px'>Interstitial</p>
+    <p class="h5 left" style='margin-top:14px'>Interstitial - Tag</p>
 </div></div>
 
 <div class="row">
@@ -19,10 +19,17 @@ table { width:90%;}
 <br>
 
 	<table>
-		<input type="hidden" name="format" value='interstitial'>
+		<input type="hidden" name="format" value='interstitial-tag'>
 
-		<tr><td>HTML5 zip or image:</td>
-			<td><input type="file" name='zipfile'></td></tr>
+
+	<tr><td>HTML tag:</td></tr>
+	<tr><td colspan=2><textarea name='html_tag' style='height:300px'>
+<center>
+This is an example.
+
+The creative should not have a close button.
+</center>
+</textarea></td></tr>
 
 		<tr><td>Size:</td>
 			<td><select type="text" id='interstitial_size' name="size" class="form-control">

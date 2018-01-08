@@ -98,9 +98,11 @@ function go(url) {
 <td style="width:300px" valign="top">
 <ul class="list-group">
   <li class="list-group-item title" style="background-color: white; color: black;">Rich Media Formats</li>
+  <li onclick='go("html5")' id="100" class="list-group-item"><span>100</span> HTML5</li>
   <li onclick='go("push970x90x250")' id="101" class="list-group-item"><span>101</span> 970x90-250 Push</li>
-  <li onclick='go("push970x90x250tag")' id="102" class="list-group-item"><span>102</span> 970x90-250 push, external tag</li>
+  <li onclick='go("push970x90x250tag")' id="102" class="list-group-item"><span>102</span> 970x90-250 push (tag)</li>
   <li onclick='go("interstitial")' id="103" class="list-group-item"><span>103</span> Interstitial</li>
+  <li onclick='go("interstitial-tag")' id="104" class="list-group-item"><span>104</span> Interstitial (tag)</li>
 <!--  <li onclick='go("footer")' id="104" class="list-group-item"><span>104</span> Fixed Footer</li>-->
 <!--
   <li id="104" class="list-group-item" style="background-color: white; color: black;"><span>104</span> Lateral banner</li>

@@ -1,5 +1,5 @@
 //
-// Adcase.js JavaScript Library v8.1.2. 4/Jan/2018
+// Adcase.js JavaScript Library v8.1.1. 2/Jan/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://jquery.io/license 
@@ -13,7 +13,7 @@ javascript:sessionStorage.setItem('ads.showLog',true);
 javascript:sessionStorage.setItem('ads.showAdDetails',true);
 
 */
-console.log("core.js");
+console.log("core.js 8.1.3");
 if(document.location.href.toLowerCase().indexOf("showdfpdebug")>0) {
   sessionStorage.setItem('ads.showAdDetails',1);  
   sessionStorage.setItem('ads.showLog',1);
@@ -29,7 +29,7 @@ script.async = true;
 script.src = "https://www.googletagservices.com/tag/js/gpt.js";
 document.head.appendChild(script);
 
-ads.formats = [];
+ads.formats = {};
 ads.existingSlotIds = {}; 
 ads.scrollTimeout = true;
 ads.printedSlots = {};
@@ -40,15 +40,12 @@ var ev = null;
 
 ads.run = function() {
 
-  ads.list = {};
+  ads.id = {};
 
   ads.setAdTypes();
   ads.adTexts = [];
-  ads.adSlotHandles = {};
-  ads.adSlotHandlesWindows = {};
   ads.adEvents = [];
   ads.values = {};
-
 
   var cmd = ads.cmd;
   ads.cmd = [];
@@ -100,7 +97,6 @@ ads.setTargeting = function() {
 ads.pageLoaded = function(path) {
 
   // PREPARE SLOTS
-  ads.adSlotList = [];
   ads.googleTagSlots = {};
   var divs = document.getElementsByTagName("ad-slot");
   if (divs.length == 0) {
@@ -114,10 +110,8 @@ ads.pageLoaded = function(path) {
       ads.log("%c**ERROR** : COULD NOT FIND SIZE DEFINITION FOR " + adType, "color:red");
       continue;
     }
-    var adFormat = ads.adTypes[adType].adFormat;
-    if(ads.formats[adFormat] && ads.formats[adFormat].config && ads.formats[adFormat].config["startHidden"]) {
-      parent.style.display = "none";
-    }
+    
+    var format = ads.adTypes[adType].adFormat || "default";
 
     if (!ads.checkDivList(parent.id, parent.dataset.manual)) {
       // if div is set as data-manual, and there is no specific slot list to run
@@ -131,21 +125,21 @@ ads.pageLoaded = function(path) {
     parent.style.overflow="hidden";
     parent.innerHTML = "<div id='" + parent.id + "_ad'></div>";
 
-    if(ads.list[parent.id + "_ad"]) {
+    if(ads.id[parent.id + "_ad"]) {
       ads.log("%cSlot id \"" + parent.id + "\" is duplicated. Cancelling ads!", "background:red; font-size:large");
       return false;
     }
-    ads.list[parent.id + "_ad"] = {
-      dfpPath: path + parent.id,
-      sizes: ads.adTypes[adType].sizes,
-      adFormat: adFormat,
-    };
-    ads.adSlotList.push({
-      divId: parent.id + "_ad",
-      dfpPath: path + parent.id,
-      sizes: ads.adTypes[adType].sizes,
-      adFormat: adFormat
-    });
+    
+    var d = parent.id + "_ad";
+    ads.id[d] = new ads.instanceAd(format);
+    ads.id[d].slot = document.getElementById(d);
+    ads.id[d].parentSlot = parent;
+    ads.id[d].parentId = parent.id;
+    ads.id[d].divId = d;
+    ads.id[d].dfpPath = path + parent.id 
+    ads.id[d].sizes = ads.adTypes[adType].sizes;
+    ads.id[d].format = format;
+    ads.id[d].startDisplay();
   }
 
 
@@ -156,13 +150,13 @@ ads.pageLoaded = function(path) {
       googletag.destroySlots();
     }
 
-    for (var i in ads.adSlotList) {
-      var d = ads.adSlotList[i];
+    for (var i in ads.id) {
+      var d = ads.id[i];
       ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).addService(googletag.pubads());
     }
 
-    for (var i in ads.adSlotList) {
-      googletag.display(ads.adSlotList[i].divId);
+    for (var i in ads.id) {
+      googletag.display(ads.id[i].divId);
     }
     if (ads.lazy) {
       ads.scroll();
@@ -170,6 +164,18 @@ ads.pageLoaded = function(path) {
 
   });
 }
+ads.formats.default = function (t) { };
+ads.formats.footerFixed = function (t) { };
+
+ads.instanceAd = function(format) {
+  console.log("FORMAT: ",format);
+  this.values={};
+  this.set = function(name,value) { this.values[name]=value; return this; };
+  this.get = function(name) { return (this.values[name]!=null?this.values[name]:null); }
+  this.msg = function(){ console.log("msg not set for "+format); }
+  ads.formats[format](this);
+  this.startDisplay = function() { this.parentSlot.style.display = (this.get("startDisplay") || ""); }
+} 
 
 ads.set = function(k, v) {
   ads.values[k] = v;
@@ -178,25 +184,23 @@ ads.get = function(k) {
   return ads.values[k] || null;
 }
 
-ads.setAdSlotWindow = function(divId, slotWindow) {
-  for (var i in ads.adSlotList) {
-    if (ads.adSlotList[i].divId == divId) {
-      ads.adSlotList[i].slotWindow = slotWindow;
-    }
-  }
-}
-
 ads.readMessage = function(e) {
   var msg = (e.data && e.data.msg) ? e.data.msg : "";
   if (msg == "adcase") {
     var format = (e.data && e.data.format) ? e.data.format : false;
-    if (format && ads.formats[format] && ads.formats[format].msg) {
-      e.data.params = e.data.params || {};
-      e.data.params.adSlot = false;
-      if(e.data.params.handle && ads.adSlotHandles[e.data.params.handle]) {
-        e.data.params.adSlot = ads.adSlotHandles[e.data.params.handle];
-      }
-      ads.formats[format].msg(e.data.params, e.source);
+    e.data.params = e.data.params || {};
+    if(e.data.params.handle && e.data.params.handle > 1) {
+console.log("MSG Format 0   :",e.data)
+      ads.id[ads.getIdFromHandle(e.data.params.handle)].msg(e.data.params);  
+    } else if (e.data.params.text){
+console.log("MSG Format 1   :",e.data)
+      console.log("e.data.params.text",e.data.params.text);
+      ads.adTexts.push({text:e.data.params.text, slotWindow: e.source});
+      ads.matchAds();
+    } else if (format) {
+console.log("MSG Format 2   :",format,ads.id[ads.getIdFromFormat(format)], e.data)
+      ads.id[ads.getIdFromFormat(format)].msg(e.data.params);  
+
     }
   }
 }
@@ -240,7 +244,7 @@ ads.slotRendered = function(event) {
   var divId = event.slot.getSlotElementId();
   var div = document.getElementById(divId);
   var parentId = document.getElementById(divId).parentElement.id;
-  var adFormat = ads.list[divId].adFormat;
+  var adFormat = ads.id[divId].format;
 
   if(ads.showAdDetails) {
     ads.layerAdDetails(event, {adFormat: adFormat} );
@@ -255,7 +259,6 @@ ads.slotRendered = function(event) {
     event: event
   };
   if (!event.isEmpty) {
-//    div.parentElement.style.width = event.size[0]+"px";
     if(ads.showLog) {
       var logTxt = { " path": event.slot.getAdUnitPath(),
                      advertiserId: event.advertiserId, 
@@ -266,18 +269,14 @@ ads.slotRendered = function(event) {
                      sizeHeight: event.size[1],
                      slotTargeting: event.slot.getTargetingKeys()
                     };
-      //ads.log(logTxt);
     }
 
-    //div.parentElement.style.width = "100%"; 
-    if(ads.formats[adFormat] && ads.formats[adFormat].config && ads.formats[adFormat].config["startHidden"]) {
-      div.parentElement.style.display = "none";
-    } else {
-      div.parentElement.style.display = '';
+    ads.id[divId].startDisplay();
+
+    if (ads.id[divId].rendered) {
+      ads.id[divId].rendered(params);
     }
-    if (ads.formats[adFormat] && ads.formats[adFormat].rendered) {
-      ads.formats[adFormat].rendered(params);
-    }
+
   }
 
   if (ads.slotRenderedCallback[parentId]) {
@@ -306,8 +305,9 @@ ads.searchSlots = function(param, slotWindow) {
       if (slot[j] == param && !ads.adEvents[i].slotWindow) {
         ads.adEvents[i].slotWindow = slotWindow;
         var handle = Math.round(Math.random() * 10000000) + 10000000;
-        ads.adSlotHandles[handle] = document.getElementById(slot.getSlotElementId());
-        ads.adSlotHandlesWindows[handle] = slotWindow;
+        ads.id[slot.getSlotElementId()].set("handle" ,handle);
+        ads.id[slot.getSlotElementId()].set("window" ,slotWindow);
+
         var adParams = ads.styles.expand970x250;
         adParams.setSlotHandle = handle;
         slotWindow.postMessage(adParams, "*");
@@ -318,26 +318,19 @@ ads.searchSlots = function(param, slotWindow) {
   return false;
 }
 
-ads.getFormatFromDivId = function(divId) {
-  var adFormat = null;
-  for (var i in ads.adSlotList) {
-    if (ads.adSlotList[i].divId == divId && ads.adSlotList[i].adFormat) {
-      adFormat = ads.adSlotList[i].adFormat;
-      break;
+ads.getIdFromHandle = function(handle) {
+  for(var i in ads.id) {
+    if(ads.id[i].get("handle") == handle) {
+      return i;
     }
   }
-  return adFormat;
 }
-ads.getDivIdFromFormat = function(format) {
-  var divId = null;
-
-  for (var i in ads.adSlotList) {
-    if (ads.adSlotList[i].adFormat == format) {
-      divId = ads.adSlotList[i].divId;
-      break;
+ads.getIdFromFormat = function(format) {
+  for(var i in ads.id) {
+    if(ads.id[i].format == format) {
+      return i;
     }
   }
-  return divId;
 }
 
 /* convert adTypesMap into adTypes */
@@ -395,9 +388,9 @@ ads.scroll = function() {
     ads.scrollTimeout = true;
   }, 100);
 
-  for (var i in ads.adSlotList) {
-    var d = ads.adSlotList[i];
-    if (ads.elementInViewport(document.getElementById(d.divId)) && !ads.printedSlots[d.divId]) {
+  for (var i in ads.id) {
+    var d = ads.id[i];
+    if (ads.elementInViewport(d.slot) && !ads.printedSlots[d.divId]) {
 
       ads.printedSlots[d.divId] = true;
       ads.log(d.divId + " scroll");
@@ -461,17 +454,16 @@ ads.log = function() {
 }();
 
 
-ads.formats.footerFixed = {};//ads.defaultFormat;
+ads.formats.footerFixed = function(t) {
 
-ads.formats.footerFixed.config = { startHidden: true };
+  t.set("startDisplay", "none");
 
-ads.formats.footerFixed.rendered = function(params) {
-  console.log("************This is footerFixed",params);
+  t.rendered = function(params) {
 
-  var div = params.div;
+  var div = t.slot;
   div.style.display = "inline-block";
 
-  var containerDiv = params.containerDiv;
+  var containerDiv = t.parentSlot;
   containerDiv.style.zIndex = 9000;
   containerDiv.style.background = "none repeat scroll 0 0 transparent";
   containerDiv.style.position = "fixed";
@@ -522,24 +514,16 @@ ads.formats.footerFixed.rendered = function(params) {
   containerDiv.style.display = "block"
 };
 
-ads.getHandleWindowFromDivId = function(divId) {
-for(var handle in ads.adSlotHandles) {
-    if(ads.adSlotHandles[handle].id == divId) {
-      return ads.adSlotHandlesWindows[handle];
-    }
-  }
-  return false;
 }
-ads.formats.interstitial = {};//ads.defaultFormat;
+ads.formats.interstitial = function(t) {
+  
 
-ads.formats.interstitial.config = { startHidden: true }
+  t.set("startDisplay", "none");
 
-ads.formats.interstitial.msg = function(params) {
-console.log("INTERSTITIAL MSG");
-  var divId = ads.getDivIdFromFormat("interstitial");
+  t.msg = function(params) {
 
-  var div = document.getElementById(divId);
-  var parent = div.parentElement;
+  var div = t.slot;
+  var parent = t.parentSlot;
   div.style.position = "fixed";
   div.style.left = "0px";
   div.style.top = "0px";
@@ -622,25 +606,25 @@ if(params.width == 9999) {
   window.setTimeout(function() { document.getElementById("interstitialIconDiv") && (document.getElementById("interstitialIconDiv").style.display=""); }, 500); // show [X]
 }
 
-ads.formats.push = {};//ads.defaultFormat;
-
-ads.formats.push.msg = function(params, slotWindow) {
-  var adSlot = params.adSlot;
-  if(params.action == "pushLoaded") {
-    ads.adTexts.push({text:params.text, slotWindow: slotWindow});
-    ads.matchAds();
-  } 
-  if(adSlot) {
-    if(params.transition) {
-      adSlot.parentElement.style.transition = "height "+(params.transition/1000)+"s ease-in"; 
-    }
-    if(params.action == "collapse") {
-      adSlot.parentElement.style.height = "90px"; 
-    } else if(params.action == "expand") {
-      adSlot.parentElement.style.height = "250px"; 
-    }
-  }   
 }
+
+ads.formats.push = function(t) {
+
+  t.msg = function(p) {
+
+    if(p.transition) {
+      t.parentSlot.style.transition = "height "+(p.transition/1000)+"s ease-in";  
+    }
+
+    if(p.action == "collapse") {
+      t.parentSlot.style.height = "90px"; 
+    } else if(p.action == "expand") {
+      t.parentSlot.style.height = "250px"; 
+    }
+  }
+
+}
+
 ads.styles = ads.styles || {};
 ads.styles.iconClose = ads.styles.iconClose || "data:image/png;base64,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";
 ads.styles.footerFixed = ads.styles.footerFixed || { img: "<img height=24 width=24 src='"+ads.styles.iconClose+"'>", top: 0, right:0 };
@@ -651,6 +635,7 @@ ads.styles.expand970x250 = ads.styles.expand970x250 || {iconsStyle : "width:45px
                           }
 
 
+console.log("adcase v8.1.3");
 
 ads.loaded = true;
 ads.run();
