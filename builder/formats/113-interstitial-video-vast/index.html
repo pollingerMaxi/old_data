@@ -1,0 +1,90 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[height]]">
+</head>
+<body style='margin:0'>
+<div id = 'video'></div>
+<script>
+var clickTag = "[[clicktagURL]]";
+var ads = { slotHandle: false };
+
+ads.recieveMessage = function(e) {
+  //console.log("ads recieve msg",e);
+  e.data = e.data || {};
+  if(e.data.action) {
+    if(e.data.action == "play") {
+    //console.log("ads recieve msg PLAY");
+      play();
+    } else if(e.data.action == "pause") {
+    //console.log("ads recieve msg PAUSE");
+      pause();
+    }
+  } else if(e.data && e.data.setSlotHandle) { 
+    ads.slotHandle = e.data.setSlotHandle;
+    if(ads.videoURL) {
+      sendMsg();
+    }
+    sendMsg();
+  } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+    //console.log("STEP 1. ads recieve msg whatever. send to start the matching process");
+    window.top.postMessage({ msg: "adcase", params: { text: e.data } } , "*");
+  }
+
+}
+function sendMsg() {
+    var href = document.location.href.replace("index.html","");
+    var backgroundImage = ("[[backgroundImage]]"=="" ? false : href+"[[backgroundImage]]");
+    var params = { handle: ads.slotHandle, action: "videobanner", videoURL: ads.videoURL, width:[[width]], backgroundImage: backgroundImage, backgroundColor:"[[backgroundColor]]", clicktagURL:"[[clicktagURL]]" };
+    window.top.postMessage({ msg: "adcase", format:"default", params: params } , "*");
+    console.log("sent to handle",ads.slotHandle, params);
+
+}
+
+window.addEventListener ? window.addEventListener("message", ads.recieveMessage, !1) 
+: (window.attachEvent && window.attachEvent("message", ads.recieveMessage));
+
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+    gotVAST(this);
+    }
+};
+var vastURL =  "[[vastUrl]]";
+vastURL = vastURL.replace("correlator=","correlator="+(Math.random()+"").substring(2));
+xhttp.open("GET", vastURL, true);
+xhttp.send();
+var url = null;
+var h = null;
+
+function getVastVideoURL(el) {
+  for(var i in el) {
+    if(el[i].innerHTML && el[i].innerHTML.toLowerCase().indexOf(".mp4")>0) {
+      return el[i].innerHTML.replace("<![CDATA[", "").replace("]]>", "");
+    }
+  }
+  for(var i in el) {
+    if(el[i].innerHTML && el[i].innerHTML.toLowerCase().indexOf(".webm")>0) {
+      return el[i].innerHTML.replace("<![CDATA[", "").replace("]]>", "");
+    }
+  }
+  return false;
+}
+
+function gotVAST(xml) {
+  var xmlDoc = xml.responseXML;
+  var videoURL = false;
+  if(xmlDoc && xmlDoc.getElementsByTagName("MediaFile") && xmlDoc.getElementsByTagName("MediaFile")[0] && xmlDoc.getElementsByTagName("MediaFile")[0].innerHTML) {
+    ads.videoURL = getVastVideoURL(xmlDoc.getElementsByTagName("MediaFile"));
+  }
+  if(ads.videoURL) {
+    if(ads.slotHandle) {
+      sendMsg();
+    }
+  } else {
+    console.log("vast url returned no video");
+  }
+}
+
+</script>
+</body>
+</html> 

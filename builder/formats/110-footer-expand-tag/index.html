@@ -1,0 +1,35 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[expandedHeight]]">
+<script>
+
+var clickTag = "[[clicktagURL]]";
+var tpl = {};
+
+
+tpl.expanded = false;
+tpl.slotHandle = 1;
+tpl.expandTimeout = null;
+
+tpl.recieveMessage = function(e) {
+
+    if(e.data && e.data.setSlotHandle) { 
+        tpl.slotHandle = e.data.setSlotHandle;
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { action: "footerLoaded", handle:tpl.slotHandle, expandedHeight: [[expandedHeight]], collapsedHeight: [[collapsedHeight]] } } , "*");
+    } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { action: "footerLoaded", text: e.data, expandedHeight: [[expandedHeight]], collapsedHeight: [[collapsedHeight]] } } , "*");
+    }
+}
+
+window.addEventListener ? window.addEventListener("message", tpl.recieveMessage, !1) 
+    : (window.attachEvent && window.attachEvent("message", tpl.recieveMessage));
+
+</script>
+</head>
+<body style='margin:0;cursor:pointer'>
+[[clicktagLayer]]
+[[htmlTag]]
+	</div> 
+</body></html>

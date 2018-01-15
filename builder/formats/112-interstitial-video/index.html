@@ -1,0 +1,42 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[height]]">
+</head>
+<body style='margin:0'>
+<div id = 'video'></div>
+<script>
+var clickTag = "[[clicktagURL]]";
+var ads = { slotHandle: false };
+
+ads.recieveMessage = function(e) {
+  //console.log("ads recieve msg",e);
+  e.data = e.data || {};
+  if(e.data.action) {
+    if(e.data.action == "play") {
+    //console.log("ads recieve msg PLAY");
+      play();
+    } else if(e.data.action == "pause") {
+    //console.log("ads recieve msg PAUSE");
+      pause();
+    }
+  } else if(e.data && e.data.setSlotHandle) { 
+    var href = document.location.href.replace("index.html","");
+    ads.slotHandle = e.data.setSlotHandle;
+    var videoURL = href + "video.mp4";
+    var backgroundImage = ("[[backgroundImage]]"=="" ? false : href+"[[backgroundImage]]");
+    var params = { handle: ads.slotHandle, action: "videobanner", videoURL: videoURL, width:[[width]], backgroundImage: backgroundImage, backgroundColor:"[[backgroundColor]]", clicktagURL:"[[clicktagURL]]" };
+    window.top.postMessage({ msg: "adcase", format:"default", params: params } , "*");
+    console.log("sent to handle",ads.slotHandle, params);
+  } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+    //console.log("STEP 1. ads recieve msg whatever. send to start the matching process");
+    window.top.postMessage({ msg: "adcase", params: { text: e.data } } , "*");
+  }
+
+}
+
+window.addEventListener ? window.addEventListener("message", ads.recieveMessage, !1) 
+: (window.attachEvent && window.attachEvent("message", ads.recieveMessage));
+
+</script>
+</body>
+</html> 

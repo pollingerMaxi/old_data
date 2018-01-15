@@ -1,0 +1,247 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[height]]">
+</head>
+<body style='margin:0'>
+<div id = 'video'></div>
+<script>
+var isMobile = (/Mobi/.test(navigator.userAgent));
+var clickTag = "[[clicktagURL]]";
+var ads = { slotHandle: false };
+var myVideo = null;
+var t = null;
+var paused = true;
+var soundOff=false;
+var soundOn=false;
+var barInterval=null;
+var videoHasEnded=false;
+var firstPlayed = !isMobile;
+var videoButtonsHTML = null;
+var imgOverlay = null;
+var soundIcons = null;
+
+ads.recieveMessage = function(e) {
+  //console.log("ads recieve msg",e);
+  e.data = e.data || {};
+  if(e.data.action) {
+    if(e.data.action == "play") {
+    //console.log("ads recieve msg PLAY");
+      play();
+    } else if(e.data.action == "pause") {
+    //console.log("ads recieve msg PAUSE");
+      pause();
+    }
+  } else if(e.data && e.data.videoButtons) {
+    videoButtonsHTML = e.data.videoButtons;
+    document.getElementById("videoButtons") && (document.getElementById("videoButtons").innerHTML = videoButtonsHTML);
+  } else if(e.data && e.data.setSlotHandle) { 
+        // slotHandle is is not actually needed, as videobanner only recieves data
+        // in case the ad needs to send data to parent page, ads.slotHandle should be sent.
+    //console.log("STEP 2. Recieved handle",e.data.slotHandle);
+    ads.slotHandle = e.data.setSlotHandle;
+    //document.getElementById("videoContainer") && document.getElementById("videoContainer").style.display="inline-block";
+    window.top.postMessage({ msg: "adcase", format:"default", 
+      params: { handle: ads.slotHandle, action: "videobanner", text: e.data } } , "*");
+  } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+    //console.log("STEP 1. ads recieve msg whatever. send to start the matching process");
+    window.top.postMessage({ msg: "adcase", params: { text: e.data } } , "*");
+  }
+
+}
+
+window.addEventListener ? window.addEventListener("message", ads.recieveMessage, !1) 
+: (window.attachEvent && window.attachEvent("message", ads.recieveMessage));
+
+
+var videoWidth=[[width]];   
+function runVideo(video) {
+
+  var p=' webkit-playsinline="true" playsinline="true"  preload="metadata" ';
+  if(isMobile) {
+    p += ' muted="true" ';
+  } 
+  var html = '<div id="videoContainer" style="display:inline-block;position:relative" >'
+         +'<div id="bar" style="position:absolute;z-index:2;bottom:4px;height:4px;background-color:#E6FCFF;width:0px"></div>'
+         +'<video style="z-index:1;" id="video1" '+p+'  width="'+videoWidth+'"> '
+         +'<source src="'+video.url+'" type="video/mp4" />'
+         +'  </video>'
+         +(isMobile?"<div id='imgOverlay' style='background-image:url(\"[[backgroundimage]]\");background-size:100%;z-index:7;"
+            +"position:absolute;top:0;left:0;cursor:pointer;display:inline-block;text-align:center;width:100%;height:100%;line-height:[[height]]px;' onclick='firstPlayed=true;play()'>"
+            +"<img src='https://adcase.io/demo/play.png' style='vertical-align:middle;heigth:64px'>"
+            +"</div>":"") 
+         +"<div id='clickOverlay' onmouseover='sound()' onmouseout='mute()' style='width:100%;height:100%;position:absolute;bottom:0px ;z-index:3;cursor:pointer;' onclick='goClick()'></div>"
+
+         +"<div id='videoButtons'></div>"
+         
+         +(isMobile?"":"<div id='soundIcons' style='position:absolute;right:30px;bottom:30px;z-index:6;height:20px;width:20px;cursor:pointer'>"
+         +"<img onclick='forceMute()' id='speaker-on' src='https://adcase.io/demo/speaker-on.png' style='width:100%;'>" 
+         +"<img onclick='forceSound()' id='speaker-off' src='https://adcase.io/demo/speaker-off.png' style='display:none;width:100%;'></div>")
+         +'</div>';
+ 
+  document.getElementById("video").innerHTML = html;
+  myVideo = document.getElementById("video1");
+  myVideo.volume=0;
+  myVideo.addEventListener("ended", videoEnded );
+}
+
+
+function goClick() {
+  window.open(window.clickTag);
+}
+function replay() {
+  document.getElementById("overlay").style.display="none";
+  document.getElementById("overlay-txt").style.display="none";
+  soundIcons && (document.getElementById("soundIcons").style.display="");
+  videoHasEnded=false;
+  myVideo.currentTime=0;
+  myVideo.play();
+}
+function videoEnded() {
+  videoHasEnded=true;
+  //console.log("videoEnded");
+  document.getElementById("overlay").style.display="";
+  document.getElementById("overlay-txt").style.display="";
+  soundIcons && (document.getElementById("soundIcons").style.display="none");
+
+}
+
+function setProgressBar() {
+  var t = myVideo.currentTime; 
+  var d = myVideo.duration;
+  var w = myVideo.getAttribute("width");
+  var bar = document.getElementById("bar");
+
+
+  bar.style.width = Math.round(t*w/d)+"px";
+}
+function syncIcons() {
+  if(soundOff) {
+    document.getElementById("speaker-off").style.display="";
+    document.getElementById("speaker-on").style.display="none";
+  } else if (soundOn) {
+    document.getElementById("speaker-off").style.display="none";
+    document.getElementById("speaker-on").style.display="";
+  }
+}
+function forceMute() {
+  soundOff = true;
+  soundOn = false;
+  //console.log("forceMute");
+  syncIcons();
+  window.clearTimeout(t);
+  if(myVideo.volume >= 0.1) {
+    myVideo.volume = myVideo.volume - 0.1;
+    t = window.setTimeout(forceMute,50);  
+  }
+}
+function forceSound() {
+  soundOff = false;
+  soundOn = true;
+  //console.log("forceSound");
+  syncIcons();
+  window.clearTimeout(t);
+  if(myVideo.volume <= 0.9) {
+    myVideo.volume = myVideo.volume + 0.1;
+    t = window.setTimeout(forceSound,80); 
+  }
+}
+
+function mute() {
+  //console.log("mute");
+  if(videoHasEnded || soundOn || soundOff) {
+    return false;
+  }
+  window.clearTimeout(t);
+  if(myVideo.volume >= 0.1) {
+    myVideo.volume = myVideo.volume - 0.1;
+    t = window.setTimeout(mute,50);  
+  }
+}
+function sound() {
+  //console.log("sound");
+  if(videoHasEnded || soundOn || soundOff) {
+    return false;
+  }
+  window.clearTimeout(t);
+  if(myVideo.volume <= 0.9) {
+    myVideo.volume = myVideo.volume + 0.1;
+    t = window.setTimeout(sound,80); 
+  }
+}
+function pause()
+{ 
+  window.clearInterval(barInterval);
+  if(!paused) {
+    myVideo.pause(); 
+    paused=true;
+  }
+}
+function play() {
+  if(!firstPlayed) {
+    return;
+  }
+  imgOverlay && (imgOverlay.style.display="none");
+  if(videoHasEnded) { return false;} 
+  window.clearInterval(barInterval);
+  if (paused && myVideo) { 
+    barInterval = window.setInterval(setProgressBar,50);
+    myVideo.play();     
+    paused = false;
+  } 
+}    
+
+
+
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+    gotVAST(this);
+    }
+};
+var vastURL =  "https://pubads.g.doubleclick.net/gampad/ads?sz=[[width]]x[[height]]&iu=[[adunit]]&cust_params=id%3D[[videoid]]&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator="+(Math.random()+"").substring(2);
+
+console.log("DFP id vastURL", vastURL);
+
+xhttp.open("GET", vastURL, true);
+xhttp.send();
+var url = null;
+var h = null;
+
+function getVastVideoURL(el) {
+  for(var i in el) {
+    if(el[i].innerHTML && el[i].innerHTML.toLowerCase().indexOf(".mp4")>0) {
+      return el[i].innerHTML.replace("<![CDATA[", "").replace("]]>", "");
+    }
+  }
+  for(var i in el) {
+    if(el[i].innerHTML && el[i].innerHTML.toLowerCase().indexOf(".webm")>0) {
+      return el[i].innerHTML.replace("<![CDATA[", "").replace("]]>", "");
+    }
+  }
+  return false;
+}
+
+function gotVAST(xml) {
+  var xmlDoc = xml.responseXML;
+  var videoURL = false;
+  if(xmlDoc && xmlDoc.getElementsByTagName("MediaFile") && xmlDoc.getElementsByTagName("MediaFile")[0] && xmlDoc.getElementsByTagName("MediaFile")[0].innerHTML) {
+    videoURL = getVastVideoURL(xmlDoc.getElementsByTagName("MediaFile"));
+  }
+  if(videoURL) {
+    var video = { url: videoURL };
+
+    runVideo(video);
+    imgOverlay = document.getElementById("imgOverlay");
+    soundIcons = document.getElementById("soundIcons");
+    videoButtonsHTML && (document.getElementById("videoButtons").innerHTML = videoButtonsHTML);
+    if(!isMobile && !paused) {
+      play();
+    }
+  } else {
+    console.log("vast url returned no video");
+  }
+}
+
+</script> 
+</body>
+</html> 

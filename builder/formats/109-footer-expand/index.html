@@ -1,0 +1,62 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[expandedHeight]]">
+<script>
+
+var clickTag = "[[clicktagURL]]";
+var tpl = {};
+
+
+tpl.expanded = false;
+tpl.slotHandle = 1;
+tpl.expandTimeout = null;
+
+tpl.recieveMessage = function(e) {
+    //console.log("msg",e);
+
+    if(e.data && e.data.setSlotHandle) { 
+        tpl.slotHandle = e.data.setSlotHandle;
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { action: "footerLoaded", handle:tpl.slotHandle, expandedHeight: [[expandedHeight]], collapsedHeight: [[collapsedHeight]] } } , "*");
+    } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { action: "footerLoaded", text: e.data, expandedHeight: [[expandedHeight]], collapsedHeight: [[collapsedHeight]] } } , "*");
+    }
+}
+
+window.addEventListener ? window.addEventListener("message", tpl.recieveMessage, !1) 
+    : (window.attachEvent && window.attachEvent("message", tpl.recieveMessage));
+
+tpl.changeSize = function(expanded) {
+    //console.log("changeSize. Expanded:",expanded);
+    if(expanded) {
+        document.getElementById("ad_collapsed") && (document.getElementById("ad_collapsed").style.display = "none");
+        document.getElementById("ad_expanded") && (document.getElementById("ad_expanded").style.display = "block"); 
+    } else {
+        document.getElementById("ad_collapsed") && (document.getElementById("ad_collapsed").style.display = "block");
+        document.getElementById("ad_expanded") && (document.getElementById("ad_expanded").style.display = "none");
+    }
+}
+tpl.out = function() {
+  //console.log("out");
+  window.clearTimeout(tpl.expandTimeout);
+  tpl.changeSize(false);
+}
+tpl.over = function() {
+  //console.log("over");
+  tpl.changeSize(true);
+  window.clearTimeout(tpl.expandTimeout);
+  tpl.expandTimeout = window.setTimeout(function(){ tpl.changeSize(true);}, 3000 );
+}
+
+</script>
+</head>
+<body style='margin:0;cursor:pointer' onmouseover='tpl.over()' onmouseout='tpl.out()'>
+[[clicktagLayer]]
+	<div id='ad_collapsed' style=';width:[[width]]px;height:[[collapsedHeight]]px;overflow:hidden;'>
+		[[collapsedContent]]
+	</div> 
+	<div id='ad_expanded' style='display:none;width:[[width]]px;height:[[expandedHeight]]px;overflow:hidden;'>
+		[[expandedContent]]
+	</div> 
+</body></html>
