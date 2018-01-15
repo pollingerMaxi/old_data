@@ -1,9 +1,9 @@
 //
-// Adcase.js JavaScript Library v8.1.4. 2/Jan/2018
+// AdCase.js JavaScript Library v8.1.5. 15/Jan/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
-// https://jquery.io/license 
-// Adcase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
+// https://adcase.io/license 
+// AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 // Load googletag library
@@ -28,12 +28,14 @@ script.async = true;
 script.src = "https://www.googletagservices.com/tag/js/gpt.js";
 document.head.appendChild(script);
 
+ads.values = ads.values || {};
 ads.formats = {};
 ads.existingSlotIds = {}; 
 ads.scrollTimeout = true;
 ads.printedSlots = {};
 ads.showLog = sessionStorage.getItem('ads.showLog');
 ads.showAdDetails = sessionStorage.getItem('ads.showAdDetails');
+ads.startDisplay = ads.startDisplay || "";
 
 var ev = null;
 
@@ -45,6 +47,7 @@ ads.run = function() {
   ads.adTexts = [];
   ads.adEvents = [];
   ads.values = {};
+  ads.printedSlots = {};
 
   var cmd = ads.cmd;
   ads.cmd = [];
@@ -167,17 +170,20 @@ ads.pageLoaded = function(path) {
 }
 ads.adSlotList = [];
 
-ads.formats.default = function (t) { };
 ads.formats.footerFixed = function (t) { };
 
 ads.instanceAd = function(format) {
-  console.log("FORMAT: ",format);
+  //console.log("FORMAT: ",format);
   this.values={};
   this.set = function(name,value) { this.values[name]=value; return this; };
   this.get = function(name) { return (this.values[name]!=null?this.values[name]:null); }
   this.msg = function(){ console.log("msg not set for "+format); }
   ads.formats[format](this);
-  this.startDisplay = function() { this.parentSlot.style.display = (this.get("startDisplay") || ""); }
+  this.startDisplay = function() { 
+    var d = (this.get("startDisplay") || ads.startDisplay || "");
+    console.log("display:",format,this.get("startDisplay"), ".",ads.startDisplay, "..",d);
+    this.parentSlot.style.display = d; 
+  }
 } 
 
 ads.set = function(k, v) {
@@ -191,18 +197,20 @@ ads.readMessage = function(e) {
   var msg = (e.data && e.data.msg) ? e.data.msg : "";
   if (msg == "adcase") {
     var format = (e.data && e.data.format) ? e.data.format : false;
-    e.data.params = e.data.params || {};
-    if(e.data.params.handle && e.data.params.handle > 1) {
+    var params = e.data.params || {};
+    params.action = params.action || false;
+    if(params.handle && params.handle > 1) {
 //console.log("MSG Format 0   :",e.data)
-      ads.id[ads.getIdFromHandle(e.data.params.handle)].msg(e.data.params);  
-    } else if (e.data.params.text){
-//console.log("MSG Format 1   :",e.data)
+      ads.id[ads.getIdFromHandle(params.handle)].msg(params);  
+    } else if (params.text){
+console.log("MSG Format 1   :",e.data)
       console.log("e.data.params.text",e.data.params.text);
-      ads.adTexts.push({text:e.data.params.text, slotWindow: e.source});
+      console.log("**call MatchAds. text:",e.data.params.text, e.data);
+      ads.adTexts.push({text:params.text, slotWindow: e.source});
       ads.matchAds();
     } else if (format) {
 //console.log("MSG Format 2   :",format,ads.id[ads.getIdFromFormat(format)], e.data)
-      ads.id[ads.getIdFromFormat(format)].msg(e.data.params);  
+      ads.id[ads.getIdFromFormat(format)].msg(params);  
 
     }
   }
@@ -274,6 +282,8 @@ ads.slotRendered = function(event) {
                     };
     }
 
+    ads.id[divId].width = event.size[0];
+    ads.id[divId].height = event.size[1];
     ads.id[divId].startDisplay();
 
     if (ads.id[divId].rendered) {
@@ -389,15 +399,18 @@ ads.scroll = function() {
   ads.scrollTimeout = false;
   setTimeout(function() {
     ads.scrollTimeout = true;
-  }, 100);
+  }, 500);
 
+  //console.log(ads.id );
   for (var i in ads.id) {
-    var d = ads.id[i];
-    if (ads.elementInViewport(d.slot) && !ads.printedSlots[d.divId]) {
-
-      ads.printedSlots[d.divId] = true;
-      ads.log(d.divId + " scroll");
-      ads.refresh(d.divId);
+    ads.id[i].onScroll && ads.id[i].onScroll();
+    if (ads.lazy) {
+      var d = ads.id[i];
+      if (ads.elementInViewport(d.slot) && !ads.printedSlots[d.divId]) {
+        ads.printedSlots[d.divId] = true;
+        ads.log(d.divId + " scroll");
+        ads.refresh(d.divId);
+      }
     }
   }
 }
@@ -419,7 +432,9 @@ ads.refresh = function(divId) {
   })
 }
 
-if (ads.lazy) {
+ads.enableScroll = function() {
+  //console.log("scrollEnabled",true);
+  ads.set("scrollEnabled",true);
   window.addEventListener("scroll", function() {
     if (ads.scrollTimeout) {
       ads.scroll()
@@ -427,6 +442,9 @@ if (ads.lazy) {
   });
 }
 
+if (ads.lazy) {
+   ads.enableScroll();
+}
 
 googletag.cmd.push(function() {
   googletag.destroySlots();
@@ -456,11 +474,51 @@ ads.log = function() {
   return Function.prototype.bind.call(console.log);
 }();
 
+ads.getVideoURL = ads.getVideoURL || function(output, vpos, slot) {
+
+  slot = slot || "preroll";
+  output = output || "vast";
+  vpos = vpos || "preroll";
+  var slotname = "/" + ads.network + ads.router() + slot; 
+  //slotname = slotname.substring(0, slotname.length - 1);
+  var url = document.location.href;
+  var timestamp = new Date().getTime();
+  var cust_params = ""; // set key values
+
+var url = null;
+
+if(output=="vast") {
+  url ="https://pubads.g.doubleclick.net/gampad/ads?"
+      +"slotname=" + slotname
+      +"&sz=640x480|400x300&ciu_szs=300x250&unviewed_position_start=1"
+      +"&output=vast&impl=s&env=vp&gdfp_req=1&ad_rule=0&vad_type=linear&vpos="+vpos
+      +"&pod=3&ppos=1&lip=true&min_ad_duration=0&max_ad_duration=30000&vrid=6256"
+      +"&cust_params="+cust_params
+      +"&url="+url
+      +"&video_doc_id=short_onecue&cmsid=496&kfa=0&tfcd=0&correlator="+timestamp;
+} else if(output=="vmap") {
+  url ="https://pubads.g.doubleclick.net/gampad/ads?"
+      +"sz=640x480|400x300&iu="+slotname
+      +"&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap"
+      +"&unviewed_position_start=1"
+      +"&cust_params="+cust_params
+      +"&cmsid=496&vid=short_onecue&correlator="+timestamp
+
+} 
+
+  return url;
+}
 
 ads.formats.footerFixed = function(t) {
 
-  t.set("startDisplay", "none");
+  t.set("startDisplay", "");
 
+  t.msg = function(p) {
+    //console.log("msg a footerFixed: ",p);
+    p.expandedHeight && t.set("expandedHeight", p.expandedHeight);
+    p.collapsedHeight && t.set("expandedHeight", p.collapsedHeight);
+    p.expandedHeight && p.collapsedHeight && t.setExpanding(p);
+  }
   t.rendered = function(params) {
 
   var div = t.slot;
@@ -476,31 +534,7 @@ ads.formats.footerFixed = function(t) {
   containerDiv.style.height = params.height;
   containerDiv.style.minHeight = "0px";
   containerDiv.style.minWidth = "0px";
-
-  if(false && params.height == 250) {
-    // Expanding mouseover footer
-    var w = ads.formats.getWindow("footerFixed");
-    div.addEventListener("mouseover", 
-      function() { 
-        document.getElementById("footerFixed-adText").style.display="none"; 
-        containerDiv.style.height = "250px"; 
-
-        let slotWindow = ads.getHandleWindowFromDivId("zocalo_desktop_ad");
-        if(slotWindow) {
-          slotWindow.postMessage({ msg: "expandSlot" }, "*");
-        } else {
-          console.log("**No slotWindow for div "+div.id,div);
-        }
-      }
-
-      , false);
-    div.addEventListener("mouseout", 
-      function() { 
-        document.getElementById("footerFixed-adText").style.display=""; 
-        containerDiv.style.height = "90px"; }
-      , false);
-    containerDiv.style.height = "90px";
-  }
+  
   window.setTimeout(function() { document.getElementById("footerFixed-adText").style.display="";  }, 1);
 
   var iframe = containerDiv.getElementsByTagName("iframe")[0];
@@ -517,13 +551,38 @@ ads.formats.footerFixed = function(t) {
   containerDiv.style.display = "block"
 };
 
+  t.setExpanding = function(p) {
+    //console.log("setExpanding");
+    var div = t.slot;
+    var containerDiv = t.parentSlot;
+    // Expanding mouseover footer
+    div.addEventListener("mouseover", 
+      function() { 
+        document.getElementById("footerFixed-adText").style.display="none"; 
+        containerDiv.style.height = p.expandedHeight+"px"; 
+      }
+      , false);
+    div.addEventListener("mouseout", 
+      function() { 
+        document.getElementById("footerFixed-adText").style.display=""; 
+        containerDiv.style.height = p.collapsedHeight+"px"; }
+      , false);
+    containerDiv.style.height = p.collapsedHeight+"px";
+  }
 }
 ads.formats.interstitial = function(t) {
   
+ 
+t.set("startDisplay", "none");
 
-  t.set("startDisplay", "none");
-
-  t.msg = function(params) {
+t.msg = function(params) {
+  console.log("Interstitial msg:",params);
+   // TODO: ignore messages if handle does not match
+  //if(!params.handle || params.handle!=t.get("handle")) {
+  //  return;
+  //}
+  params.height = params.height || t.height;
+  params.width = params.width || t.width;
 
   var div = t.slot;
   var parent = t.parentSlot;
@@ -542,59 +601,65 @@ ads.formats.interstitial = function(t) {
   var iconTop = -(params.height/2) + ads.styles.interstitial.top;
 
   var iframe = div.getElementsByTagName("iframe")[0];
+  if(params.videoURL) {
+    if(!params.clicktagURL) {
+      console.log("ERROR!. No clicktag URL");
+      return;
+    }
+    iframe = t.createVideo(params);
+  } 
+
   var iconDiv = document.createElement("div");
 
-if(params.width == 9999) {
-  // fullscreen
-  marginLeft = 0;
-  marginTop = 0;
-  iconRight = 5;
-  iconTop = 5;
+  if(params.width == 9999) {
+    // fullscreen
+    marginLeft = 0;
+    marginTop = 0;
+    iconRight = 5;
+    iconTop = 5;
 
-  iframe.style.height = "100%";
-  iframe.style.width = "100%";
-  iframe.style.left = "0";
-  iframe.style.top = "0";
+    iframe.style.height = "100%";
+    iframe.style.width = "100%";
+    iframe.style.left = "0";
+    iframe.style.top = "0";
 
-  window.addEventListener("resize", function(){ 
-    ads.resizeEventTimeout = ads.resizeEventTimeout || false;
-    window.clearTimeout(ads.resizeEventTimeout);
-    ads.resizeEventTimeout = window.setTimeout(function() { 
+    window.addEventListener("resize", function(){ 
+      ads.resizeEventTimeout = ads.resizeEventTimeout || false;
+      window.clearTimeout(ads.resizeEventTimeout);
+      ads.resizeEventTimeout = window.setTimeout(function() { 
 
-      var w = window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
-      var h = window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
-      params.windowSource.postMessage({ msg: "setSize", width: w, height: h}, "*");
-    }, 50);
-  }, true);
-  var w = window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
-  var h = window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
-  params.windowSource.postMessage({ msg: "setSize", width: w, height: h}, "*");
+        var w = window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
+        var h = window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
+        //params.windowSource.postMessage({ msg: "setSize", width: w, height: h}, "*");
+      }, 50);
+    }, true);
+    var w = window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
+    var h = window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
+    //params.windowSource.postMessage({ msg: "setSize", width: w, height: h}, "*");
 
-} else {
+  } else {
 
-  iframe.style.height = params.height+"px";
-  iframe.style.width = params.width+"px";
-  iframe.style.left = "50%";
-  iframe.style.top = "50%";
+    iframe.style.height = params.height+"px";
+    iframe.style.width = params.width+"px";
+    iframe.style.left = "50%";
+    iframe.style.top = "50%";
 
-  iconDiv.style.height = params.height+"px";
-  iconDiv.style.width  = params.width+"px";
-  iconDiv.style.left   = "50%";
-  iconDiv.style.top    = "50%";
-  iconDiv.style.position = "absolute";
-  iconDiv.style.marginLeft= "-55px";
-  iconDiv.style.marginTop= "5px";
-}
+    iconDiv.style.height = params.height+"px";
+    iconDiv.style.width  = params.width+"px";
+    iconDiv.style.left   = "50%";
+    iconDiv.style.top    = "50%";
+    iconDiv.style.position = "absolute";
+    iconDiv.style.marginLeft= "-55px";
+    iconDiv.style.marginTop= "5px";
+  }
 
   iframe.style.position = "absolute";
   iframe.style.marginTop = marginTop;
   iframe.style.marginLeft = marginLeft;
   iframe.style.position = "absolute";
 
-
-
   iconDiv.innerHTML = "<div id='interstitialIconDiv' style='position:absolute;display:none;"
-  +"right:" + iconRight + "px; top:" + iconTop + "px;z-index:10000;cursor:pointer' onclick='document.getElementById(\"" + div.id + '").style.display="none";document.body.style.overflow="";document.getElementById("' + div.id + "\").innerHTML=\"\"'>"
+  +"right:" + iconRight + "px; top:" + iconTop + "px;z-index:10000;cursor:pointer' onclick='this.parentElement.innerHTML=\"\";document.getElementById(\"" + div.id + '").style.display="none";document.body.style.overflow="";document.getElementById("' + div.id + "\").innerHTML=\"\"'>"
   + ads.styles.interstitial.img + "</div>";
   div.appendChild(iconDiv);
 
@@ -609,6 +674,43 @@ if(params.width == 9999) {
   window.setTimeout(function() { document.getElementById("interstitialIconDiv") && (document.getElementById("interstitialIconDiv").style.display=""); }, 500); // show [X]
 }
 
+t.createVideo = function(params) {
+  var video = document.createElement("video");
+
+  if(params.fullscreen) {
+    t.width = "100%";
+    t.height = "100%";
+  }
+  //console.log(t.width,t.height);
+  //console.log(t.slot);
+  video.width = t.width;
+  video.height = t.height;
+  video.style.margin = "auto";
+  video.src = params.videoURL;
+  
+  t.slot.innerHTML = "";
+  t.slot.appendChild(video);
+  t.slot.style.display = "";
+  t.parentSlot.style.display = "";
+
+  var c = document.createElement("div");
+  c.style.width="100%";
+  c.style.height="100%";
+  c.style.position="fixed";
+  c.style.zIndex="10000";
+  c.style.top="0px";
+  c.style.cursor="pointer";
+  c.setAttribute("onclick",  "window.open('"+params.clicktagURL+"', '_blank')" );
+  t.slot.appendChild(c);
+  video.play();
+  console.log(video);
+  window.setTimeout(function(){ video.play() },1000);
+  //console.log("play Video");
+  
+  return video;
+
+}
+
 }
 
 ads.formats.push = function(t) {
@@ -617,7 +719,7 @@ ads.formats.push = function(t) {
 
     t.parentSlot.style.overflow = "hidden";
   if(p.transition) {
-    t.parentSlot.style.transition = "height "+(p.transition/1000)+"s ease-in;"; 
+    t.parentSlot.style.transition = "height "+(p.transition/1000)+"s ease-in";  
   }
 
   if(p.action == "collapse") {
@@ -628,6 +730,111 @@ ads.formats.push = function(t) {
   }
 
 }
+ads.formats.videobanner = function (t) { 
+
+  t.videobannerMsg = function(p) {
+    //console.log("-----videoBannerMsg",p,t.divId);
+    t.set("videoBannerScrollEnabled",true);
+
+    t.get("window").postMessage({ videoButtons: ads.styles.videoButtons } , "*");
+
+    if(!ads.get("scrollEnabled")) {
+      ads.enableScroll();
+    } else {
+      ads.scroll();
+    }
+  }
+
+  t.videoBannerScroll = function() {
+
+    if (t.elementInViewport()) {
+//      console.log("play");
+      t.play();
+    } else if(!t.elementInViewport()) {
+//      console.log("pause");
+      t.pause();
+    }
+  }
+
+
+
+  t.elementInViewport = function() {
+    var rect = t.slot.getBoundingClientRect();
+
+    var wh = (window.innerHeight || document.documentElement.clientHeight);
+    var rt = Math.ceil(rect.top);
+
+    var view = false;
+    if(rt<=wh-(t.height*0.75) && rt>-(t.height*0.25)) {
+      view = true;
+    }
+
+    return view;
+  }
+
+  t.play = function() {
+    //console.log(t.divId+"PLAY");
+    t.set("playing",true);
+    t.get("window").postMessage({ action:"play" } , "*");
+  }
+  t.pause = function() {
+    //console.log(t.divId+"PAUSE");
+    t.set("playing",false);
+    t.get("window").postMessage({ action:"pause" } , "*");
+  }
+}
+
+
+
+/*
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+    gotVAST(this);
+    }
+};
+xhttp.open("GET", "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=", true);
+xhttp.send();
+var url = null;
+var h = null;
+
+function gotVAST(xml) {
+    var xmlDoc = xml.responseXML;
+//    console.log(xmlDoc.childNodes);
+   console.log(xmlDoc.getElementsByTagName("MediaFile")[0]);
+   h = xmlDoc.getElementsByTagName("MediaFile")[0];
+//    document.getElementById("demo").innerHTML =
+//    xmlDoc.getElementsByTagName("MediaFiles")[0].childNodes[0].nodeValue;
+ var video = {};
+ video.url = h.innerHTML.replace("<![CDATA[", "").replace("]]>", "");
+
+  runVideo(video);
+
+}
+*/
+
+ads.formats.pushonclick = function (t) { 
+
+  t.set("startDisplay", "none");
+
+  t.pushonclickMsg = function(p) {
+    p.expandedHeight && t.set("expandedHeight",p.expandedHeight);    
+    p.collapsedHeight && t.set("collapsedHeight",p.collapsedHeight);    
+    console.log("t.pushonclickMsg",p);
+
+    t.parentSlot.style.display = ads.startDisplay;
+
+    if(p.expand) {
+        t.parentSlot.style.height = t.get("expandedHeight")+"px"; 
+    } else {
+        t.parentSlot.style.height = t.get("collapsedHeight")+"px"; 
+    }
+
+
+  }
+}
+
+
 
 ads.styles = ads.styles || {};
 ads.styles.iconClose = ads.styles.iconClose || "data:image/png;base64,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";
@@ -637,8 +844,38 @@ ads.styles.expand970x250 = ads.styles.expand970x250 || {iconsStyle : "width:45px
                             openIconHTML: "Abrir",
                             closeIconHTML: "Cerrar"
                           }
+ads.styles.videoButtons = ads.styles.videoButtons || "<div id='overlay' style='width:100%;height:60px;background-color:white;opacity:0.9;position:absolute;bottom:0px ;z-index:5;display:none'></div>"
+         +"<div id='overlay-txt' style='width:100%;height:50px;position:absolute;bottom:0px;z-index:6;display:none'>"
+         +  "<div style='float:left;cursor:pointer;margin:0px 0 4px 40px' onclick='replay()'><img src='https://adcase.io/demo/replay.png'></div>"
+         +  "<div style='float:right;cursor:pointer;margin:0px 40px 4px 0px' onclick='goClick()'><img src='https://adcase.io/demo/view-more.png'></div>"
+         +"</div>";
 
-console.log("adcase v8.1.3");
+ads.formats.default = function (t) { 
+//console.log("DEFAULT");
+  ads.formats.videobanner(t);
+  ads.formats.pushonclick(t);
+  t.set("startDisplay","");
+
+  t.msg = function(p) {
+//    console.log("DEFAULT MSG",p);
+    if(p.action == "videobanner") {
+      t.videobannerMsg(p);
+    } else if(p.action == "pushonclick") {
+      t.pushonclickMsg(p);
+    }
+  }
+
+  t.onScroll = function() {
+  //  console.log("default onScroll");
+    if(t.get("videoBannerScrollEnabled")) {
+      t.videoBannerScroll();
+    } else {
+      //console.log("scroll not enabled");
+    }
+  }
+};
+
+console.log("AdCase v8.1.5");
 
 ads.loaded = true;
 ads.run();

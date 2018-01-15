@@ -12,12 +12,10 @@ mkdir ($dir);
 chmod ($dir, 0777);
 $errors = array();
 
-
-$format = f::getParam("format");
-if(file_exists(__DIR__."/formats/{$format}/{$format}-build.php")) {
-  include(__DIR__."/formats/{$format}/{$format}-build.php");
+if(file_exists(__DIR__."/formats/{$formatId}-{$formatName}/{$formatName}-build.php")) {
+  include(__DIR__."/formats/{$formatId}-{$formatName}/{$formatName}-build.php");
 } else {
-	echo "template not found";
+	echo "template not found: /formats/{$formatId}-{$formatName}/{$formatName}-build.php";
 }
 
 if(!$errors) {

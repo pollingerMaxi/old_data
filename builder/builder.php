@@ -1,9 +1,8 @@
 <?php
-$format = f::getParam("format");
 
 printHeader();
-if(file_exists(__DIR__."/formats/{$format}/{$format}-form.php")) {
-	include(__DIR__."/formats/{$format}/{$format}-form.php");
+if(file_exists(__DIR__."/formats/{$formatId}-{$formatName}/{$formatName}-form.php")) {
+	include(__DIR__."/formats/{$formatId}-{$formatName}/{$formatName}-form.php");
 } else {
 	echo "template not found";
 }
@@ -98,12 +97,25 @@ function go(url) {
 <td style="width:300px" valign="top">
 <ul class="list-group">
   <li class="list-group-item title" style="background-color: white; color: black;">Rich Media Formats</li>
+<?php
+  $formatName = f::getParam("_url");
+  $data = getFormatIds();
+  foreach($data as $k => $v) {
+    echo "<li onclick='go(\"{$v}\")' id='{$k}' class='list-group-item' style='background-color:".($formatName == $v?"#ddd":"")."'><span>{$k}</span> {$v}</li>";
+  }
+ 
+?>
+<!--
   <li onclick='go("html5")' id="100" class="list-group-item"><span>100</span> HTML5</li>
-  <li onclick='go("push970x90x250")' id="101" class="list-group-item"><span>101</span> 970x90-250 Push</li>
-  <li onclick='go("push970x90x250tag")' id="102" class="list-group-item"><span>102</span> 970x90-250 push (tag)</li>
+  <li onclick='go("push")' id="101" class="list-group-item"><span>101</span> Expanding Push</li>
+  <li onclick='go("push-tag")' id="102" class="list-group-item"><span>102</span> Expanding Push (tag)</li>
   <li onclick='go("interstitial")' id="103" class="list-group-item"><span>103</span> Interstitial</li>
   <li onclick='go("interstitial-tag")' id="104" class="list-group-item"><span>104</span> Interstitial (tag)</li>
-<!--  <li onclick='go("footer")' id="104" class="list-group-item"><span>104</span> Fixed Footer</li>-->
+  <li onclick='go("videobanner")' id="105" class="list-group-item"><span>105</span> MP4 Video Banner</li>
+  <li onclick='go("videobanner-vast")' id="106" class="list-group-item"><span>106</span> VAST Video Banner</li>
+  <li onclick='go("videobanner-dfp")' id="107" class="list-group-item"><span>107</span> DFP Video Banner</li>
+  <li onclick='go("footer")' id="108" class="list-group-item"><span>108</span> Fixed Footer</li>
+  <li onclick='go("footer-expand")' id="109" class="list-group-item"><span>109</span> Expandable Footer</li>
 <!--
   <li id="104" class="list-group-item" style="background-color: white; color: black;"><span>104</span> Lateral banner</li>
   <li id="105" class="list-group-item" style="background-color: white; color: black;"><span>105</span> Lateral Fixed</li>
