@@ -1,3 +1,12 @@
+//
+// AdCase.js DEBUG JavaScript Library v2.1.1. 4/Feb/2018
+// Copyright 2018 adcase.io 
+// https://adcase.io
+// https://adcase.io/license 
+// AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
+// This is not an official Google product, and it is also not officially supported by Google.
+//
+
 ads.d = ads.d || {};
 ads.d.values = ads.d.values || {};
 ads.d.s = function(k,v) { ads.d.values[k] = v; }
