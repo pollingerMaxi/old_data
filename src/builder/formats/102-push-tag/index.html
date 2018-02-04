@@ -1,0 +1,69 @@
+<script>
+var clickTag = "[[clicktagURL]]";
+var initExpanded = [[initExpanded]];
+var autoClose = [[autocloseSeconds]];
+
+function recieveMessage(e) {
+    tpl.msgEvents.push(e)
+    tpl.run && tpl.run()
+}
+
+var tpl = { msgEvents: [] };
+
+window.addEventListener ? window.addEventListener("message", recieveMessage, !1) 
+	: (window.attachEvent && window.attachEvent("message", recieveMessage));
+
+tpl.expanded = initExpanded;
+tpl.slotHandle = 1;
+tpl.autoCloseTimeout = null;
+
+tpl.run = function() {
+    var e = tpl.msgEvents;
+    tpl.msgEvents = [];
+    for (var t in e) tpl.receiveMessages(e[t])
+}
+
+tpl.receiveMessages = function(e) {
+    if(e.data && e.data.setSlotHandle) { 
+    	tpl.slotHandle = e.data.setSlotHandle;
+    	tpl.syncSize(); 
+        window.top.postMessage({ msg: "adcase", format:"push", 
+            params: { action: "footerLoaded", handle:tpl.slotHandle, expandedHeight: [[expandedHeight]], collapsedHeight: [[collapsedHeight]] } } , "*");
+    } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+        window.top.postMessage({ msg: "adcase", format:"push", 
+            params: { action: "pushLoaded", text: e.data} } , "*");
+	}
+}
+tpl.toggleAd = function(setExpanded) {
+    clearTimeout(tpl.autoCloseTimeout);
+
+    if(setExpanded !== undefined) {
+        tpl.expanded = setExpanded;
+    } else {
+        tpl.expanded = !tpl.expanded;    
+    }
+    tpl.syncSize();
+}
+
+tpl.syncSize = function() {
+    window.top.postMessage({ msg: "adcase", format:"push", 
+            params: { handle: tpl.slotHandle, action: (tpl.expanded?"expand":"collapse"), transition: [[transitionTimeMs]] }}, "*");
+}
+
+if(autoClose > 0) {
+	tpl.autoCloseTimeout = setTimeout(function() {
+		tpl.expanded = false;
+	 	tpl.syncSize()}, 1000 * autoClose);
+}
+
+var $sf = { ext: {} };
+$sf.ext.expand = function() { console.log("call $sf.ext.expand()"); tpl.toggleAd(true) };
+$sf.ext.collapse = function() { console.log("call $sf.ext.collapse()"); tpl.toggleAd(false) };
+
+
+tpl.run();
+tpl.syncSize();
+</script>
+[[htmlTag]]
+
+<!-- <a href='javascript:$sf.ext.expand()'>Expand: $sf.ext.expand();</a><a href='javascript:$sf.ext.collapse()'>Collapse: $sf.ext.collapse();</a> -->

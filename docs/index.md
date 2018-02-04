@@ -101,7 +101,7 @@ box3 (type "bigbox", 300x250 or 300x600)
 expanding 1
 <div id='push_tag' class='ad-slot' data-adtype='970x90x250'></div>
 
-<script>let s = document.createElement('script'); s.async = true; s.src = "https://adcase.io/demo/config.js"; document.head.appendChild(s);</script>
+<script>let s = document.createElement('script'); s.async = true; s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@latest/config.js"; document.head.appendChild(s);</script>
 </body> 
 </html>
 ``` 
