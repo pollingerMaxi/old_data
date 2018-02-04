@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.1. 4/Feb/2018
+// AdCase.js JavaScript Library v2.1.2 4/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -8,11 +8,15 @@
 //
 
 if(document.location.href.toLowerCase().indexOf("showdfpdebug")>0) {
-  localStorage.setItem('ads.showLog',true);
+  sessionStorage.setItem('ads.showAdDetails',1);  
+  sessionStorage.setItem('ads.showLog',1);
 } else if(document.location.href.toLowerCase().indexOf("hidedfpdebug")>0) {
-  localStorage.removeItem('ads.showLog');
+  sessionStorage.removeItem('ads.showAdDetails');  
+  sessionStorage.removeItem('ads.showLog');
 }
-var googletag = googletag || { cmd: [] };
+var googletag = {
+  cmd: []
+};
 var script = document.createElement('script');
 script.async = true;
 script.src = "https://www.googletagservices.com/tag/js/gpt.js";
@@ -23,7 +27,8 @@ ads.formats = {};
 ads.existingSlotIds = {}; 
 ads.scrollTimeout = true;
 ads.printedSlots = {};
-ads.showLog = localStorage.getItem('ads.showLog');
+ads.showLog = sessionStorage.getItem('ads.showLog');
+ads.showAdDetails = sessionStorage.getItem('ads.showAdDetails');
 ads.startDisplay = ads.startDisplay || "";
 ads.adEvents = [];
 
@@ -74,8 +79,24 @@ ads.setTargeting = function() {
   var kv = ads.kv || {};
 
   googletag.pubads().clearTargeting();
-  if (ads.getDfpTestValue) {
-    googletag.pubads().setTargeting("dfpTest", ads.getDfpTestValue);
+
+  var adsTest = localStorage.getItem("adcase-adstest");
+  try {
+    var url = new URL(document.location.href);
+    if(url.searchParams.get("adstest") && url.searchParams.get("adstest")!="") { adsTest = url.searchParams.get("adstest"); }
+  } catch(e) {}
+
+  if(adsTest=="false") {
+    localStorage.removeItem("adcase-adstest")
+  } else {  
+    if (adsTest && adsTest!="") {
+      localStorage.setItem("adcase-adstest", adsTest);
+      var d = document.createElement("div");
+      d.style="position:fixed;bottom:0;right:0;background-color:#0984e3;color:white;font-weight:bold;font-family:Arial;font-size:13px;padding:4px 10px 4px 10px;z-index:10000000";
+      d.innerHTML = "adstest = "+adsTest;
+      document.body.appendChild(d);
+      googletag.pubads().setTargeting("adstest", adsTest);
+    }
   }
   if(Object.keys(kv).length > 0) {
     ads.log("Page level Key-values", kv);
@@ -503,7 +524,7 @@ ads.debug = function() {
     ads.d.clickButton();
   } else { 
     var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@2/dist/debug.js?"+Math.random();
+    s.src = "https://adcase.io/lib/extension2.js?"+Math.random();
     document.head.appendChild(s);
   }
 }
