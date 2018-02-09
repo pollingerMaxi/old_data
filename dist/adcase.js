@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.3 9/Feb/2018
+// AdCase.js JavaScript Library v2.1.4 9/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -850,8 +850,8 @@ ads.styles.push = ads.styles.push || {iconsStyle : "width:45px;position:absolute
                           }
 ads.styles.videoButtons = ads.styles.videoButtons || "<div id='overlay' style='width:100%;height:60px;background-color:white;opacity:0.9;position:absolute;bottom:0px ;z-index:5;display:none'></div>"
          +"<div id='overlay-txt' style='width:100%;height:50px;position:absolute;bottom:0px;z-index:6;display:none'>"
-         +  "<div style='float:left;cursor:pointer;margin:0px 0 4px 40px' onclick='replay()'><img src='https://adcase.io/demo/replay.png'></div>"
-         +  "<div style='float:right;cursor:pointer;margin:0px 40px 4px 0px' onclick='goClick()'><img src='https://adcase.io/demo/view-more.png'></div>"
+         +  "<div style='float:left;cursor:pointer;margin:0px 0 4px 40px' onclick='replay()'>REPLAY</div>"
+         +  "<div style='float:right;cursor:pointer;margin:0px 40px 4px 0px' onclick='goClick()'>VIEW MORE</div>"
          +"</div>";
 
 ads.formats.default = function (t) { 
