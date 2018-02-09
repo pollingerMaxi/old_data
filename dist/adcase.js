@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.2 4/Feb/2018
+// AdCase.js JavaScript Library v2.1.3 9/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -132,7 +132,7 @@ ads.pageLoaded = function(path) {
       divs[divId] = d.item(i);
     } 
     if(existingSlots[divId]) {
-      console.log("%cSlot id \"" + divId + "\" is duplicated. Cancelling ads", "background:red; font-size:large"); 
+      ads.log("%cSlot id \"" + divId + "\" is duplicated. Cancelling ads", "background:red; font-size:large"); 
       return;
     }
     existingSlots[divId] = true;
@@ -144,7 +144,7 @@ ads.pageLoaded = function(path) {
     var adType = parent.dataset.adtype;
     if(!adType || adType=="") { adType = parent.id; }
     if (!ads.adTypes[adType]) {
-      console.log("%c**ERROR** : COULD NOT FIND SIZE DEFINITION FOR " + adType, "color:red");
+      ads.log("%c**ERROR** : COULD NOT FIND SIZE DEFINITION FOR " + adType, "color:red");
       continue;
     }
     
@@ -163,7 +163,7 @@ ads.pageLoaded = function(path) {
     parent.innerHTML = "<div id='" + parent.id + "_ad'></div>";
 
     if(ads.id[parent.id + "_ad"]) {
-      console.log("%cSlot id \"" + parent.id + "\" is duplicated. Cancelling ads!", "background:red; font-size:large");
+      ads.log("%cSlot id \"" + parent.id + "\" is duplicated. Cancelling ads!", "background:red; font-size:large");
       return false;
     }
     
@@ -209,15 +209,13 @@ ads.adSlotList = [];
 ads.formats.footerFixed = function (t) { };
 
 ads.instanceAd = function(format) {
-  //console.log("FORMAT: ",format);
   this.values={};
   this.set = function(name,value) { this.values[name]=value; return this; };
   this.get = function(name) { return (this.values[name]!=null?this.values[name]:null); }
-  this.msg = function(){ console.log("msg not set for "+format); }
+  this.msg = function(){ ads.log("msg not set for "+format); }
   ads.formats[format](this);
   this.startDisplay = function() { 
     var d = (this.get("startDisplay") || ads.startDisplay || "");
-//    console.log("display:",format,this.get("startDisplay"), ".",ads.startDisplay, "..",d);
     this.parentSlot.style.display = d; 
   }
 } 
@@ -236,16 +234,11 @@ ads.readMessage = function(e) {
     var params = e.data.params || {};
     params.action = params.action || false;
     if(params.handle && params.handle > 1) {
-//console.log("MSG Format 0   :",e.data)
       ads.id[ads.getIdFromHandle(params.handle)].msg(params);  
     } else if (params.text){
-//console.log("MSG Format 1   :",e.data)
-      console.log("e.data.params.text",e.data.params.text);
-      console.log("**call MatchAds. text:",e.data.params.text, e.data);
       ads.adTexts.push({text:params.text, slotWindow: e.source});
       ads.matchAds();
     } else if (format) {
-//console.log("MSG Format 2   :",format,ads.id[ads.getIdFromFormat(format)], e.data)
       ads.id[ads.getIdFromFormat(format)] && ads.id[ads.getIdFromFormat(format)].msg(params);  
 
     }
@@ -406,7 +399,6 @@ ads.scroll = function() {
     ads.scrollTimeout = true;
   }, 500);
 
-  //console.log(ads.id );
   for (var i in ads.id) {
     ads.id[i].onScroll && ads.id[i].onScroll();
     if (ads.lazy) {
@@ -438,7 +430,6 @@ ads.refresh = function(divId) {
 }
 
 ads.enableScroll = function() {
-  //console.log("scrollEnabled",true);
   ads.set("scrollEnabled",true);
   window.addEventListener("scroll", function() {
     if (ads.scrollTimeout) {
@@ -568,7 +559,6 @@ ads.formats.footerFixed = function(t) {
   t.set("startDisplay", "");
 
   t.msg = function(p) {
-    //console.log("msg a footerFixed: ",p);
     p.expandedHeight && t.set("expandedHeight", p.expandedHeight);
     p.collapsedHeight && t.set("expandedHeight", p.collapsedHeight);
     p.expandedHeight && p.collapsedHeight && t.setExpanding(p);
@@ -606,10 +596,8 @@ ads.formats.footerFixed = function(t) {
 };
 
   t.setExpanding = function(p) {
-    //console.log("setExpanding");
     var div = t.slot;
     var containerDiv = t.parentSlot;
-    // Expanding mouseover footer
     div.addEventListener("mouseover", 
       function() { 
         document.getElementById("footerFixed-adText").style.display="none"; 
@@ -630,11 +618,6 @@ ads.formats.interstitial = function(t) {
 t.set("startDisplay", "none");
 
 t.msg = function(params) {
-  console.log("Interstitial msg:",params);
-   // TODO: ignore messages if handle does not match
-  //if(!params.handle || params.handle!=t.get("handle")) {
-  //  return;
-  //}
   params.height = params.height || t.height;
   params.width = params.width || t.width;
 
@@ -657,7 +640,6 @@ t.msg = function(params) {
   var iframe = div.getElementsByTagName("iframe")[0];
   if(params.videoURL) {
     if(!params.clicktagURL) {
-      console.log("ERROR!. No clicktag URL");
       return;
     }
     iframe = t.createVideo(params);
@@ -720,7 +702,7 @@ t.msg = function(params) {
   window.clearTimeout(ads.interstitialTimeout);
   if(params.autoclose > 0) {
     ads.interstitialTimeout = window.setTimeout(function() { 
-     // parent.style.display = "none";
+     parent.style.display = "none";
      // parent.innerHTML = ""
     }, params.autoclose * 1000);
   }
@@ -735,8 +717,6 @@ t.createVideo = function(params) {
     t.width = "100%";
     t.height = "100%";
   }
-  //console.log(t.width,t.height);
-  //console.log(t.slot);
   video.width = t.width;
   video.height = t.height;
   video.style.margin = "auto";
@@ -757,9 +737,7 @@ t.createVideo = function(params) {
   c.setAttribute("onclick",  "window.open('"+params.clicktagURL+"', '_blank')" );
   t.slot.appendChild(c);
   video.play();
-  console.log(video);
   window.setTimeout(function(){ video.play() },1000);
-  //console.log("play Video");
   
   return video;
 
@@ -794,7 +772,6 @@ ads.formats.push = function(t) {
 ads.formats.videobanner = function (t) { 
 
   t.videobannerMsg = function(p) {
-    //console.log("-----videoBannerMsg",p,t.divId);
     t.set("videoBannerScrollEnabled",true);
 
     t.get("window").postMessage({ videoButtons: ads.styles.videoButtons } , "*");
@@ -809,10 +786,8 @@ ads.formats.videobanner = function (t) {
   t.videoBannerScroll = function() {
 
     if (t.elementInViewport()) {
-//      console.log("play");
       t.play();
     } else if(!t.elementInViewport()) {
-//      console.log("pause");
       t.pause();
     }
   }
@@ -834,45 +809,14 @@ ads.formats.videobanner = function (t) {
   }
 
   t.play = function() {
-    //console.log(t.divId+"PLAY");
     t.set("playing",true);
     t.get("window").postMessage({ action:"play" } , "*");
   }
   t.pause = function() {
-    //console.log(t.divId+"PAUSE");
     t.set("playing",false);
     t.get("window").postMessage({ action:"pause" } , "*");
   }
 }
-
-
-
-/*
-var xhttp = new XMLHttpRequest();
-xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-    gotVAST(this);
-    }
-};
-xhttp.open("GET", "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=", true);
-xhttp.send();
-var url = null;
-var h = null;
-
-function gotVAST(xml) {
-    var xmlDoc = xml.responseXML;
-//    console.log(xmlDoc.childNodes);
-   console.log(xmlDoc.getElementsByTagName("MediaFile")[0]);
-   h = xmlDoc.getElementsByTagName("MediaFile")[0];
-//    document.getElementById("demo").innerHTML =
-//    xmlDoc.getElementsByTagName("MediaFiles")[0].childNodes[0].nodeValue;
- var video = {};
- video.url = h.innerHTML.replace("<![CDATA[", "").replace("]]>", "");
-
-  runVideo(video);
-
-}
-*/
 
 ads.formats.pushonclick = function (t) { 
 
@@ -881,7 +825,6 @@ ads.formats.pushonclick = function (t) {
   t.pushonclickMsg = function(p) {
     p.expandedHeight && t.set("expandedHeight",p.expandedHeight);    
     p.collapsedHeight && t.set("collapsedHeight",p.collapsedHeight);    
-    console.log("t.pushonclickMsg",p);
 
     t.parentSlot.style.display = ads.startDisplay;
 
@@ -912,13 +855,11 @@ ads.styles.videoButtons = ads.styles.videoButtons || "<div id='overlay' style='w
          +"</div>";
 
 ads.formats.default = function (t) { 
-//console.log("DEFAULT");
   ads.formats.videobanner(t);
   ads.formats.pushonclick(t);
   t.set("startDisplay","none");
 
   t.msg = function(p) {
-//    console.log("DEFAULT MSG",p);
     if(p.action == "videobanner") {
       t.videobannerMsg(p);
     } else if(p.action == "pushonclick") {
@@ -927,16 +868,13 @@ ads.formats.default = function (t) {
   }
 
   t.onScroll = function() {
-  //  console.log("default onScroll");
     if(t.get("videoBannerScrollEnabled")) {
       t.videoBannerScroll();
     } else {
-      //console.log("scroll not enabled");
+
     }
   }
 };
-
-console.log("AdCase v2.1.1");
 
 ads.loaded = true;
 ads.run();
