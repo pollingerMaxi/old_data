@@ -1,12 +1,3 @@
-//
-// AdCase.js DEBUG JavaScript Library v2.1.1. 4/Feb/2018
-// Copyright 2018 adcase.io 
-// https://adcase.io
-// https://adcase.io/license 
-// AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
-// This is not an official Google product, and it is also not officially supported by Google.
-//
-
 ads.d = ads.d || {};
 ads.d.values = ads.d.values || {};
 ads.d.s = function(k,v) { ads.d.values[k] = v; }
@@ -14,17 +5,6 @@ ads.d.g = function(k) { return ads.d.values[k] || null; }
 ads.d.pagekvHTML = "";
 
 ads.d.s("isMobile",/Mobi/.test(navigator.userAgent));
-
-/*
-window.addEventListener("message", function(event){
-  if(event.data.adcase && event.data.adcase=="modal") {
-    console.log("**CALL RUN");
-    ads.d.run();
-  } else {
-    console.log("**NOTRUN",event.data);
-  }
-}, false);
-*/
 
 ads.d.updateModal = function() {
   if(ads.d.g("isMobile")) {
@@ -74,7 +54,7 @@ ads.d.closeModal = function() {
 }
 ads.d.run = function() {
   var mode = ads.d.g("mode")*1;
-  console.log("----RUN MODE:"+mode);
+
   var button = document.getElementById("adcase-button-button");
   var text = document.getElementById("adcase-button-text");
   ads.d.g("modalContainer") && (ads.d.g("modalContainer").style.display="none");
@@ -100,7 +80,6 @@ ads.d.runOverlay = function () {
   ads.d.prepareData();
   for(var i in ads.d.data) {
     var d = ads.d.data[i];
-    console.log(d);
 
     var html = "<div style='width:100%;padding:10px;text-align:left; font-family:Arial;line-height:1.3;font-size:13px;opacity: 0.9;background-color:#eee'>"
              +"<div style='margin-bottom:4px;padding:8px 0 0 10px;height:26px;color:#fff;width:100%;text-align:left;background-color:#3498db;font-weight:bold;font-size:15px'>"
@@ -116,7 +95,10 @@ ads.d.runOverlay = function () {
     html += "</div>";
 
     var div = document.getElementById(d.divId);
-    if(!div) { console.log("NOT DIV",d.divId); continue;}
+    if(!div) { 
+      ads.log("NOT DIV",d.divId); 
+      continue;
+    }
     div.style.position = "relative";    
     var newDiv = document.getElementById("adcase-overlay-"+d.divId);
     if(newDiv) {
@@ -143,7 +125,6 @@ ads.d.runModal = function() {
 ads.d.checkInventory();
 
 if(ads.d.g("modalContainer")) { 
-  console.log("REFRESH");
   ads.d.updateModal();
   ads.d.g("modalContainer").style.display = "block";
   return;
@@ -154,12 +135,9 @@ if( ads.d.g("isMobile") ) {
   return;
 }
 
-console.log("PRINT MODAL");
   var style =`
 
-/* The Modal (background) */
 #adcaseContainer {
-//    display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 9999999; /* Sit on top */
     padding-top: 100px; /* Location of the box */
@@ -172,7 +150,6 @@ console.log("PRINT MODAL");
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
-/* Modal Content */
 #adcaseContainer2 {
     font-family: Arial; 
     font-size:13px;
@@ -272,7 +249,6 @@ ads.d.prepareData = function() {
     ads.d.data[row.parentId] = row;
   }
 
-  //console.log(ads.debugData);
 }
 
 
@@ -403,7 +379,6 @@ ads.d.getSlotKV = function(slot) {
       }
     } catch (e) {}
   }
-  //console.log("URL",url);
 
   var kv = {};  
   var url = new URL(url);
@@ -498,7 +473,7 @@ ads.d.setIpInfo = function() {
     };
     xhr.send();
   } catch(e) {
-    console.log(e);
+
   }
 
 }
@@ -507,12 +482,9 @@ ads.d.setIpInfo = function() {
 
 ads.d.runModalMobile = function() {
 
-console.log("PRINT MODAL MOBILE");
   var style =`
 
-/* The Modal (background) */
 #adcaseContainer {
-//    display: none; /* Hidden by default */
     position: absolute; /* Stay in place */
     z-index: 9999999; /* Sit on top */
     padding-top: 50px; /* Location of the box */
@@ -523,7 +495,6 @@ console.log("PRINT MODAL MOBILE");
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
 
-/* Modal Content */
 #adcaseContainer2 {
     font-family: Arial; 
     font-size:13px;
@@ -655,5 +626,4 @@ ads.d.debugContentMobile = function() {
   return html;
 }
 
-//ads.d.s("mode",2);
 ads.d.clickButton();
