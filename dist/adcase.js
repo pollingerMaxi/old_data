@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.7. 15/Feb/2018
+// AdCase.js JavaScript Library v2.1.8. 15/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -504,7 +504,7 @@ ads.debug = function() {
     ads.d.clickButton();
   } else { 
     var s = document.createElement("script");
-    s.src = "https://adcase.io/lib/extension2.js?"+Math.random();
+    s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@2/dist/debug.js?"+Math.random();
     document.head.appendChild(s);
   }
 }
@@ -935,7 +935,6 @@ t.slot.classList.remove("adcase-doubletopsticky");
   }
 
 }
-console.log("AdCase v2.1.7");
 
 ads.loaded = true;
 ads.run();
