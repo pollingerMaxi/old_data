@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.4 9/Feb/2018
+// AdCase.js JavaScript Library v2.1.7. 15/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -132,7 +132,6 @@ ads.pageLoaded = function(path) {
       divs[divId] = d.item(i);
     } 
     if(existingSlots[divId]) {
-      ads.log("%cSlot id \"" + divId + "\" is duplicated. Cancelling ads", "background:red; font-size:large"); 
       return;
     }
     existingSlots[divId] = true;
@@ -144,18 +143,16 @@ ads.pageLoaded = function(path) {
     var adType = parent.dataset.adtype;
     if(!adType || adType=="") { adType = parent.id; }
     if (!ads.adTypes[adType]) {
-      ads.log("%c**ERROR** : COULD NOT FIND SIZE DEFINITION FOR " + adType, "color:red");
       continue;
     }
     
     var format = ads.adTypes[adType].adFormat || "default";
 
     if (!ads.checkDivList(parent.id, parent.dataset.manual)) {
-      // if div is set as data-manual, and there is no specific slot list to run
       continue;
     }
 
-    while (parent.firstChild) { // clean and reuse existing div
+    while (parent.firstChild) {
       parent.removeChild(parent.firstChild);
     }
 
@@ -163,7 +160,6 @@ ads.pageLoaded = function(path) {
     parent.innerHTML = "<div id='" + parent.id + "_ad'></div>";
 
     if(ads.id[parent.id + "_ad"]) {
-      ads.log("%cSlot id \"" + parent.id + "\" is duplicated. Cancelling ads!", "background:red; font-size:large");
       return false;
     }
     
@@ -212,7 +208,7 @@ ads.instanceAd = function(format) {
   this.values={};
   this.set = function(name,value) { this.values[name]=value; return this; };
   this.get = function(name) { return (this.values[name]!=null?this.values[name]:null); }
-  this.msg = function(){ ads.log("msg not set for "+format); }
+  this.msg = function(){ }
   ads.formats[format](this);
   this.startDisplay = function() { 
     var d = (this.get("startDisplay") || ads.startDisplay || "");
@@ -240,7 +236,6 @@ ads.readMessage = function(e) {
       ads.matchAds();
     } else if (format) {
       ads.id[ads.getIdFromFormat(format)] && ads.id[ads.getIdFromFormat(format)].msg(params);  
-
     }
   }
 }
@@ -343,7 +338,6 @@ ads.getIdFromFormat = function(format) {
   }
 }
 
-/* convert adTypesMap into adTypes */
 ads.setAdTypes = function() {
   ads.setDevice();
 
@@ -356,7 +350,6 @@ ads.setAdTypes = function() {
     let t = ads.adTypesMap[i];
     t.minWidth = t.minWidth || 0;
 
-    // check device type
     if (t.deviceType) {
       if (ads.device.isMobile && t.deviceType.toLowerCase().indexOf("mobile") < 0 ||
         ads.device.isDesktop && t.deviceType.toLowerCase().indexOf("desktop") < 0) {
@@ -364,16 +357,13 @@ ads.setAdTypes = function() {
       }
     }
 
-    // check screen size
     let width = window.innerWidth;
     if (t.minWidth && t.minWidth > window.innerWidth) {
       continue;
     }
 
     var prevMinWidth = ( ads.adTypes[t.type] ? ads.adTypes[t.type].minWidth : 0 );
-    // add current config to adTypes. 
     if (t.minWidth >= prevMinWidth) {
-      // Replaces only if current minWith > last one
       ads.adTypes[t.type] = {
         sizes: t.sizes,
         adFormat: (t.adFormat || false),
@@ -476,7 +466,6 @@ ads.getVideoURL = ads.getVideoURL || function(output, vpos, slot) {
   output = output || "vast";
   vpos = vpos || "preroll";
   var slotname = "/" + ads.network + ads.router() + slot; 
-  //slotname = slotname.substring(0, slotname.length - 1);
   var url = document.location.href;
   var timestamp = new Date().getTime();
   var cust_params = ""; // set key values
@@ -648,7 +637,6 @@ t.msg = function(params) {
   var iconDiv = document.createElement("div");
 
   if(params.width == 9999) {
-    // fullscreen
     marginLeft = 0;
     marginTop = 0;
     iconRight = 5;
@@ -666,12 +654,10 @@ t.msg = function(params) {
 
         var w = window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
         var h = window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
-        //params.windowSource.postMessage({ msg: "setSize", width: w, height: h}, "*");
       }, 50);
     }, true);
     var w = window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
     var h = window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight||0;
-    //params.windowSource.postMessage({ msg: "setSize", width: w, height: h}, "*");
 
   } else {
 
@@ -818,6 +804,7 @@ ads.formats.videobanner = function (t) {
   }
 }
 
+
 ads.formats.pushonclick = function (t) { 
 
   t.set("startDisplay", "none");
@@ -871,10 +858,84 @@ ads.formats.default = function (t) {
     if(t.get("videoBannerScrollEnabled")) {
       t.videoBannerScroll();
     } else {
-
     }
   }
 };
+
+ads.formats.doubletopsticky = function(t) {
+
+  t.msg = function(p) {
+
+    if(p.width && p.width>0) {
+    t.set("transition", p.transition);
+    t.set("inlineHeight", p.inlineHeight);
+    t.set("stickyHeight", p.stickyHeight);
+    t.set("maxHeight", Math.max(p.inlineHeight,p.stickyHeight));
+      t.set("width",p.width);
+      t.slot.parentElement.style.height=t.get("inlineHeight")+"px";
+  }
+  } 
+
+  t.lastScrollTop = 0;
+
+  window.addEventListener("scroll", function(){
+    t.doScroll();
+  }, false);
+
+  t.doScroll = function() {
+    var offsets = document.getElementById(t.parentSlot.id).getBoundingClientRect();
+    var inlineBottom = offsets.top + (t.get("inlineHeight")*1);
+
+    var st = window.pageYOffset || document.documentElement.scrollTop; 
+    if (st > t.lastScrollTop){
+      if(inlineBottom<0) {
+      t.get("window") && !t.get("stickyOn") && t.showSticky(true);
+      } else {
+        t.get("window") && t.get("stickyOn") && t.showSticky(false);
+      }
+    } else if (st <= t.lastScrollTop) {
+      t.get("window") && t.get("stickyOn") && t.showSticky(false);
+   }
+   t.lastScrollTop = st;
+}
+  
+  t.showSticky = function(stickyOn) {
+    if(stickyOn) {
+      t.slot.style.transition = "top 0s ease-in-out";
+      t.slot.style.position="fixed";
+      t.slot.style.left="50%";
+      t.slot.style.marginLeft="-"+(t.get("width")/2)+"px";
+      t.slot.style.height = t.get("stickyHeight")+"px";
+      t.slot.style.top = '-'+(t.get("stickyHeight")*2)+'px';
+      window.setTimeout(function(){ t.slot.style.zIndex=1200; t.slot.style.transition = "top "+(t.get("transition")/1000)+"s ease-in-out"; t.slot.style.top = '45px'; },10);
+      t.get("window").postMessage({ sticky:"on" },"*");
+    } else {
+      t.slot.style.top = '-'+(t.get("stickyHeight")*2)+'px';
+      window.setTimeout(function(){ 
+        t.slot.style.position="";
+        t.slot.style.left="";
+        t.slot.style.marginLeft="";
+        t.slot.style.height= t.get("inlineHeight")+"px";
+
+        t.slot.style.top="";
+        t.get("window").postMessage({ sticky:"off"},"*"); 
+      } ,t.get("transition")); 
+      
+    }
+    
+    t.set("stickyOn",stickyOn);
+  }
+  t.fn = function() { 
+t.slot.classList.remove("adcase-doubletopsticky");
+        t.get("window").postMessage({ sticky:"off"},"*");
+    t.slot.style.display="block"; 
+    t.slot.style.position="relative"; 
+    t.slot.style.top="";
+    t.slot.innerHTML=""; 
+  }
+
+}
+console.log("AdCase v2.1.7");
 
 ads.loaded = true;
 ads.run();
