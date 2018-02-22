@@ -229,9 +229,8 @@ ads.d.prepareData = function() {
     }
     row.adUnit = e.slot.getAdUnitPath();
 
-    if(!ads.network) {
-      row.network = ads.strtoken(row.adUnit,2,"/");
-    }
+    row.network = ads.network || ads.strtoken(row.adUnit,2,"/");
+
     row.errorTxt = "";//(ads.d.g("debugErrors")[row.parentId] ? " <span style='color:red;font-weight:bold'>[WRONG ID]</span>" : "");
     printedSlots[row.parentId] = true;
     row.slotKV = e.slotKVHTML;
