@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.9. 16/Feb/2018
+// AdCase.js JavaScript Library v2.1.11. 22/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -146,6 +146,15 @@ ads.pageLoaded = function(path) {
       continue;
     }
     
+    var divPosition = null; 
+    var divDFPId = parent.id;
+    if(parent.id.indexOf("#")>0) {
+      divPosition = parent.id.split("#")[1];   
+      divDFPId = parent.id.split("#")[0];   
+    }
+    console.log("divPosition",divPosition, divDFPId);
+
+    
     var format = ads.adTypes[adType].adFormat || "default";
 
     if (!ads.checkDivList(parent.id, parent.dataset.manual)) {
@@ -166,10 +175,12 @@ ads.pageLoaded = function(path) {
     var d = parent.id + "_ad";
     ads.id[d] = new ads.instanceAd(format);
     ads.id[d].slot = document.getElementById(d);
+    ads.id[d].divPosition = divPosition;
+    ads.id[d].divDFPId = divDFPId;
     ads.id[d].parentSlot = parent;
     ads.id[d].parentId = parent.id;
     ads.id[d].divId = d;
-    ads.id[d].dfpPath = path + parent.id 
+    ads.id[d].dfpPath = path + divDFPId;
     ads.id[d].sizes = ads.adTypes[adType].sizes;
     ads.id[d].format = format;
     ads.id[d].startDisplay();
@@ -187,7 +198,11 @@ ads.pageLoaded = function(path) {
 
     for (var i in ads.id) {
       var d = ads.id[i];
-      ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).addService(googletag.pubads());
+      if(d.divPosition) {
+        ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).setTargeting("divposition",d.divPosition).addService(googletag.pubads());    
+      } else {
+        ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).addService(googletag.pubads());    
+      }
       ads.id[i].requestedSizes = d.sizes;
     }
 
@@ -736,7 +751,7 @@ ads.formats.push = function(t) {
   t.msg = function(p) {
 
     p.expandedHeight && t.set("expandedHeight", p.expandedHeight);
-    p.collapsedHeight && t.set("expandedHeight", p.collapsedHeight);
+    p.collapsedHeight && t.set("collapsedHeight", p.collapsedHeight);
 
     t.parentSlot.style.overflow = "hidden";
   if(p.transition) {
