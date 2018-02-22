@@ -1,3 +1,5 @@
+// debug v2.1.1
+
 ads.d = ads.d || {};
 ads.d.values = ads.d.values || {};
 ads.d.s = function(k,v) { ads.d.values[k] = v; }
@@ -240,6 +242,7 @@ ads.d.prepareData = function() {
     row.orderURL = e.campaignId ? ("<a target=_blank href='https://www.google.com/dfp/" + row.network + "?#delivery/OrderDetail/orderId=" + e.campaignId+"'>"+e.campaignId+"</a>") : "";
     row.lineItemURL = e.lineItemId ? ("<a target=_blank href='https://www.google.com/dfp/" + row.network + "?#delivery/LineItemDetail/lineItemId=" + e.lineItemId+"'>"+e.lineItemId+"</a>") : "";
     row.creativeURL = e.creativeId ? ("<a target=_blank href='https://www.google.com/dfp/" + row.network + "?#delivery/CreativeDetail/creativeId=" + e.creativeId+"'>"+e.creativeId+"</a>") : "";
+    row.qid = e.slot.getEscapedQemQueryId();
 
     row.orderID = e.campaignId;
     row.lineItemID = e.lineItemId;
@@ -271,14 +274,14 @@ ads.d.debugContent = function() {
    +"</td></tr></table>"
 
    + "<table class='adcaseTable'>"
-   +"<thead><tr><td>Slot id</td><td>Ad Unit</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
+   +"<thead><tr><td>Slot id</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
    +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td>Slot KV</td></tr></thead>";
 var printedSlots = {};
   for(var i in ads.d.data) {
     var d = ads.d.data[i];
     printedSlots[d.parentId] = true;
 
-    html += "<tr style='background-color:"+(d.size=="unfilled"?"#ffd394":"")+"'><td><b>"+d.parentId+"</b></td><td>"+d.adUnit+"</td><td>"+d.errorTxt+"</td>"
+    html += "<tr style='background-color:"+(d.size=="unfilled"?"#ffd394":"")+"'><td><b>"+d.parentId+"</b></td><td>"+d.adUnit+"<br>"+d.qid+"</td><td>"+d.errorTxt+"</td>"
              +"<td>"+d.sizes+"</td>"
              +(showFormat?"<td>"+d.format+"</td>":"")
              +"<td style='text-align:center'>"+d.size+"</td>"
@@ -425,10 +428,8 @@ ads.d.layerAdDetails = function () {
     var logHTML = "<table style='margin:0 auto;background-color:white;'>"
         + "<tr><td style='text-align:left' colspan=2><b>" + div.parentElement.id + "</b>: " + event.slot.getAdUnitPath() + "</td></tr>"
         + "<tr><td width=10 style='text-align:left'>Size:</td><td style='text-align:left'>" + event.size[0] + " x " + event.size[1] + "</td></tr>"
-        + "<tr><td style='text-align:left'>Advertiser:</td><td style='text-align:left'>" + event.advertiserId + "</td></tr>"
-        + "<tr><td style='text-align:left'>Order:</td><td style='text-align:left'><a href='" + orderURL + "' target=_blank>" + event.campaignId + "</a></td></tr>"
-        + "<tr><td style='text-align:left'>LineItem:</td><td style='text-align:left'><a href='" + lineItemURL + "' target=_blank>" + event.lineItemId + "</a></td></tr>"
-        + "<tr><td style='text-align:left'>Creative:</td><td style='text-align:left'><a href='" + creativeURL + "' target=_blank>" + event.creativeId + "</a></td></tr>"
+        + "<tr><td style='text-align:left'>Advertiser: " + event.advertiserId + " Order: <a href='" + orderURL + "' target=_blank>" + event.campaignId 
+        + "</a>LineItem: <a href='" + lineItemURL + "' target=_blank>" + event.lineItemId + "</a> Creative:</td><td style='text-align:left'><a href='" + creativeURL + "' target=_blank>" + event.creativeId + "</a></td></tr>"
         //+ "<tr><td style='text-align:left'>adFormat:</td><td style='text-align:left'>" + params.adFormat + "</td></tr>"
         //              +  +"<br>Targeting: " + event.slot.getTargetingKeys() 
 
@@ -564,7 +565,8 @@ ads.d.debugContentMobile = function() {
 
   var html = "<div class='adcase-title'>Debug</div>"
              +"<div class='adcase-block'>"
-              +"<div ><b>"+dfpPath+"</b><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></div>"
+              +"<div ><b>"+dfpPath+"</b><div id='adcase-ipinfo' style='font-size:12px;margin-top:5px'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></div>"
+              +"<div style='font-size:12px;margin-top:5px'><b>User Agent:</b> " + navigator.userAgent + "</div>"
               +"</div><div class='adcase-block'>";
 
   var printedSlots = {};
@@ -583,7 +585,8 @@ ads.d.debugContentMobile = function() {
       html +="<br><b>Ad: "+d.size+"</b><br/>"
              +"<b>Or: </b>"+d.orderID+"&nbsp;&nbsp;"
              +"<b>LI: </b>"+d.lineItemID+"&nbsp;&nbsp;"
-             +"<br><b>Cr: </b>"+d.creativeID+"&nbsp;&nbsp;<br/>"
+             +"<br><b>Cr: </b>"+d.creativeID+"&nbsp;&nbsp;"
+             +"<br><b>qID: </b>"+d.qid+"&nbsp;&nbsp;<br/>"
              +(d.slotKV!="" ?"KV: "+d.slotKV:"");
     }
     html += "</div></div>";
