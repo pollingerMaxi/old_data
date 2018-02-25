@@ -40,8 +40,10 @@ table { width:90%;}
 				<option value='360x100'>360x100</option>
 				<option value='728x90'>720x90</option>
 				<option value='920x250'>920x250</option>
+				<option value='920x300'>920x300</option>
 				<option value='970x90'>970x90</option>
 				<option value='970x250'>970x250</option>
+				<option value='1260x300'>1260x300</option>
 				<!--<option value='fullscreen'>Fullscreen</option>-->
 			    </select> 
 			</td></tr>

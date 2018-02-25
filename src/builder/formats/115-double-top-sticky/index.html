@@ -1,0 +1,38 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[maxHeight]]">
+</head>
+<body style='margin:0'>
+[[clicktagLayer]]
+	<div id='ad_inline' style='display:;width:[[width]]px;height:[[inlineHeight]]px;overflow:hidden;'>
+		[[inlineContent]]
+	</div> 
+	<div id='ad_sticky' style='display:none;width:[[width]]px;height:[[stickyHeight]]px;overflow:hidden;'>
+		[[stickyContent]]
+	</div> 
+<script>
+  var clickTag = "[[clicktagURL]]";
+  tpl = { slotHandle: 1 };
+  tpl.receiveMessages = function(e) {
+    if(e.data && e.data.sticky && (e.data.sticky=="on" || e.data.sticky=="off")) {
+      tpl.sync(e.data.sticky);
+    } else if(e.data && e.data.setSlotHandle) { 
+        tpl.slotHandle = e.data.setSlotHandle;
+        window.top.postMessage({ msg: "adcase", format:"doubleTopSticky", 
+            params: { action: "doubleTopStickyLoaded", handle:tpl.slotHandle, inlineHeight: [[inlineHeight]], stickyHeight: [[stickyHeight]]
+            ,inlinePosition:"[[inlinePosition]]", inlinePositionDivId:"[[inlinePositionDivId]]", transition:[[transitionTimeMs]], width:[[width]] } } , "*");
+
+    } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+        window.top.postMessage({ msg: "adcase", format:"doubleTopSticky", params: { action: "doubleTopStickyLoaded", text: e.data } } , "*");
+    }
+  }
+
+  window.addEventListener ? window.addEventListener("message", tpl.receiveMessages, !1) 
+    : (window.attachEvent && window.attachEvent("message", tpl.receiveMessages));
+
+  tpl.sync = function(sticky) {
+    document.getElementById("ad_inline") && (document.getElementById("ad_inline").style.display = (sticky=="on"?"none":"block"));
+    document.getElementById("ad_sticky") && (document.getElementById("ad_sticky").style.display = (sticky=="off"?"none":"block")); 
+  }
+</script>
+</body></html>

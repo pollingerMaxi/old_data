@@ -1,0 +1,49 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[collapsedHeight]]">
+<script>
+
+var clickTag = "[[clicktagURL]]";
+var tpl = {};
+
+tpl.expanded = false;
+tpl.slotHandle = 1;
+
+var url = document.location.href.substring(0,document.location.href.length-10);
+var expandedHTML = false;
+var expandedImage = false;
+if("[[expandedURL]]" != "") {
+  expandedURL = url + "[[expandedURL]]";
+} else {
+  expandedImage = url + "[[expandedImage]]";
+}
+
+
+tpl.recieveMessage = function(e) {
+    //console.log("msg",e);
+
+    if(e.data && e.data.setSlotHandle) { 
+//        console.log("caso2");
+        tpl.slotHandle = e.data.setSlotHandle;
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { handle:tpl.slotHandle, expandOn:'mouseover', expandMS:[[expandMS]],
+            expandTo:"layer", expandedURL: expandedURL, expandedImage: expandedImage, backgroundColor: '[[backgroundColor]]',
+            collapse:true, expandedHeight: [[expandedHeight]], collapsedHeight: [[collapsedHeight]] } } , "*");
+    } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+//        console.log("caso1");
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { text: e.data } } , "*");
+    }
+}
+
+window.addEventListener ? window.addEventListener("message", tpl.recieveMessage, !1) 
+    : (window.attachEvent && window.attachEvent("message", tpl.recieveMessage));
+
+</script>
+</head>
+<body style='margin:0;cursor:pointer'>
+[[clicktagLayer]]
+<div id='ad_collapsed' style=';width:[[width]]px;height:[[collapsedHeight]]px;overflow:hidden;'>
+	[[collapsedContent]]
+</div> 
+</body></html>

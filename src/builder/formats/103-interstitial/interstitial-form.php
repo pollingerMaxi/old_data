@@ -36,6 +36,13 @@ table { width:90%;}
 			    </select> 
 			</td></tr>
 
+		<tr><td>Create ClickTag Layer:</td>
+			<td><select type="text" id="form3" name='clicktag_layer' class="form-control">
+		    	<option value="1">Yes</option>
+		    	<option value="0">No</option>
+		   	</select>
+   			</td></tr>
+
 		<tr><td>Clicktag URL:</td>
 			<td><input type="text" value='www.google.com' name='clicktag_url'></td></tr>
 

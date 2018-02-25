@@ -58,6 +58,7 @@ $vars["clicktagURL"] = $clicktagURL;
 $vars["width"] = f::getparam("width") * 1;
 $vars["collapsedHeight"] = f::getparam("collapsed_height") * 1;
 $vars["expandedHeight"] = f::getparam("expanded_height") * 1;
+$vars["backgroundColor"] = f::getparam("background_color");
 $vars["transitionTimeMs"] = f::getparam("animated_transition") * 250;
 //------------------------------------------------------------------------------
 if(f::getparam("clicktag_layer")) {
@@ -74,10 +75,13 @@ if($data["collapsed"]["ext"] == "zip") {
 	$vars["collapsedContent"] = "<img src='collapsed.{$data["collapsed"]["ext"]}' style='border:0;width:{$vars["width"]}px;height:{$vars["collapsedHeight"]}px' />";
 }
 //------------------------------------------------------------------------------
+$vars["expandedURL"] = "";
 if($data["expanded"]["ext"] == "zip") {
-	$vars["expandedContent"] = "<iframe src='expanded/index2.html' frameborder=0 style='width:{$vars["width"]}px;height:{$vars["expandedHeight"]}px' scrolling='no'></iframe>";
+	$vars["expandedURL"] = "expanded/index2.html";
+//	$vars["expandedContent"] = "<iframe src='expanded/index2.html' frameborder=0 style='width:{$vars["width"]}px;height:{$vars["expandedHeight"]}px' scrolling='no'></iframe>";
 } else {
-	$vars["expandedContent"] = "<img src='expanded.{$data["expanded"]["ext"]}' style='border:0;width:{$vars["width"]}px;height:{$vars["expandedHeight"]}px' />";
+	$vars["expandedImage"] = "expanded.{$data["expanded"]["ext"]}";
+//	$vars["expandedContent"] = "<img src='expanded.{$data["expanded"]["ext"]}' style='border:0;width:{$vars["width"]}px;height:{$vars["expandedHeight"]}px' />";
 }
 //------------------------------------------------------------------------------
 

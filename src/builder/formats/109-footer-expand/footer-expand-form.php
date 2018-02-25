@@ -19,10 +19,10 @@ table { width:90%;}
 <br>
 
 	<table>
-		<input type="hidden" name="collapsed_size" value='970x90'>
-		<input type="hidden" name="expanded_size" value='970x250'>
 		<input type="hidden" name="format" value='footer-expand'>
-<!--
+<!--		<input type="hidden" name="collapsed_size" value='970x90'>
+		<input type="hidden" name="expanded_size" value='970x250'>
+
 		<tr><td>Collapsed Size:</td>
 			<td><select type="text" name="collapsed_size" class="form-control">
 				<option>970x90</option></select>
@@ -64,26 +64,15 @@ table { width:90%;}
 		<tr><td>Expanded zip or image:</td>
 			<td><input type="file" name='expanded_zip'></td></tr>
 
-<!--
-<input type="hidden" value='Abrir' name='expand_button'>
-<input type="hidden" value='Cerrar' name='collapse_button'>
-		<tr><td>Expand button text or base64 image:</td>
-			<td><input type="text" value='Abrir' name='expand_button'></td></tr>
+		<tr><td>Expand Action:</td>
+			<td><select type="text" id='expand_action' name="expand_action" class="form-control" onchange='expandAction()'>
+				<option selected value='click'>expand button click</option>
+				<option value='mouseover'>mouseOver, wait X seconds</option>
+			    </select>
+			</td></tr>
 
-		<tr><td>Collapse button text or base64 image:</td>
-			<td><input type="text" value='Cerrar' name='collapse_button'></td></tr>
-		<tr><td>Initial State:</td>
-			<td><select type="text" id="initial_state" name='initial_state' class="form-control">
-		    	<option value="C">Collapsed</option>
-		    	<option value="E" selected>Expanded</option>
-		   	</select>
-   			</td></tr>
-
-   		<tbody id='autoclose_section'>
-		<tr><td>Autoclose in seconds:</td>
-			<td><input type="text" value='8' name='autoclose_seconds'></td></tr>
-		</tbody>
--->
+		<tbody id='expand_seconds_block' style='display:none'><tr><td>Expand Seconds:</td>
+			<td><input type="text" value='5' name='expand_seconds'></td></tr></tbody>
 
 		<tr><td>Create ClickTag Layer:</td>
 			<td><select type="text" id="form3" name='clicktag_layer' class="form-control">
@@ -94,7 +83,7 @@ table { width:90%;}
 
 		<tr><td>Clicktag URL:</td>
 			<td><input type="text" value='www.google.com' name='clicktag_url'></td></tr>
-<!--
+
 		<tr><td>Animated transition:</td>
 			<td><select type="text" id="form3" name='animated_transition' class="form-control">
 		    	<option value="1">Yes, 0.25 seconds</option>
@@ -104,10 +93,7 @@ table { width:90%;}
 		    	<option value="0">No</option>
 		   	</select>
    			</td></tr>
--->
-<!--		<tr><td>Background Color:</td>
-			<td><input type="text" value='white'></td></tr>
--->
+
 
 	</table>
 
@@ -123,3 +109,9 @@ table { width:90%;}
 
 </div>
 </main>
+
+<script>
+function expandAction() {
+  document.getElementById("expand_seconds_block").style.display = (document.getElementById("expand_action").value=="mouseover" ? "" : "none");
+
+}</script>

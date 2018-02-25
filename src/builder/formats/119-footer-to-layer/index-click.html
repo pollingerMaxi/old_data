@@ -1,0 +1,51 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[expandedHeight]]">
+<script>
+
+var clickTag = "[[clicktagURL]]";
+var tpl = {};
+tpl.expanded = false;
+tpl.slotHandle = 1;
+
+tpl.recieveMessage = function(e) {
+
+    if(e.data && e.data.collapse) { 
+      tpl.changeSize(false);
+
+    } else if(e.data && e.data.expand) { 
+      tpl.changeSize(true);
+
+    } else if(e.data && e.data.setSlotHandle) { 
+        tpl.slotHandle = e.data.setSlotHandle;
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { handle:tpl.slotHandle, expandOn:"click", collapse:true, expandedHeight: [[expandedHeight]], collapsedHeight: [[collapsedHeight]] } } , "*");
+
+    } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", params: { text: e.data } } , "*");
+    }
+}
+
+window.addEventListener ? window.addEventListener("message", tpl.recieveMessage, !1) 
+    : (window.attachEvent && window.attachEvent("message", tpl.recieveMessage));
+
+tpl.changeSize = function(expanded) {
+    if(expanded) {
+        document.getElementById("ad_collapsed") && (document.getElementById("ad_collapsed").style.display = "none");
+        document.getElementById("ad_expanded") && (document.getElementById("ad_expanded").style.display = "block"); 
+    } else {
+        document.getElementById("ad_collapsed") && (document.getElementById("ad_collapsed").style.display = "block");
+        document.getElementById("ad_expanded") && (document.getElementById("ad_expanded").style.display = "none");
+    }
+}
+</script>
+</head>
+<body style='margin:0;cursor:pointer'>
+[[clicktagLayer]]
+	<div id='ad_collapsed' style=';width:[[width]]px;height:[[collapsedHeight]]px;overflow:hidden;'>
+		[[collapsedContent]]
+	</div> 
+	<div id='ad_expanded' style='display:none;width:[[width]]px;height:[[expandedHeight]]px;overflow:hidden;'>
+		[[expandedContent]]
+	</div> 
+</body></html>

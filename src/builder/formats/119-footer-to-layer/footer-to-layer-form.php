@@ -10,7 +10,7 @@ table { width:90%;}
 
 <div class="row mt-5">
 <div class='col-lg-12 col-md-12'>
-    <p class="h5 left" style='margin-top:14px'>#101 - Expanding Content Push </p>
+    <p class="h5 left" style='margin-top:14px'>#119 - Footer to Layer</p>
 </div></div>
 
 <div class="row">
@@ -19,10 +19,23 @@ table { width:90%;}
 <br>
 
 	<table>
+		<input type="hidden" name="format" value='footer-to-layer'>
+<!--		<input type="hidden" name="collapsed_size" value='970x90'>
+		<input type="hidden" name="expanded_size" value='970x250'>
+
+		<tr><td>Collapsed Size:</td>
+			<td><select type="text" name="collapsed_size" class="form-control">
+				<option>970x90</option></select>
+			</td></tr>
+
+		<tr><td>Expanded Size:</td>
+			<td><select type="text" name="expanded_size" class="form-control">
+				<option>970x250</option></select>
+			</td></tr>
+-->		
 		<tr><td>Creative Width:</td>
 			<td><select type="text" id='width' name="width" class="form-control">
 				<option value='970'>970</option>
-				<option value='950'>950</option>
 				<option value='900'>900</option>
 				<option value='728'>728</option>
 			    </select> 
@@ -34,42 +47,33 @@ table { width:90%;}
 				<option value='90'>90</option>
 			    </select> 
 			</td></tr>
-		<tr><td>Expanded Height:</td>
+		<tr><td>Layer Height:</td>
 			<td><select type="text" id='expanded_height' name="expanded_height" class="form-control">
-				<option value='250'>250</option>
-				<option value='251'>251</option>
-				<option value='200'>200</option>
-				<option value='300'>300</option>
+				<option value='600'>600</option>
+				<option value='480'>480</option>
 			    </select>
 			</td></tr>
 
-		<input type="hidden" name="format" value='push'>
+		<tr><td>Layer Background Color:</td>
+			<td><input type="text" value='white' name='background_color'></td></tr>
+
 		<tr><td>Collapsed zip or image:</td>
 			<td><input type="file" name='collapsed_zip'></td></tr>
 
 		<tr><td>Expanded zip or image:</td>
 			<td><input type="file" name='expanded_zip'></td></tr>
 
-<input type="hidden" value='Abrir' name='expand_button'>
-<input type="hidden" value='Cerrar' name='collapse_button'>
-<!--
-		<tr><td>Expand button text or base64 image:</td>
-			<td><input type="text" value='Abrir' name='expand_button'></td></tr>
-
-		<tr><td>Collapse button text or base64 image:</td>
-			<td><input type="text" value='Cerrar' name='collapse_button'></td></tr>
+<input type=hidden value='mouseover' id='expand_action' name="expand_action">
+<!--		
+		<tr><td>Expand Action:</td>
+			<td><select type="text" id='expand_action' name="expand_action" class="form-control" onchange='expandAction()'>
+				<otion selected value='click'>expand button click</otion>
+				<option value='mouseover'>mouseOver, wait X seconds</option>
+			    </select>
+			</td></tr>
 -->
-		<tr><td>Initial State:</td>
-			<td><select type="text" id="initial_state" name='initial_state' class="form-control">
-		    	<option value="C">Collapsed</option>
-		    	<option value="E" selected>Expanded</option>
-		   	</select>
-   			</td></tr>
-
-   		<tbody id='autoclose_section'>
-		<tr><td>Autoclose in seconds:</td>
-			<td><input type="text" value='8' name='autoclose_seconds'></td></tr>
-		</tbody>
+		<tbody id='expand_seconds_block' style='display:'><tr><td>Expand Seconds:</td>
+			<td><input type="text" value='2' name='expand_seconds'></td></tr></tbody>
 
 		<tr><td>Create ClickTag Layer:</td>
 			<td><select type="text" id="form3" name='clicktag_layer' class="form-control">
@@ -80,20 +84,6 @@ table { width:90%;}
 
 		<tr><td>Clicktag URL:</td>
 			<td><input type="text" value='www.google.com' name='clicktag_url'></td></tr>
-
-		<tr><td>Animated transition:</td>
-			<td><select type="text" id="form3" name='animated_transition' class="form-control">
-		    	<option value="1">Yes, 0.25 seconds</option>
-		    	<option value="2">Yes, 0.5 seconds</option>
-		    	<option value="3">Yes, 0.75 seconds</option>
-		    	<option value="4">Yes, 1 second</option>
-		    	<option value="0">No</option>
-		   	</select>
-   			</td></tr>
-
-<!--		<tr><td>Background Color:</td>
-			<td><input type="text" value='white'></td></tr>
--->
 
 	</table>
 
@@ -109,3 +99,11 @@ table { width:90%;}
 
 </div>
 </main>
+
+<script>
+function expandAction() {
+  document.getElementById("expand_seconds_block").style.display = (document.getElementById("expand_action").value=="mouseover" ? "" : "none");
+
+}
+expandAction();
+</script>

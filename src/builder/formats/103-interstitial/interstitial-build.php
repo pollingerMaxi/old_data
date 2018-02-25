@@ -54,7 +54,7 @@ if($data["zipfile"]["ext"] == "zip") {
 		$errors[] = "Images cannot be fullscreen. Create an HTML or change the size.";	
 	} else if ($selectedWidth != $imageSize[0] 
 			or $selectedHeight != $imageSize[1]){
-		$errors[] = "Uploaded image size is not ". f::getparam("size") .".";	
+		$errors[] = "Uploaded image size is not ". f::getparam("size") .". It is ".$imageSize[0]."x".$imageSize[1];	
 	} else {
 
 	}
@@ -142,6 +142,7 @@ function _rm_Message(e) {
   	$indexHTML = str_replace("<head>", $replaceHEAD, $indexHTML);
   }
 
+  $indexHTML = str_replace('<meta name="GCD"', '<meta name="ads.GCD"', $indexHTML);
   return $indexHTML;
 
 }

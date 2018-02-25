@@ -26,6 +26,8 @@ table { width:90%;}
 				<option value='300x250'>300x250</option>
 				<option value='300x600'>300x600</option>
 				<option value='920x250'>920x250</option>
+				<option value='950x200'>950x200</option>
+				<option value='950x300'>950x300</option>
 				<option value='360x300'>360x300</option>
 				<option value='360x100'>360x100</option>
 				<option value='360x50'>360x50</option>

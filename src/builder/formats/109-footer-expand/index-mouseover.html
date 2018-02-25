@@ -1,0 +1,66 @@
+<!DOCTYPE HTML><html lang="en-us">
+<head>
+	<meta name="ad.size" content="width=[[width]],height=[[expandedHeight]]">
+<script>
+
+var clickTag = "[[clicktagURL]]";
+var tpl = {};
+
+
+tpl.expanded = false;
+tpl.slotHandle = 1;
+tpl.expandTimeout = null;
+
+tpl.recieveMessage = function(e) {
+    //console.log("msg",e);
+
+    if(e.data && e.data.setSlotHandle) { 
+//        console.log("caso2");
+        tpl.slotHandle = e.data.setSlotHandle;
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { handle:tpl.slotHandle, expandOn:'mouseover', collapse:true, expandedHeight: [[expandedHeight]], collapsedHeight: [[collapsedHeight]] } } , "*");
+    } else if (e.data && "string" == typeof e.data && e.data.indexOf("goog_get_mode") > 0 ) { 
+//        console.log("caso1");
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { text: e.data } } , "*");
+    }
+}
+
+window.addEventListener ? window.addEventListener("message", tpl.recieveMessage, !1) 
+    : (window.attachEvent && window.attachEvent("message", tpl.recieveMessage));
+
+tpl.changeSize = function(expanded) {
+    //console.log("changeSize. Expanded:",expanded);
+    if(expanded) {
+//        console.log("caso3");
+        document.getElementById("ad_collapsed") && (document.getElementById("ad_collapsed").style.display = "none");
+        document.getElementById("ad_expanded") && (document.getElementById("ad_expanded").style.display = "block"); 
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { handle:tpl.slotHandle, expand:true } } , "*");
+    } else {
+//        console.log("caso4");
+        document.getElementById("ad_collapsed") && (document.getElementById("ad_collapsed").style.display = "block");
+        document.getElementById("ad_expanded") && (document.getElementById("ad_expanded").style.display = "none");
+        window.top.postMessage({ msg: "adcase", format:"footerFixed", 
+            params: { handle:tpl.slotHandle, collapse:true } } , "*");
+    }
+}
+tpl.out = function() {
+  window.clearTimeout(tpl.expandTimeout);
+  tpl.changeSize(false);
+}
+tpl.over = function() {
+  window.clearTimeout(tpl.expandTimeout);
+  tpl.expandTimeout = window.setTimeout(function(){ tpl.changeSize(true);}, [[expandMS]] );
+}
+</script>
+</head>
+<body style='margin:0;cursor:pointer' onmouseover='tpl.over()' onmouseout='tpl.out()'>
+[[clicktagLayer]]
+	<div id='ad_collapsed' style=';width:[[width]]px;height:[[collapsedHeight]]px;overflow:hidden;'>
+		[[collapsedContent]]
+	</div> 
+	<div id='ad_expanded' style='display:none;width:[[width]]px;height:[[expandedHeight]]px;overflow:hidden;'>
+		[[expandedContent]]
+	</div> 
+</body></html>
