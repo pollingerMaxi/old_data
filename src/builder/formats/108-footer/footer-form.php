@@ -38,7 +38,7 @@ table { width:90%;}
 			    </select> 
 			</td></tr>
 
-		<input type="text" id='size' name="size">
+		<input type="hidden" id='size' name="size">
 
 <!--
 		<tr><td>Collapsed Size:</td>

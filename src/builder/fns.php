@@ -7,8 +7,8 @@ return array(100 => "html5",
                   103 => "interstitial",
                   104 => "interstitial-tag",
                   105 => "videobanner",
-                  106 => "videobanner-vast",
-                  107 => "videobanner-dfp",
+//                  106 => "videobanner-vast",
+//                  107 => "videobanner-dfp",
                   108 => "footer",
                   109 => "footer-expand",
                   110 => "footer-expand-tag",
@@ -16,8 +16,10 @@ return array(100 => "html5",
                   112 => "interstitial-video",
                   113 => "interstitial-video-vast",
                   114 => "interstitial-video-dfp",
+                  115 => "double-top-sticky",
                   117 => "push-onclick",
-                  118 => "push-onclick-tag"
+                  118 => "push-onclick-tag",
+                  119 => "footer-to-layer"
                   );
 }
 function getFormatId($formatName) {
