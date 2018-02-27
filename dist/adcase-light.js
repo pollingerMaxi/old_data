@@ -1,5 +1,5 @@
 //
-// AdCase.js LIGHT JavaScript Library v2.1.16. 27/Feb/2018
+// AdCase.js LIGHT JavaScript Library v2.1.17. 27/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
