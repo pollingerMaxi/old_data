@@ -1,4 +1,12 @@
-// debug v2.1.1
+//
+// AdCase.js DEBUG JavaScript Library v2.1.16. 27/Feb/2018
+// Copyright 2018 adcase.io 
+// https://adcase.io
+// https://adcase.io/license 
+// AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
+// This is not an official Google product, and it is also not officially supported by Google.
+//
+
 
 ads.d = ads.d || {};
 ads.d.values = ads.d.values || {};
@@ -55,6 +63,10 @@ ads.d.closeModal = function() {
   ads.d.run();
 }
 ads.d.run = function() {
+  if(!ads.network && ads.adEvents && ads.adEvents[0] && ads.adEvents[0].slot) {
+    ads.network = ads.d.strtoken(ads.adEvents[0].slot.getAdUnitPath(),2,"/");
+  }
+
   var mode = ads.d.g("mode")*1;
 
   var button = document.getElementById("adcase-button-button");
@@ -194,7 +206,6 @@ document.head.appendChild(s);
 }
 ads.d.formatSizes = function (s) {
   var txt ="";
-  try {
   for(var i in s) {
     var size = s[i];
     var line = "";
@@ -208,7 +219,6 @@ ads.d.formatSizes = function (s) {
     }
     txt += (txt==""?"":", ") + line;
   }
-  } catch(e) {}
   return txt;
 }
 
@@ -218,11 +228,12 @@ ads.d.prepareData = function() {
     ads.adEvents[i].slotKVHTML = ads.d.getSlotKV(ads.adEvents[i].slot);
   }
   var showFormat=false;
-  var dfpPath = (ads.router ? "DFP Path: /"+ads.network+ads.router() : ""); 
+  var dfpPath = (ads.router ? ("DFP Path: /"+ads.network+ads.router()) : ""); 
   var printedSlots = {};
   for(var i in ads.adEvents) {
     var row = {};
     var e = ads.adEvents[i];
+    if(!e || !e.slot) { ads.log("not found:",e,e.slot); continue; }
     row.divId = e.slot.getSlotElementId();
     row.div = document.getElementById(row.divId);
     row.parentId = row.divId.substring(0,e.slot.getSlotElementId().length-3);
@@ -231,7 +242,7 @@ ads.d.prepareData = function() {
     }
     row.adUnit = e.slot.getAdUnitPath();
 
-    row.network = ads.network || ads.strtoken(row.adUnit,2,"/");
+    row.network = ads.network || ads.d.strtoken(row.adUnit,2,"/");
 
     row.errorTxt = "";//(ads.d.g("debugErrors")[row.parentId] ? " <span style='color:red;font-weight:bold'>[WRONG ID]</span>" : "");
     printedSlots[row.parentId] = true;
@@ -264,7 +275,7 @@ ads.d.debugContent = function() {
   var html = "<table width=100% margin:10px><tr><td style='vertical-align:top'><table class='adcaseTable' >"
                +"<tr><td style='font-size:14px;width:300px'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
                +"<td style='vertical-align:top;padding-right:0px;border-bottom:0;word-break:break-all'>"
-               +"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>"
+               +(ads.d.pagekvHTML!=""?"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>":"")
                +"</td></tr>"
               +"</table></td>"
    +"<td valign=top  style='padding:0;width:1px;'>"
@@ -301,10 +312,15 @@ var printedSlots = {};
       }
     }
     for(var i in ads.id) {
-      if(printedSlots[ads.id[i].parentId]) {
+      if(printedSlots[ads.id[i].parentId] || printedSlots[ads.id[i].divId]) {
         continue;
       }
-      var adUnit = "/" + ads.network + ads.router() + ads.id[i].parentId;
+      var adUnit = "";
+      if(ads.network && ads.router) {
+        adUnit = "/" + ads.network + ads.router() + ads.id[i].parentId;
+      } else {
+        adUnit = ads.id[i].event.slot.getAdUnitPath();
+      }
       var errorTxt = "";//(ads.d.g("debugErrors")[ads.id[i].parentId] ? " <span style='color:red;font-weight:bold'>[WRONG ID]</span>" : "");
       html += "<tr style='background-color:#e5e5e5'><td>"+ads.id[i].parentId+"</td><td>"+adUnit+"</td><td>"+errorTxt+"</td>"
                +"<td>"+(ads.id[i].sizes?JSON.stringify(ads.id[i].sizes):"")+"</td>"
@@ -372,6 +388,8 @@ ads.d.strtoken = function(s,n,sep) {
 
 
 ads.d.getSlotKV = function(slot) {
+  return "";
+
   var url = "";
   for(var i in slot) {
     try {
@@ -619,11 +637,12 @@ ads.d.debugContentMobile = function() {
    }
   html += "</div>";
 
-  html += "<div id='KVBlock' class='adcase-block'>"
+  if(ads.d.pagekvHTML != "") {
+    html += "<div id='KVBlock' class='adcase-block'>"
                +"<div style='word-break:break-all;width:100%'>"
                +"<b>Page Level key-values:</b><div class='line' style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>"
                +"</div></div>";
-
+  }
 
   return html;
 }
