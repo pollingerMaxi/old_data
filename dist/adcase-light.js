@@ -39,11 +39,11 @@ ads.slotRendered = function(event) {
   ads.id[d].format = format;
   if(event.isEmpty) {
     ads.id[d].width = 0;
-    ads.id[d].height = 0;  	
+    ads.id[d].height = 0;   
   } else {
-  	slot.style.display="";
+    slot.style.display="";
     ads.id[d].width = event.size[0];
-    ads.id[d].height = event.size[1];  	
+    ads.id[d].height = event.size[1];   
   }
 
   if (ads.id[d].rendered) {
@@ -174,26 +174,26 @@ d.innerHTML = `<meta name="viewport" content="width=device-width, initial-scale=
 }
 
 ads.checkDebug = function() {
-	ads.debugChecked = true;
-	if(document.location.href.indexOf("ads.debug=true")>0) {
-	  localStorage.setItem("ads.debug",true);
-	  localStorage.setItem("adcase-debug-mode",1);
-	} else if(document.location.href.indexOf("ads.debug=false")>0) {
-	  localStorage.removeItem("ads.debug");
-	  localStorage.removeItem("adcase-debug-mode");
-	}
+  ads.debugChecked = true;
+  if(document.location.href.indexOf("ads.debug=true")>0) {
+    localStorage.setItem("ads.debug",true);
+    localStorage.setItem("adcase-debug-mode",1);
+  } else if(document.location.href.indexOf("ads.debug=false")>0) {
+    localStorage.removeItem("ads.debug");
+    localStorage.removeItem("adcase-debug-mode");
+  }
 
-	if(localStorage.getItem("ads.debug")) {
-	  ads.debugButton();
-	  if(localStorage.getItem("adcase-debug-mode")*1==2) {
-	    document.getElementById("adcase-button-text").innerHTML = "overlay";
-	    localStorage.setItem("adcase-debug-mode",1);
-	    ads.debug();
-	  } else {
-	    localStorage.removeItem("adcase-debug-mode");
-	    document.getElementById("adcase-button-text").innerHTML = "ads";
-	  }
-	}
+  if(localStorage.getItem("ads.debug")) {
+    ads.debugButton();
+    if(localStorage.getItem("adcase-debug-mode")*1==2) {
+      document.getElementById("adcase-button-text").innerHTML = "overlay";
+      localStorage.setItem("adcase-debug-mode",1);
+      ads.debug();
+    } else {
+      localStorage.removeItem("adcase-debug-mode");
+      document.getElementById("adcase-button-text").innerHTML = "ads";
+    }
+  }
 }
 
 ads.formats.footerFixed = function(t) {
@@ -272,7 +272,7 @@ ads.formats.footerFixed = function(t) {
     containerDiv.style.textAlign = "center";
     containerDiv.style.bottom = "0px";
     containerDiv.style.width = "100%";
-    containerDiv.style.height = "0px";
+    containerDiv.style.height = t.height+"px";
     containerDiv.style.minHeight = "0px";
     containerDiv.style.minWidth = "0px";
 
