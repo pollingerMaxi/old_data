@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.16. 27/Feb/2018
+// AdCase.js DEBUG JavaScript Library v2.1.18. 27/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -388,7 +388,6 @@ ads.d.strtoken = function(s,n,sep) {
 
 
 ads.d.getSlotKV = function(slot) {
-  return "";
 
   var url = "";
   for(var i in slot) {
