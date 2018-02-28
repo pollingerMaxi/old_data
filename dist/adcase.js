@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.20. 28/Feb/2018
+// AdCase.js JavaScript Library v2.1.21. 28/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -304,13 +304,14 @@ ads.readMessage = function(e) {
     }
   }
 }
-window.addEventListener("message", ads.readMessage, false);
 
 ads.slotRendered = function(event) {
   var divId = event.slot.getSlotElementId();
   var div = document.getElementById(divId);
   var parentId = document.getElementById(divId).parentElement.id;
   var adFormat = ads.id[divId].format;
+
+console.log("slotRendered: ", divId, parentId);
 
   if (!event.isEmpty) {
     div.parentElement.style.height = "";
@@ -327,7 +328,7 @@ ads.slotRendered = function(event) {
     //ads.id[divId].startDisplay();
     div.parentElement.style.display = "";
 
-    if(format == "default") {
+    if(adFormat == "default") {
       div.style.display = "";
     }
 
@@ -1157,4 +1158,5 @@ if(!ads.light || ads.loadGPT) {
   document.head.appendChild(script);
 }
 
+window.addEventListener("message", ads.readMessage, false);
 ads.loaded = true;
