@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.19. 28/Feb/2018
+// AdCase.js JavaScript Library v2.1.20. 28/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -327,7 +327,10 @@ ads.slotRendered = function(event) {
     //ads.id[divId].startDisplay();
     div.parentElement.style.display = "";
 
-    
+    if(format == "default") {
+      div.style.display = "";
+    }
+
     if (ads.id[divId].rendered) {
       ads.id[divId].rendered(params);
     }
