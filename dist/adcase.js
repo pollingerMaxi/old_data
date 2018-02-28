@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.21. 28/Feb/2018
+// AdCase.js JavaScript Library v2.1.22. 28/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -25,6 +25,7 @@ ads.startDisplay = ads.startDisplay || "";
 ads.adEvents = [];
 ads.adTexts = [];
 ads.id = {};
+ads.setup = false;
 
 ads.run = function() {
 
@@ -32,65 +33,45 @@ ads.run = function() {
      ads.enableScroll();
   }
 
-  googletag.cmd.push(function() {
-    googletag.destroySlots();
+  if(!ads.setup) {
+    ads.setup = true;
+    googletag.cmd.push(function() {
+      googletag.destroySlots();
 
-    ads.setTargeting();
+      ads.setTargeting();
 
-    googletag.pubads().addEventListener('slotRenderEnded',
-      function(event) {
-        ads.adEvents.push(event);
-        ads.slotRendered(event);
+      googletag.pubads().addEventListener('slotRenderEnded',
+        function(event) {
+          ads.adEvents.push(event);
+          ads.slotRendered(event);
+        }
+      );
+      googletag.pubads().setCentering(true);
+      googletag.pubads().collapseEmptyDivs();
+      googletag.pubads().enableAsyncRendering();
+      googletag.pubads().enableSingleRequest();
+      if (ads.lazy) {
+        googletag.pubads().disableInitialLoad();
       }
-    );
-    googletag.pubads().setCentering(true);
-    googletag.pubads().collapseEmptyDivs();
-    googletag.pubads().enableAsyncRendering();
-    googletag.pubads().enableSingleRequest();
-    if (ads.lazy) {
-      googletag.pubads().disableInitialLoad();
-    }
-    googletag.enableServices();
-    ads.log("enableServices");
-  });
+      googletag.enableServices();
+      ads.log("enableServices");
+    });
 
-  ads.id = {};
+    ads.id = {};
 
-  ads.setAdTypes();
-  ads.adTexts = [];
-  ads.printedSlots = {};
-
+    ads.setAdTypes();
+    ads.adTexts = [];
+    ads.printedSlots = {};
+  }
+  
   var cmd = ads.cmd;
   ads.cmd = [];
   for (var c in cmd) {
     if (cmd[c].cmd == "run") {
-      var manualSlotList = cmd[c].manualSlotList || false;
-      if(!manualSlotList && !cmd[c].pending) { ads.adEvents = []; }
-      
-      if(cmd[c].pending) { // load manualSlotList with pending divs
-  
-        var d = document.getElementsByTagName("ad-slot");
-        if (d.length == 0) {
-          d = document.getElementsByClassName("ad-slot");
-        }
-        var manualSlotList = [];
-        for (var i = 0; i < d.length; i++) {
-          if(!ads.processedDivs[d.item(i).id]) {
-            ads.processedDivs[d.item(i).id] = true;
-            manualSlotList.push(d.item(i).id);
-          }
-        }
-        if(manualSlotList.length==0) {
-          // ignore call if there is no pending to run
-          continue;
-        }
-      } else if(!manualSlotList){ // process all
-
-        ads.processedDivs = {};
+      if(!cmd[c].pending) {
+//       googletag.cmd.push(function() { googletag.destroySlots(); });
       }
-      
-      ads.log("*ManualSlot",manualSlotList);
-      ads.pageLoaded({ path: "/" + ads.network + cmd[c].path, pending: cmd[c].pending, manualSlotList: manualSlotList});
+      ads.pageLoaded({ path: "/" + ads.network + cmd[c].path, pending: cmd[c].pending});
     }
   }
 }
@@ -168,18 +149,15 @@ ads.pageLoaded = function(params) {
   if (d.length == 0) {
     d = document.getElementsByClassName("ad-slot");
   }
-  var existingSlots = {};
+
   for (var i = 0; i < d.length; i++) {
     var divId = d.item(i).id;
-    if(!divs[divId]) {
+    if(divs[divId]) {
+      ads.log("********Error! ExistingSlot: ",divId);
+      continue;
+    } else if(!ads.id[divId+"_ad"]) {
       divs[divId] = d.item(i);
     } 
-    if(existingSlots[divId]) {
-      ads.log("*Error! ExistingSlot: ",divId);
-      return;
-    }
-    existingSlots[divId] = true;
-
   }
   ads.log("target divs", divs);
 
@@ -202,10 +180,10 @@ ads.pageLoaded = function(params) {
     
     var format = ads.adTypes[adType].adFormat || "default";
 
-    if (!ads.checkDivList(parent.id, parent.dataset.manual, manualSlotList)) {
+/*    if (!ads.checkDivList(parent.id, parent.dataset.manual, manualSlotList)) {
       continue;
     }
-
+*/
     ads.processedDivs[parent.id] = true;
     //ads.log("starting to work with "+parent.id);
 
@@ -216,10 +194,10 @@ ads.pageLoaded = function(params) {
     parent.style.overflow="hidden";
     parent.innerHTML = "<div id='" + parent.id + "_ad'></div>";
 
-    if(ads.id[parent.id + "_ad"]) {
+/*    if(ads.id[parent.id + "_ad"]) {
       return false;
     }
-    
+ */   
     var d = parent.id + "_ad";
     ads.id[d] = new ads.instanceAd(format);
     ads.id[d].slot = document.getElementById(d);
@@ -241,23 +219,20 @@ ads.pageLoaded = function(params) {
 
   // Actual DFP slot creation
   googletag.cmd.push(function() {
-    if (!manualSlotList) {
-      ads.log("googletag.destroySlots");
-      googletag.destroySlots();
-    }
-
-    for (var i in ads.id) {
-      var d = ads.id[i];
+    for (var i in divs) {
+      if(!ads.id[i+"_ad"]){ continue; }
+      var d = ads.id[i+"_ad"];
       if(d.divPosition) {
         ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).setTargeting("divposition",d.divPosition).addService(googletag.pubads());    
       } else {
         ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).addService(googletag.pubads());    
       }
-      ads.id[i].requestedSizes = d.sizes;
+      ads.id[i+"_ad"].requestedSizes = d.sizes;
     }
 
-    for (var i in ads.id) {
-      googletag.display(ads.id[i].divId);
+    for (var i in divs) {
+      if(!ads.id[i+"_ad"]){ continue; }
+      googletag.display(ads.id[i+"_ad"].divId);
     }
     if (ads.lazy) {
       ads.scroll();
@@ -310,8 +285,6 @@ ads.slotRendered = function(event) {
   var div = document.getElementById(divId);
   var parentId = document.getElementById(divId).parentElement.id;
   var adFormat = ads.id[divId].format;
-
-console.log("slotRendered: ", divId, parentId);
 
   if (!event.isEmpty) {
     div.parentElement.style.height = "";
@@ -1144,7 +1117,6 @@ if(ads.light) {
       };
       ads.id[d].rendered(params);
     }
-    console.log("format:",format,);
   }
 
 } else {
