@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.15. 25/Feb/2018
+// AdCase.js JavaScript Library v2.1.19. 28/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -16,11 +16,6 @@ ads.log = function() {
   return Function.prototype.bind.call(console.log);
 }();
 
-var script = document.createElement('script');
-script.async = true;
-script.src = "https://www.googletagservices.com/tag/js/gpt.js";
-document.head.appendChild(script);
-
 ads.values = ads.values || {};
 ads.formats = {};
 ads.scrollTimeout = true;
@@ -28,16 +23,41 @@ ads.printedSlots = {}; // for lazy loading
 ads.processedDivs = {} // for pending
 ads.startDisplay = ads.startDisplay || "";
 ads.adEvents = [];
-
-var ev = null;
+ads.adTexts = [];
+ads.id = {};
 
 ads.run = function() {
+
+  if (ads.lazy) {
+     ads.enableScroll();
+  }
+
+  googletag.cmd.push(function() {
+    googletag.destroySlots();
+
+    ads.setTargeting();
+
+    googletag.pubads().addEventListener('slotRenderEnded',
+      function(event) {
+        ads.adEvents.push(event);
+        ads.slotRendered(event);
+      }
+    );
+    googletag.pubads().setCentering(true);
+    googletag.pubads().collapseEmptyDivs();
+    googletag.pubads().enableAsyncRendering();
+    googletag.pubads().enableSingleRequest();
+    if (ads.lazy) {
+      googletag.pubads().disableInitialLoad();
+    }
+    googletag.enableServices();
+    ads.log("enableServices");
+  });
 
   ads.id = {};
 
   ads.setAdTypes();
   ads.adTexts = [];
-  ads.values = {};
   ads.printedSlots = {};
 
   var cmd = ads.cmd;
@@ -463,31 +483,6 @@ ads.enableScroll = function() {
   });
 }
 
-if (ads.lazy) {
-   ads.enableScroll();
-}
-
-googletag.cmd.push(function() {
-  //googletag.destroySlots();
-
-  ads.setTargeting();
-
-  googletag.pubads().addEventListener('slotRenderEnded',
-    function(event) {
-      ads.adEvents.push(event);
-      ads.slotRendered(event);
-    }
-  );
-  googletag.pubads().setCentering(true);
-  googletag.pubads().collapseEmptyDivs();
-  googletag.pubads().enableAsyncRendering();
-  googletag.pubads().enableSingleRequest();
-  if (ads.lazy) {
-    googletag.pubads().disableInitialLoad();
-  }
-  googletag.enableServices();
-  ads.log("enableServices");
-});
 
 ads.getVideoURL = ads.getVideoURL || function(output, vpos, slot) {
 
@@ -549,28 +544,6 @@ d.innerHTML = `<meta name="viewport" content="width=device-width, initial-scale=
 <a href='javascript:ads.debug()' class='adcase-button' style='position:fixed;bottom:25px;left:15px;z-index:10000000'><button id='adcase-button-button'><span id='adcase-button-text'></span></button></a>`;
   document.body.appendChild(d);
 }
-
-
-if(document.location.href.indexOf("ads.debug=true")>0) {
-  localStorage.setItem("ads.debug",true);
-  localStorage.setItem("adcase-debug-mode",1);
-} else if(document.location.href.indexOf("ads.debug=false")>0) {
-  localStorage.removeItem("ads.debug");
-  localStorage.removeItem("adcase-debug-mode");
-}
-
-if(localStorage.getItem("ads.debug")) {
-  ads.debugButton();
-  if(localStorage.getItem("adcase-debug-mode")*1==2) {
-    document.getElementById("adcase-button-text").innerHTML = "overlay";
-    localStorage.setItem("adcase-debug-mode",1);
-    ads.debug();
-  } else {
-    localStorage.removeItem("adcase-debug-mode");
-    document.getElementById("adcase-button-text").innerHTML = "ads";
-  }
-}
-
 
 ads.formats.footerFixed = function(t) {
 
@@ -648,7 +621,7 @@ ads.formats.footerFixed = function(t) {
     containerDiv.style.textAlign = "center";
     containerDiv.style.bottom = "0px";
     containerDiv.style.width = "100%";
-    containerDiv.style.height = "0px";
+    //containerDiv.style.height = "0px";
     containerDiv.style.minHeight = "0px";
     containerDiv.style.minWidth = "0px";
 
@@ -1110,5 +1083,75 @@ ads.formats.doubletopsticky = function(t) {
 
 }
 
+ads.checkDebug = function() {
+  if(document.location.href.indexOf("ads.debug=true")>0) {
+    localStorage.setItem("ads.debug",true);
+    localStorage.setItem("adcase-debug-mode",1);
+  } else if(document.location.href.indexOf("ads.debug=false")>0) {
+    localStorage.removeItem("ads.debug");
+    localStorage.removeItem("adcase-debug-mode");
+  }
+
+  if(localStorage.getItem("ads.debug")) {
+    ads.debugButton();
+    if(localStorage.getItem("adcase-debug-mode")*1==2) {
+      document.getElementById("adcase-button-text").innerHTML = "overlay";
+      localStorage.setItem("adcase-debug-mode",1);
+      ads.debug();
+    } else {
+      localStorage.removeItem("adcase-debug-mode");
+      document.getElementById("adcase-button-text").innerHTML = "ads";
+    }
+  }
+}
+
+
+ads.checkDebug();
+
+if(ads.light) {
+  ads.slotRendered = function(event) {
+    ads.adEvents.push(event);
+    var d = event.slot.getSlotElementId();
+    var slot = document.getElementById(d);
+    var parent = slot.parentElement;
+    parent.id = parent.id || d+"_parent"; 
+    var format = slot.dataset.format || "default";
+    ads.id[d] = new ads.instanceAd(format);
+    ads.id[d].slot = slot;
+    ads.id[d].parentSlot = parent;
+    ads.id[d].parentId = parent.id;
+    ads.id[d].divId = d;
+    ads.id[d].event = event;
+    ads.id[d].format = format;
+    if(event.isEmpty) {
+      ads.id[d].width = 0;
+      ads.id[d].height = 0;   
+    } else {
+      slot.style.display="";
+      ads.id[d].width = event.size[0];
+      ads.id[d].height = event.size[1];   
+    }
+
+    if (ads.id[d].rendered) {
+      var params = {
+        width: event.size[0],
+        height: event.size[1],
+        event: event
+      };
+      ads.id[d].rendered(params);
+    }
+    console.log("format:",format,);
+  }
+
+} else {
+  ads.run();
+}
+
+if(!ads.light || ads.loadGPT) {
+  var script = document.createElement('script');
+  script.async = true;
+  script.src = "https://www.googletagservices.com/tag/js/gpt.js";
+  document.head.appendChild(script);
+}
+
 ads.loaded = true;
-ads.run();
