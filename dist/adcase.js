@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.23. 1/Mar/2018
+// AdCase.js JavaScript Library v2.1.24. 1/Mar/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -440,7 +440,7 @@ ads.elementInViewport = function(el) {
 
   return (
     rect.left >= 0 &&
-    (rect.top-(window.innerHeight*1.5)) <= (window.innerHeight || document.documentElement.clientHeight)
+    (rect.top-300) <= (window.innerHeight || document.documentElement.clientHeight)
   ) || (rect.top < 0);
 
   return (
