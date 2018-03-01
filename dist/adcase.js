@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.22. 28/Feb/2018
+// AdCase.js JavaScript Library v2.1.23. 1/Mar/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -415,10 +415,12 @@ ads.setDevice = function() {
 }
 
 ads.scroll = function() {
+  /*
   ads.scrollTimeout = false;
   setTimeout(function() {
     ads.scrollTimeout = true;
   }, 500);
+  */
 
   for (var i in ads.id) {
     ads.id[i].onScroll && ads.id[i].onScroll();
@@ -437,6 +439,11 @@ ads.elementInViewport = function(el) {
   var rect = el.getBoundingClientRect()
 
   return (
+    rect.left >= 0 &&
+    (rect.top-(window.innerHeight*1.5)) <= (window.innerHeight || document.documentElement.clientHeight)
+  ) || (rect.top < 0);
+
+  return (
     rect.top >= 0 &&
     rect.left >= 0 &&
     rect.top <= (window.innerHeight || document.documentElement.clientHeight)
@@ -451,10 +458,13 @@ ads.refresh = function(divId) {
   })
 }
 
+ads.lastScroll=0;
 ads.enableScroll = function() {
   ads.set("scrollEnabled",true);
   window.addEventListener("scroll", function() {
-    if (ads.scrollTimeout) {
+    if (new Date().getTime() > ads.lastScroll + 50 ) {
+      console.log("run scroll");
+      ads.lastScroll = new Date().getTime();
       ads.scroll()
     }
   });
