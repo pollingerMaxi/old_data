@@ -1,12 +1,12 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.18. 27/Feb/2018
+// AdCase.js DEBUG JavaScript Library v2.1.25. 27/Feb/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
 // AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
 // This is not an official Google product, and it is also not officially supported by Google.
 //
-
+//
 
 ads.d = ads.d || {};
 ads.d.values = ads.d.values || {};
@@ -51,7 +51,7 @@ ads.d.clickButton = function() {
     localStorage.setItem("adcase-debug-mode",0);
   }
   var mode = (localStorage.getItem("adcase-debug-mode") * 1) + 1;
-  if(mode==3) { mode = 0 };
+  if(mode==3) { mode = 0; }
   localStorage.setItem("adcase-debug-mode",mode);
   ads.d.s("mode",mode);
   ads.d.run();
@@ -178,8 +178,10 @@ if( ads.d.g("isMobile") ) {
  
 .adcaseTable thead td { background-color:#ccc;font-weight:bold;padding:6px 20px 4px 20px }
 .adcaseTable { border-collapse: collapse; }
-.adcaseTable tr:hover { background-color:#eee; cursor:pointer }
+.adcaseTable tr.adcaseRow:hover { background-color:#eee; cursor:pointer }
 .adcaseTable td {
+  font-family:Poppins;
+  font-size:11px;
   padding:8px 20px 8px 20px;
   border-bottom:1px solid #ccc;
 }
@@ -249,7 +251,7 @@ ads.d.prepareData = function() {
     row.slotKV = e.slotKVHTML;
     row.sizes = ads.d.formatSizes(e.slot.getSizes());
     row.size = e.size ? (e.size[0]+"x"+e.size[1]) : "unfilled";
-    row.format = (row.div && ads.id && ads.id[row.div.id] && ads.id[row.div.id].format) ? ads.id[row.div.id].format :"";
+    row.format = (row.div && ads.id && ads.id[row.divId] && ads.id[row.divId].format) ? ads.id[row.divId].format :"";
     row.orderURL = e.campaignId ? ("<a target=_blank href='https://www.google.com/dfp/" + row.network + "?#delivery/OrderDetail/orderId=" + e.campaignId+"'>"+e.campaignId+"</a>") : "";
     row.lineItemURL = e.lineItemId ? ("<a target=_blank href='https://www.google.com/dfp/" + row.network + "?#delivery/LineItemDetail/lineItemId=" + e.lineItemId+"'>"+e.lineItemId+"</a>") : "";
     row.creativeURL = e.creativeId ? ("<a target=_blank href='https://www.google.com/dfp/" + row.network + "?#delivery/CreativeDetail/creativeId=" + e.creativeId+"'>"+e.creativeId+"</a>") : "";
@@ -258,7 +260,12 @@ ads.d.prepareData = function() {
     row.orderID = e.campaignId;
     row.lineItemID = e.lineItemId;
     row.creativeID = e.creativeId;
-
+    
+    row.slotTime = "";
+    try {
+      row.slotTime = Number.isInteger(ads.id[row.divId].renderedTime) ? Math.round(ads.id[row.divId].renderedTime) : "";
+      if(row.slotTime!=""){ row.slotTime+=" ("+row.slotTime+"ms)"; }
+    } catch(e) {}
     ads.d.data[row.parentId] = row;
   }
 
@@ -272,27 +279,30 @@ ads.d.debugContent = function() {
   var showFormat=false;
   var dfpPath = (ads.router ? "DFP Path: /"+ads.network+ads.router() : ""); 
 
-  var html = "<table width=100% margin:10px><tr><td style='vertical-align:top'><table class='adcaseTable' >"
-               +"<tr><td style='font-size:14px;width:300px'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
-               +"<td style='vertical-align:top;padding-right:0px;border-bottom:0;word-break:break-all'>"
-               +(ads.d.pagekvHTML!=""?"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>":"")
-               +"</td></tr>"
-              +"</table></td>"
-   +"<td valign=top  style='padding:0;width:1px;'>"
-   +(ads.router?"<a class='adcase-button' onclick='javascript:document.getElementById(\"configWindow\").style.display=\"\"'><button><span>Config</span></button></a>":"")
-   +"<td valign=top style='padding:0;width:1px;'><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button><span>Troubleshoot</span></button></A></td>"
-   +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.closeModal()'><button><span>X</span></button></a></td>"
-   +"</td></tr></table>"
+  var html = "<table id='1' class='adcaseTable' width=100%>"
+               + "<tr><td style='vertical-align:top'>"
+                    +"<table id='2'>"
+                      +"<tr><td style='width:300px'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
+                          +"<td style='vertical-align:top;padding-right:0px;word-break:break-all' colspan=10>"
+                              +(ads.d.pagekvHTML!=""?"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>":"")+"<br><b>User Agent:</b> " + navigator.userAgent
+                          +"</td></tr>"
+                    +"</table></td>"
+                    + "<td valign=top  style='padding:0;width:1px;'>"
+                         +(ads.router?"<a class='adcase-button' onclick='javascript:document.getElementById(\"configWindow\").style.display=\"\"'><button><span>Config</span></button></a>":"")+"</td>"
+                     +"<td valign=top style='padding:0;width:1px;'><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button><span>Troubleshoot</span></button></A></td>"
+                     +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.closeModal()'><button><span>X</span></button></a></td>"
+             +"</tr></table>"
 
    + "<table class='adcaseTable'>"
-   +"<thead><tr><td>Slot id</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
+   +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
    +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td>Slot KV</td></tr></thead>";
 var printedSlots = {};
   for(var i in ads.d.data) {
     var d = ads.d.data[i];
     printedSlots[d.parentId] = true;
 
-    html += "<tr style='background-color:"+(d.size=="unfilled"?"#ffd394":"")+"'><td><b>"+d.parentId+"</b></td><td>"+d.adUnit+"<br>"+d.qid+"</td><td>"+d.errorTxt+"</td>"
+    html += "<tr class='adcaseRow' style='background-color:"+(d.size=="unfilled"?"#ffd394":"")+"'><td><b>"+d.parentId+"</b></td>"
+             +"<td>"+d.adUnit+"<br>"+d.qid+d.slotTime+"</td><td>"+d.errorTxt+"</td>"
              +"<td>"+d.sizes+"</td>"
              +(showFormat?"<td>"+d.format+"</td>":"")
              +"<td style='text-align:center'>"+d.size+"</td>"
@@ -551,8 +561,8 @@ table#adcasekv td {padding:4px}
 #adcase-ipinfo { padding-top:10px; width:100% }
 #adcase-ipinfo td { font-size:11px; padding:4px; }
 
-.adcase-title { font-size:16px;width:100%;background-color:#00a8ff;color:white; height:28px;text-align:center;padding-top:6px;font-weight:bold;}
-.adcase-block { width:100%;padding:5px;font-family:Arial;font-size:14px; }
+.adcase-title { font-size:14px;width:100%;background-color:#00a8ff;color:white; height:28px;text-align:center;padding-top:6px;font-weight:bold;}
+.adcase-block { width:100%;padding:5px;font-family:Arial;font-size:12px;  font-family:Poppins }
 .adcase-block .line { width:100%;margin-top:25px; line-height:1.3; }
 .adcase-block .unfilled { background-color:#e67e22; }
 .adcase-block .pending { background-color:#bdc3c7; color:black }
@@ -600,10 +610,13 @@ ads.d.debugContentMobile = function() {
              +"<b>Requested:</b> "+d.sizes;
     if(d.size!="unfilled") {        
       html +="<br><b>Ad: "+d.size+"</b><br/>"
-             +"<b>Or: </b>"+d.orderID+"&nbsp;&nbsp;"
-             +"<b>LI: </b>"+d.lineItemID+"&nbsp;&nbsp;"
-             +"<br><b>Cr: </b>"+d.creativeID+"&nbsp;&nbsp;"
-             +"<br><b>qID: </b>"+d.qid+"&nbsp;&nbsp;<br/>"
+             +"<b>Or: </b>"+d.orderID
+             +"<b>LI: </b>"+d.lineItemID
+             +"<br><b>Cr: </b>"+d.creativeID
+             +"<br><b>qID: </b>"+d.qid+d.slotTime
+             +(d.slotKV!="" ?"KV: "+d.slotKV:"");
+    } else {
+      html +="<br><b>qID: </b>"+d.qid+d.slotTime
              +(d.slotKV!="" ?"KV: "+d.slotKV:"");
     }
     html += "</div></div>";
