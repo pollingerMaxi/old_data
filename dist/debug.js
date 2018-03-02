@@ -1,11 +1,10 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.25. 27/Feb/2018
+// AdCase.js DEBUG JavaScript Library v2.1.26. 2/Mar/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
 // AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
 // This is not an official Google product, and it is also not officially supported by Google.
-//
 //
 
 ads.d = ads.d || {};
@@ -264,7 +263,8 @@ ads.d.prepareData = function() {
     row.slotTime = "";
     try {
       row.slotTime = Number.isInteger(ads.id[row.divId].renderedTime) ? Math.round(ads.id[row.divId].renderedTime) : "";
-      if(row.slotTime!=""){ row.slotTime+=" ("+row.slotTime+"ms)"; }
+      var startTimeSec = ((ads.id[row.divId].startTime-ads.startTime)/1000).toFixed(1)+"s";
+      if(row.slotTime!=""){ row.slotTime+=" ("+startTimeSec+"+"+row.slotTime+"ms)"; }
     } catch(e) {}
     ads.d.data[row.parentId] = row;
   }
