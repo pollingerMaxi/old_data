@@ -1,11 +1,13 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.26. 2/Mar/2018
+// AdCase.js DEBUG JavaScript Library v2.1.27. 2/Mar/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
 // AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
 // This is not an official Google product, and it is also not officially supported by Google.
 //
+
+ads.version = ads.version || "";
 
 ads.d = ads.d || {};
 ads.d.values = ads.d.values || {};
@@ -190,6 +192,9 @@ table#adcasekv td {padding:4px}
 
 #adcase-ipinfo { padding-top:10px}
 #adcase-ipinfo td { font-size:11px; padding:4px; }
+
+.adcase-block { width:100%;padding:5px;font-family:Arial;font-size:12px;  font-family:Poppins }
+
 `;
 
 var s = document.createElement("style");
@@ -277,7 +282,7 @@ ads.d.debugContent = function() {
   ads.d.prepareData();
 
   var showFormat=false;
-  var dfpPath = (ads.router ? "DFP Path: /"+ads.network+ads.router() : ""); 
+  var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
 
   var html = "<table id='1' class='adcaseTable' width=100%>"
                + "<tr><td style='vertical-align:top'>"
@@ -343,7 +348,9 @@ var printedSlots = {};
      }
    }
 
-   html +="</table></td></tr></table>";
+   html +="</table>"
+        +(ads.version!=""?"<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>":"") 
+        +"</td></tr></table>";
 
   return html;
 }
@@ -655,6 +662,8 @@ ads.d.debugContentMobile = function() {
                +"<b>Page Level key-values:</b><div class='line' style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>"
                +"</div></div>";
   }
+
+  html += "<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>";
 
   return html;
 }

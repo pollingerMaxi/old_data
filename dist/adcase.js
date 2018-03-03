@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.25. 28/Feb/2018
+// AdCase.js JavaScript Library v2.1.27. 2/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,6 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
+
+ads.version = "adcase.js v2.1.27";
 
 var googletag = googletag || { cmd: [] };
 
