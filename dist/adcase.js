@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.27. 2/Mar/2018
+// AdCase.js JavaScript Library v2.1.29. 5/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -386,7 +386,7 @@ ads.setAdTypes = function() {
     ads.adTypes = {};
 
     for (var i in ads.adTypesMap) {
-        let t = ads.adTypesMap[i];
+        var t = ads.adTypesMap[i];
         t.minWidth = t.minWidth || 0;
 
         if (t.deviceType) {
@@ -396,7 +396,7 @@ ads.setAdTypes = function() {
             }
         }
 
-        let width = window.innerWidth;
+        var width = window.innerWidth;
         if (t.minWidth && t.minWidth > window.innerWidth) {
             continue;
         }
@@ -825,6 +825,7 @@ ads.formats.interstitial = function(t) {
         if(params.autoclose > 0) {
             ads.interstitialTimeout = window.setTimeout(function() {
                 parent.style.display = "none";
+                document.body.style.overflow="";
                 // parent.innerHTML = ""
             }, params.autoclose * 1000);
         }
