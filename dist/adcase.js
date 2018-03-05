@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.29. 5/Mar/2018
+// AdCase.js JavaScript Library v2.1.30. 5/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.27";
+ads.version = "adcase.js v2.1.30";
 
 var googletag = googletag || { cmd: [] };
 
@@ -443,12 +443,16 @@ ads.scroll = function() {
 
 ads.elementInViewport = function(el) {
     var rect = el.getBoundingClientRect()
+    
+    return rect.left >= 0 && ((rect.top - 300) <= (window.innerHeight || document.documentElement.clientHeight) || (rect.bottom < 0) );
 
+/* OPTION: SHOW ONLY IF VISIBLE
     return (
         rect.top >= 0 &&
         rect.left >= 0 &&
         rect.top <= (window.innerHeight || document.documentElement.clientHeight)
     ) || (rect.top < 0 && rect.top > -300)
+*/
 }
 
 ads.refresh = function(divId) {
