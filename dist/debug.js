@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.27. 2/Mar/2018
+// AdCase.js DEBUG JavaScript Library v2.1.28. 5/Mar/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -83,6 +83,9 @@ ads.d.run = function() {
   } else if(mode==1) {
     text.innerHTML = "popup";
     ads.d.runModal();    
+    if(localStorage.getItem("ads-debug-share-code")) {
+      ads.d.sendShareData();
+    }
   } else if(mode==2) {
     text.innerHTML = "overlay";
     ads.d.runOverlay();
@@ -93,8 +96,8 @@ ads.d.run = function() {
 ads.d.runOverlay = function () {
 
   ads.d.prepareData();
-  for(var i in ads.d.data) {
-    var d = ads.d.data[i];
+  for(var i in ads.d.data.rows) {
+    var d = ads.d.data.rows[i];
 
     var html = "<div style='width:100%;padding:10px;text-align:left; font-family:Arial;line-height:1.3;font-size:13px;opacity: 0.9;background-color:#eee'>"
              +"<div style='margin-bottom:4px;padding:8px 0 0 10px;height:26px;color:#fff;width:100%;text-align:left;background-color:#3498db;font-weight:bold;font-size:15px'>"
@@ -229,7 +232,7 @@ ads.d.formatSizes = function (s) {
 }
 
 ads.d.prepareData = function() {
-  ads.d.data = {};
+  ads.d.data = { rows:{} };
   for(var i in ads.adEvents) {
     ads.adEvents[i].slotKVHTML = ads.d.getSlotKV(ads.adEvents[i].slot);
   }
@@ -271,9 +274,12 @@ ads.d.prepareData = function() {
       var startTimeSec = ((ads.id[row.divId].startTime-ads.startTime)/1000).toFixed(1)+"s";
       if(row.slotTime!=""){ row.slotTime+=" ("+startTimeSec+"+"+row.slotTime+"ms)"; }
     } catch(e) {}
-    ads.d.data[row.parentId] = row;
+    ads.d.data.rows[row.parentId] = row;
   }
-
+  
+  ads.d.data.url = document.location.href;
+  
+  ads.set("ads.d.data",ads.d.data);
 }
 
 
@@ -285,7 +291,7 @@ ads.d.debugContent = function() {
   var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
 
   var html = "<table id='1' class='adcaseTable' width=100%>"
-               + "<tr><td style='vertical-align:top'>"
+               + "<tr><td style='vertical-align:top'><div id='adcase-debug-main' style='display:inline-block'></div>"
                     +"<table id='2'>"
                       +"<tr><td style='width:300px'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
                           +"<td style='vertical-align:top;padding-right:0px;word-break:break-all' colspan=10>"
@@ -295,6 +301,7 @@ ads.d.debugContent = function() {
                     + "<td valign=top  style='padding:0;width:1px;'>"
                          +(ads.router?"<a class='adcase-button' onclick='javascript:document.getElementById(\"configWindow\").style.display=\"\"'><button><span>Config</span></button></a>":"")+"</td>"
                      +"<td valign=top style='padding:0;width:1px;'><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button><span>Troubleshoot</span></button></A></td>"
+                     +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></td>"
                      +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.closeModal()'><button><span>X</span></button></a></td>"
              +"</tr></table>"
 
@@ -302,8 +309,8 @@ ads.d.debugContent = function() {
    +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
    +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td>Slot KV</td></tr></thead>";
 var printedSlots = {};
-  for(var i in ads.d.data) {
-    var d = ads.d.data[i];
+  for(var i in ads.d.data.rows) {
+    var d = ads.d.data.rows[i];
     printedSlots[d.parentId] = true;
 
     html += "<tr class='adcaseRow' style='background-color:"+(d.size=="unfilled"?"#ffd394":"")+"'><td><b>"+d.parentId+"</b></td>"
@@ -598,14 +605,14 @@ ads.d.debugContentMobile = function() {
   var dfpPath = (ads.router ? "/"+ads.network+ads.router() : ""); 
 
   var html = "<div class='adcase-title'>Debug</div>"
-             +"<div class='adcase-block'>"
-              +"<div ><b>"+dfpPath+"</b><div id='adcase-ipinfo' style='font-size:12px;margin-top:5px'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></div>"
+             +"<div class='adcase-block' style='display:block'><div id='adcase-debug-main' style='display:block;margin:20px'></div>"
+              +"<div><b>"+dfpPath+"</b><div id='adcase-ipinfo' style='font-size:12px;margin-top:5px'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></div>"
               +"<div style='font-size:12px;margin-top:5px'><b>User Agent:</b> " + navigator.userAgent + "</div>"
               +"</div><div class='adcase-block'>";
 
   var printedSlots = {};
-  for(var i in ads.d.data) {
-    var d = ads.d.data[i];
+  for(var i in ads.d.data.rows) {
+    var d = ads.d.data.rows[i];
     d.errorTxt = "";
     printedSlots[d.parentId] = true;
 
@@ -663,9 +670,84 @@ ads.d.debugContentMobile = function() {
                +"</div></div>";
   }
 
-  html += "<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>";
+  html += "<td valign=top style='padding:0;width:1px;'><center><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></center></td>"
+       +"<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>";
 
   return html;
 }
+
+ads.d.shareStop = function() {
+  localStorage.removeItem("ads-debug-share-code");
+  ads.d.shareSession();
+  
+}
+
+ads.d.shareSession = function() {
+  window.scrollTo(0,0);
+  d = document.getElementById("adcase-debug-main");
+  if(localStorage.getItem("ads-debug-share-code")) {
+    d.innerHTML = "<div>Share URL:<br><br><b>https://adcase.io/share/"+localStorage.getItem("ads-debug-share-code")+"</b><br><br>Use this URL to share your session data with technical teams.<br><br>"
+    +"<div>"
+      +"<a style='float:left' class='adcase-button' href='javascript:ads.d.sendShareData()'><button><span>Send again</span></button></a>"
+      +"<a style='float:left;background-color:red' class='adcase-button' href='javascript:ads.d.shareStop()'><button><span>Stop Sharing</span></button></a>"
+    +"</div></div><br><br>";
+    
+  } else {
+    d.innerHTML = "<div>By clicking the button below you are accepting to share your IP address, current URL and current served ads information.<br><br>Sharing data will be sent again every time you open this debug window.<br><br>Sharing setup can be cancelled at any time and it will be cacelled automatically in 24 hs.<br><br>Sharing data will be available for every person holding the share url code.<br><br>"
+                + "<br>"
+                + "<a class='adcase-button' href='javascript:ads.d.getShareURL()'><button><span>Get Share URL</span></button></a></div><br><br>";
+  }
+  
+}
+
+ads.d.sendShareData = function() {
+  ads.d.prepareData();
+  var jsondata = {"code":localStorage.getItem("ads-debug-share-code"), "data": JSON.stringify(ads.get("ads.d.data"))};
+  ads.d.postAjax("https://adcase.io/share/getid", jsondata, function(data){ 
+    d = document.getElementById("adcase-debug-main");
+    d.innerHTML = "<br>Sharing as <b>https://adcase.io/share/"+localStorage.getItem("ads-debug-share-code")+"</b><br>"+d.innerHTML;
+  });
+}
+
+ads.d.getShareURL = function() {
+    
+    var jsondata = {"data": JSON.stringify(ads.get("ads.d.data"))};
+    
+    ads.d.postAjax("https://adcase.io/share/getid", jsondata, function(data){
+        try {data = JSON.parse(data) } catch(e) { data = {error:data} }
+        if(data.code) {
+                localStorage.setItem("ads-debug-share-code",data.code);
+                ads.d.shareSession();
+            } else {
+                alert(data.error||"An error occurred. Please try again");
+            }
+    });
+
+}
+
+ads.d.postAjax = function (url, data, success) { 
+
+    var params = typeof data == 'string' ? data : Object.keys(data).map(
+            function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) }
+        ).join('&');
+
+    var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+    xhr.open('POST', url);
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState>3 && xhr.status==200) { success(xhr.responseText); }
+    };
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.send(params);
+    return xhr;
+}
+
+// example request
+//postAjax('http://foo.bar/', 'p1=1&p2=Hello+World', function(data){ console.log(data); });
+
+// example request with data object
+//postAjax('http://foo.bar/', { p1: 1, p2: 'Hello World' }, function(data){ console.log(data); });
+
 
 ads.d.clickButton();
