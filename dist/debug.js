@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.33. 5/Mar/2018
+// AdCase.js DEBUG JavaScript Library v2.1.34. 5/Mar/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -7,7 +7,7 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 
-ads.version = ads.version || "";
+ads.version = ads.version || ""; // please update adcase.js
 
 ads.d = ads.d || {};
 ads.d.values = ads.d.values || {};
@@ -292,7 +292,7 @@ ads.d.debugContent = function() {
   var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
 
   var html = "<table id='1' class='adcaseTable' width=100%>"
-               + "<tr><td style='vertical-align:top'><div id='adcase-debug-main' style='display:inline-block'></div>"
+               + "<tr><td style='vertical-align:top' rowspan=2>"
                     +"<table id='2'>"
                       +"<tr><td style='width:300px'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
                           +"<td style='vertical-align:top;padding-right:0px;word-break:break-all' colspan=10>"
@@ -304,7 +304,9 @@ ads.d.debugContent = function() {
                      +"<td valign=top style='padding:0;width:1px;'><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button><span>Troubleshoot</span></button></A></td>"
                      +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></td>"
                      +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.closeModal()'><button><span>X</span></button></a></td>"
-             +"</tr></table>"
+             +"</tr>"
+             +"<tr><td colspan=4><div id='adcase-debug-main' style='display:inline-block'></div></td></tr>"
+             +"</table>"
 
    + "<table class='adcaseTable'>"
    +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
@@ -475,7 +477,7 @@ ads.d.layerAdDetails = function () {
         //+ "<tr><td style='text-align:left'>adFormat:</td><td style='text-align:left'>" + params.adFormat + "</td></tr>"
         //              +  +"<br>Targeting: " + event.slot.getTargetingKeys() 
 
-        + "</table>"
+        + "</table>";
 
     div.parentElement.style.position = "relative";
     newDiv = document.createElement("div");
