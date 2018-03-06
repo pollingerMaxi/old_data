@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.28. 5/Mar/2018
+// AdCase.js DEBUG JavaScript Library v2.1.33. 5/Mar/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -19,9 +19,9 @@ ads.d.s("isMobile",/Mobi/.test(navigator.userAgent));
 
 ads.d.updateModal = function() {
   if(ads.d.g("isMobile")) {
-     ads.d.g("modalContent").innerHTML = ads.d.debugContentMobile();
+    ads.d.g("modalContent").innerHTML = ads.d.debugContentMobile();
   } else {
-     ads.d.g("modalContent").innerHTML = ads.d.debugContent();
+    ads.d.g("modalContent").innerHTML = ads.d.debugContent();
   } 
 }
 
@@ -149,6 +149,7 @@ if(ads.d.g("modalContainer")) {
 }
 
 if( ads.d.g("isMobile") ) {
+  window.scrollTo(0,0);
   ads.d.runModalMobile();
   return;
 }
@@ -686,16 +687,16 @@ ads.d.shareSession = function() {
   window.scrollTo(0,0);
   d = document.getElementById("adcase-debug-main");
   if(localStorage.getItem("ads-debug-share-code")) {
-    d.innerHTML = "<div>Share URL:<br><br><b>https://adcase.io/share/"+localStorage.getItem("ads-debug-share-code")+"</b><br><br>Use this URL to share your session data with technical teams.<br><br>"
+    d.innerHTML = "<div>Share Code: <span style='font-weight:bold;font-size:18px;width:100%;text-align:center'>"+localStorage.getItem("ads-debug-share-code")+"</span><br><br>Use this code to share your session data with technical teams.<br><br>"
     +"<div>"
-      +"<a style='float:left' class='adcase-button' href='javascript:ads.d.sendShareData()'><button><span>Send again</span></button></a>"
-      +"<a style='float:left;background-color:red' class='adcase-button' href='javascript:ads.d.shareStop()'><button><span>Stop Sharing</span></button></a>"
-    +"</div></div><br><br>";
+      +"<!--<a style='float:left' class='adcase-button' href='javascript:ads.d.sendShareData()'><button><span>Send again</span></button></a>-->"
+      +"<center><a class='adcase-button' href='javascript:ads.d.shareStop()'><button><span>Stop Sharing</span></button></a></center>"
+    +"</div></div>";
     
   } else {
     d.innerHTML = "<div>By clicking the button below you are accepting to share your IP address, current URL and current served ads information.<br><br>Sharing data will be sent again every time you open this debug window.<br><br>Sharing setup can be cancelled at any time and it will be cacelled automatically in 24 hs.<br><br>Sharing data will be available for every person holding the share url code.<br><br>"
                 + "<br>"
-                + "<a class='adcase-button' href='javascript:ads.d.getShareURL()'><button><span>Get Share URL</span></button></a></div><br><br>";
+                + "<center><a class='adcase-button' href='javascript:ads.d.getShareURL()'><button><span>Get Share Code</span></button></a></center></div><br><br>";
   }
   
 }
@@ -705,7 +706,12 @@ ads.d.sendShareData = function() {
   var jsondata = {"code":localStorage.getItem("ads-debug-share-code"), "data": JSON.stringify(ads.get("ads.d.data"))};
   ads.d.postAjax("https://adcase.io/share/getid", jsondata, function(data){ 
     d = document.getElementById("adcase-debug-main");
-    d.innerHTML = "<br>Sharing as <b>https://adcase.io/share/"+localStorage.getItem("ads-debug-share-code")+"</b><br>"+d.innerHTML;
+    ads.d.shareSession();return;
+    /*
+    d.innerHTML = "<div style='border-bottom:1px solid #00a8ff'>Sharing code: <span style='font-weight:bold;font-size:18px;width:100%;text-align:center'>"+localStorage.getItem("ads-debug-share-code")+"</span></div><br>"
+    +"<center><a style='float:left;background-color:red' class='adcase-button' href='javascript:ads.d.shareStop()'><button><span>Stop Sharing</span></button></a></center>"
+    +d.innerHTML;
+    */
   });
 }
 
@@ -716,6 +722,7 @@ ads.d.getShareURL = function() {
     ads.d.postAjax("https://adcase.io/share/getid", jsondata, function(data){
         try {data = JSON.parse(data) } catch(e) { data = {error:data} }
         if(data.code) {
+                data.code=(data.code+"").substring(0,3)+" - "+(data.code+"").substring(3,6);
                 localStorage.setItem("ads-debug-share-code",data.code);
                 ads.d.shareSession();
             } else {
