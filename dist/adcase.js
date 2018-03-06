@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.31. 5/Mar/2018
+// AdCase.js JavaScript Library v2.1.32. 5/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.31";
+ads.version = "adcase.js v2.1.32";
 
 var googletag = googletag || { cmd: [] };
 
@@ -886,10 +886,28 @@ ads.formats.push = function(t) {
         }
 
         if(p.action == "collapse") {
-            var height = t.get("collapsedHeight") || 90;
+            var height = false;
+            if(ads.styles.push && ads.styles.push.collapsedHeight) {
+                height = ads.styles.push.collapsedHeight;
+            }
+            if(t.get("collapsedHeight")) {
+                height = t.get("collapsedHeight"); 
+            }
+            if(!height) {
+                height = 90;
+            }
             t.parentSlot.style.height = height + "px";
         } else if(p.action == "expand") {
-            var height = t.get("expandedHeight") || 250;
+            var height = false;
+            if(ads.styles.push && ads.styles.push.expandedHeight) {
+                height = ads.styles.push.expandedHeight;
+            }
+            if(t.get("expandedHeight")) {
+                height = t.get("expandedHeight"); 
+            }
+            if(!height) {
+                height = 250;
+            }
             t.parentSlot.style.height = height + "px";
         }
     }
