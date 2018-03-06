@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.30. 5/Mar/2018
+// AdCase.js JavaScript Library v2.1.31. 5/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.30";
+ads.version = "adcase.js v2.1.31";
 
 var googletag = googletag || { cmd: [] };
 
@@ -196,6 +196,9 @@ ads.pageLoaded = function(params) {
         }
 
         parent.style.overflow="hidden";
+        if(ads.startHeight) {
+            parent.style.height=ads.startHeight;
+        }
         parent.innerHTML = "<div id='" + parent.id + "_ad'></div>";
 
         /*    if(ads.id[parent.id + "_ad"]) {
@@ -218,8 +221,6 @@ ads.pageLoaded = function(params) {
         ads.adSlotList.push (ads.id[d]);
 
     }
-
-
 
     // Actual DFP slot creation
     googletag.cmd.push(function() {
