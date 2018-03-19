@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.35. 5/Mar/2018
+// AdCase.js JavaScript Library v2.1.36. 19/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.35";
+ads.version = "adcase.js v2.1.36";
 var googletag = googletag || { cmd: [] };
 
 ads.log = function() {
@@ -20,15 +20,20 @@ ads.log = function() {
 
 ads.values = ads.values || {};
 ads.formats = {};
-ads.scrollTimeout = true;
-ads.printedSlots = {}; // used by lazy loading
-ads.processedDivs = {} // used by pending
-ads.startDisplay = ads.startDisplay || "";
-ads.adEvents = [];
-ads.adTexts = [];
-ads.id = {};
 ads.setup = false;
-ads.startTime = new Date().getTime();
+
+
+ads.resetValues = function() {
+    ads.scrollTimeout = true;
+    ads.printedSlots = {}; // used by lazy loading
+    ads.processedDivs = {} // used by pending
+    ads.startDisplay = ads.startDisplay || "";
+    ads.adEvents = [];
+    ads.adTexts = [];
+    ads.id = {};
+    ads.startTime = new Date().getTime();
+}
+
 
 ads.run = function() {
 
@@ -73,7 +78,8 @@ ads.run = function() {
     for(var c2 = 0; c2 < Object.keys(cmd).length; c2++ ) { var c = Object.keys(cmd)[c2];
         if (cmd[c].cmd == "run") {
             if(!cmd[c].pending) {
-//       googletag.cmd.push(function() { googletag.destroySlots(); });
+              googletag.cmd.push(function() { googletag.destroySlots(); });
+              ads.resetValues();
             }
             ads.pageLoaded({ path: "/" + ads.network + cmd[c].path, pending: cmd[c].pending});
         }
@@ -1122,7 +1128,7 @@ ads.checkDebug = function() {
     }
 }
 
-
+ads.resetValues();
 ads.checkDebug();
 
 if(ads.light) {
