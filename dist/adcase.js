@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.37. 19/Mar/2018
+// AdCase.js JavaScript Library v2.1.38. 20/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.37";
+ads.version = "adcase.js v2.1.38";
 var googletag = googletag || { cmd: [] };
 
 ads.log = function() {
@@ -75,7 +75,7 @@ ads.run = function() {
     var cmd = ads.cmd;
     ads.cmd = [];
     
-    for(var c2 = 0; c2 < Object.keys(cmd).length; c2++ ) { var c = Object.keys(cmd)[c2];
+    for(var c in cmd) { if(!(cmd.hasOwnProperty(c))) { continue; }
         if (cmd[c].cmd == "run") {
             if(!cmd[c].pending) {
               googletag.cmd.push(function() { googletag.destroySlots(); ads.setTargeting(); });
@@ -90,7 +90,7 @@ ads.run = function() {
 ads.checkDivList = function(divId, isManual, manualSlotList) {
     if (manualSlotList) {
         // there is a list, check if divId is included
-        for(var i2 = 0; i2 < Object.keys(manualSlotList).length; i2++ ) { var i = Object.keys(manualSlotList)[i2];
+        for(var i in manualSlotList) { if(!(manualSlotList.hasOwnProperty(i))) { continue; }
             if (manualSlotList[i] == divId) {
                 return true;
             }
@@ -133,7 +133,7 @@ ads.setTargeting = function() {
     if(Object.keys(kv).length > 0) {
         ads.log("Page level Key-values", kv);
     }
-    for(var i2 = 0; i2 < Object.keys(kv).length; i2++ ) { var i = Object.keys(kv)[i2];
+    for(var i in kv) { if(!(kv.hasOwnProperty(i))) { continue; }
         googletag.pubads().setTargeting(i, kv[i].toString());
     }
 
@@ -150,7 +150,7 @@ ads.pageLoaded = function(params) {
     var divs = {};
     // First target slots by slotOrder definition
     if(ads.slotOrder) {
-        for(var i2 = 0; i2 < Object.keys(ads.slotOrder).length; i2++ ) { var i = Object.keys(ads.slotOrder)[i2];
+        for(var i in ads.slotOrder) { if(!(ads.slotOrder.hasOwnProperty(i))) { continue; }
             document.getElementById(ads.slotOrder[i]) && (divs[ads.slotOrder[i]] = document.getElementById(ads.slotOrder[i]));
         }
     }
@@ -161,7 +161,7 @@ ads.pageLoaded = function(params) {
         d = document.getElementsByClassName("ad-slot");
     }
 
-    for(var i2 = 0; i2 < Object.keys(d).length; i2++ ) { var i = Object.keys(d)[i2];
+    for(var i in d) { if(!(d.hasOwnProperty(i))) { continue; }
         var divId = d.item(i).id;
         if(divs[divId]) {
             ads.log("********Error! ExistingSlot: ",divId);
@@ -172,7 +172,7 @@ ads.pageLoaded = function(params) {
     }
     ads.log("target divs", divs);
 
-    for(var i2 = 0; i2 < Object.keys(divs).length; i2++ ) { var i = Object.keys(divs)[i2];
+    for(var i in divs) { if(!(divs.hasOwnProperty(i))) { continue; }
         var parent = divs[i];
         var adType = parent.dataset.adtype;
         if(!adType || adType=="") { adType = parent.id; }
@@ -231,7 +231,7 @@ ads.pageLoaded = function(params) {
 
     // Actual DFP slot creation
     googletag.cmd.push(function() {
-        for(var i2 = 0; i2 < Object.keys(divs).length; i2++ ) { var i = Object.keys(divs)[i2];
+        for(var i in divs) { if(!(divs.hasOwnProperty(i))) { continue; }
             if(!ads.id[i+"_ad"]){ continue; }
             var d = ads.id[i+"_ad"];
             d.startTime = new Date().getTime();
@@ -243,7 +243,7 @@ ads.pageLoaded = function(params) {
             ads.id[i+"_ad"].requestedSizes = d.sizes;
         }
 
-        for(var i2 = 0; i2 < Object.keys(divs).length; i2++ ) { var i = Object.keys(divs)[i2];
+        for(var i in divs) { if(!(divs.hasOwnProperty(i))) { continue; }
             if(!ads.id[i+"_ad"]){ continue; }
             googletag.display(ads.id[i+"_ad"].divId);
         }
@@ -338,9 +338,9 @@ ads.slotRendered = function(event) {
 
 
 ads.matchAds = function() {
-    for(var i2 = 0; i2 < Object.keys(ads.adTexts).length; i2++ ) { var i = Object.keys(ads.adTexts)[i2];
+    for(var i in ads.adTexts) { if(!(ads.adTexts.hasOwnProperty(i))) { continue; }
         var text = ads.adTexts[i].text.split(/\r\n|\r|\n/);
-        for(var j2 = 0; j2 < Object.keys(text).length; j2++ ) { var j = Object.keys(text)[j2];
+        for(var j in text) { if(!(text.hasOwnProperty(j))) { continue; }
             j3 = text[j].split("=");
             if (j3[1] && j3[1] > 10000) {
                 ads.searchSlots(j3[1], ads.adTexts[i].slotWindow);
@@ -350,9 +350,9 @@ ads.matchAds = function() {
 }
 
 ads.searchSlots = function(param, slotWindow) {
-    for(var i2 = 0; i2 < Object.keys(ads.adEvents).length; i2++ ) { var i = Object.keys(ads.adEvents)[i2];
+    for(var i in ads.adEvents) { if(!(ads.adEvents.hasOwnProperty(i))) { continue; }
         var slot = ads.adEvents[i].slot;
-        for(var j2 = 0; j2 < Object.keys(slot).length; j2++ ) { var j = Object.keys(slot)[j2];
+        for(var j in slot) { if(!(slot.hasOwnProperty(j))) { continue; }
             if (slot[j] == param && !ads.adEvents[i].slotWindow) {
                 ads.adEvents[i].slotWindow = slotWindow;
                 var handle = Math.round(Math.random() * 10000000) + 10000000;
@@ -370,14 +370,14 @@ ads.searchSlots = function(param, slotWindow) {
 }
 
 ads.getIdFromHandle = function(handle) {
-    for(var i2 = 0; i2 < Object.keys(ads.id).length; i2++ ) { var i = Object.keys(ads.id)[i2];
+    for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; }
         if(ads.id[i].get("handle") == handle) {
             return i;
         }
     }
 }
 ads.getIdFromFormat = function(format) {
-    for(var i2 = 0; i2 < Object.keys(ads.id).length; i2++ ) { var i = Object.keys(ads.id)[i2];
+    for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; }
         if(ads.id[i].format == format) {
             return i;
         }
@@ -392,7 +392,7 @@ ads.setAdTypes = function() {
     }
     ads.adTypes = {};
 
-    for(var i2 = 0; i2 < Object.keys(ads.adTypesMap).length; i2++ ) { var i = Object.keys(ads.adTypesMap)[i2];
+    for(var i in ads.adTypesMap) { if(!(ads.adTypesMap.hasOwnProperty(i))) { continue; }
         var t = ads.adTypesMap[i];
         t.minWidth = t.minWidth || 0;
 
@@ -435,7 +435,7 @@ ads.scroll = function() {
         ads.scrollTimeout = true;
     }, 500);
 
-    for(var i2 = 0; i2 < Object.keys(ads.id).length; i2++ ) { var i = Object.keys(ads.id)[i2];
+    for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; }
         ads.id[i].onScroll && ads.id[i].onScroll();
         if (ads.lazy) {
             var d = ads.id[i];
@@ -490,7 +490,7 @@ ads.getVideoURL = ads.getVideoURL || function(output, vpos, slot) {
     var url = document.location.href;
     var timestamp = new Date().getTime();
     var cust_params = ""; // set key values
-    for(var i2 = 0; i2 < Object.keys(ads.kv).length; i2++ ) { var key = Object.keys(ads.kv)[i2];
+    for(var key in ads.kv) { if(!(ads.kv.hasOwnProperty(key))) { continue; }
         value = ads.kv[key] || "";
         cust_params += key+"%3D"+value+"%26";
     }

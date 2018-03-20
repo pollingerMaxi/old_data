@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.34. 5/Mar/2018
+// AdCase.js DEBUG JavaScript Library v2.1.38. 20/Mar/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -74,7 +74,7 @@ ads.d.run = function() {
   var text = document.getElementById("adcase-button-text");
   ads.d.g("modalContainer") && (ads.d.g("modalContainer").style.display="none");
   var d = document.getElementsByClassName("adcase-overlay");
-  for (var i = 0; i < d.length; i++) {
+  for (var i = 0; i < d.length; i++) { if(!(d.hasOwnProperty(i))) { continue; }
     d.item(i).innerHTML = "";
   }
 
@@ -96,7 +96,7 @@ ads.d.run = function() {
 ads.d.runOverlay = function () {
 
   ads.d.prepareData();
-  for(var i in ads.d.data.rows) {
+  for(var i in ads.d.data.rows) { if(!(ads.d.data.rows.hasOwnProperty(i))) { continue; }
     var d = ads.d.data.rows[i];
 
     var html = "<div style='width:100%;padding:10px;text-align:left; font-family:Arial;line-height:1.3;font-size:13px;opacity: 0.9;background-color:#eee'>"
@@ -216,10 +216,10 @@ document.head.appendChild(s);
 }
 ads.d.formatSizes = function (s) {
   var txt ="";
-  for(var i in s) {
+  for(var i in s) {  if(!(s.hasOwnProperty(i))) { continue; }
     var size = s[i];
     var line = "";
-    for(var j in size) {
+    for(var j in size) { if(!(size.hasOwnProperty(j))) { continue; }
       if(line=="") {
         line = size[j];
       } else {
@@ -234,13 +234,13 @@ ads.d.formatSizes = function (s) {
 
 ads.d.prepareData = function() {
   ads.d.data = { rows:{} };
-  for(var i in ads.adEvents) {
+  for(var i in ads.adEvents) { if(!(ads.adEvents.hasOwnProperty(i))) { continue; }
     ads.adEvents[i].slotKVHTML = ads.d.getSlotKV(ads.adEvents[i].slot);
   }
   var showFormat=false;
   var dfpPath = (ads.router ? ("DFP Path: /"+ads.network+ads.router()) : ""); 
   var printedSlots = {};
-  for(var i in ads.adEvents) {
+  for(var i in ads.adEvents) { if(!(ads.adEvents.hasOwnProperty(i))) { continue; } 
     var row = {};
     var e = ads.adEvents[i];
     if(!e || !e.slot) { ads.log("not found:",e,e.slot); continue; }
@@ -311,8 +311,9 @@ ads.d.debugContent = function() {
    + "<table class='adcaseTable'>"
    +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
    +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td>Slot KV</td></tr></thead>";
-var printedSlots = {};
-  for(var i in ads.d.data.rows) {
+  var printedSlots = {};
+  
+  for(var i in ads.d.data.rows) { if(!(ads.d.data.rows.hasOwnProperty(i))) { continue; }
     var d = ads.d.data.rows[i];
     printedSlots[d.parentId] = true;
 
@@ -331,12 +332,12 @@ var printedSlots = {};
   }
 
   if(ads.id) {
-    for(var i in ads.id) {
+    for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; } 
       if(ads.id[i].format && ads.id[i].format!="default") {
         showFormat=true;
       }
     }
-    for(var i in ads.id) {
+    for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; }
       if(printedSlots[ads.id[i].parentId] || printedSlots[ads.id[i].divId]) {
         continue;
       }
@@ -368,12 +369,12 @@ var printedSlots = {};
 ads.d.debugKV = function() {
   var kv = ads.kv;
   var out = "<table id='adcasekv'>";
-  for(var i in kv) {
+  for(var i in kv) { if(!(kv.hasOwnProperty(i))) { continue; }
     if(typeof(kv[i])=="string" && kv[i]=="") { continue; }
     out += "<tr><td><b>"+i+":</b></td><td>";
     if(typeof(kv[i])=="object") {
       var v="";
-      for(var j in kv[i]) {
+      for(var j in kv[i]) { if(!(kv[i].hasOwnProperty(j))) { continue; }
         v += (v==""?"":" | ") + kv[i][j];
       }
       out += v;
@@ -390,7 +391,7 @@ ads.d.checkInventory = function() {
   var debugErrors = {};
   var inv = localStorage.getItem("ads.inventory");
   if(!inv) return;
-  for(var i in ads.id) {
+  for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; }
     var parentId = ads.id[i].parentId;
     var path = ","+ads.router().substring(1)+parentId+",";
     if(inv.indexOf(path)<1) {
@@ -417,7 +418,7 @@ ads.d.strtoken = function(s,n,sep) {
 ads.d.getSlotKV = function(slot) {
 
   var url = "";
-  for(var i in slot) {
+  for(var i in slot) { if(!(slot.hasOwnProperty(i))) { continue; }
     try {
       if(typeof(slot[i])=="string" && slot[i].substring(0,49)=="https://securepubads.g.doubleclick.net/gampad/ads") {
         url = slot[i];
@@ -429,7 +430,7 @@ ads.d.getSlotKV = function(slot) {
   var kv = {};  
   var url = new URL(url);
   var scp = decodeURIComponent(url.searchParams.get("scp")).split("&");
-  for(var i in scp) {
+  for(var i in scp) { if(!(scp.hasOwnProperty(i))) { continue; }
     try {
       var k = scp[i].split("=")[0];
       var v = scp[i].split("=")[1];
@@ -438,7 +439,7 @@ ads.d.getSlotKV = function(slot) {
   }
   var custParams = decodeURIComponent(url.searchParams.get("cust_params")).split("&");
   var pageKV = {};
-  for(var i in custParams) {
+  for(var i in custParams) { if(!(custParams.hasOwnProperty(i))) { continue; }
     try {
       var k = custParams[i].split("=")[0];
       var v = custParams[i].split("=")[1];
@@ -447,12 +448,12 @@ ads.d.getSlotKV = function(slot) {
   }
 
   ads.d.pagekvHTML = "";
-  for(var i in pageKV) {
+  for(var i in pageKV) { if(!(pageKV.hasOwnProperty(i))) { continue; }
     ads.d.pagekvHTML += (ads.d.pagekvHTML==""?"":"&nbsp;&nbsp;&nbsp;") + "<b>" + i + "=</b>" + pageKV[i];
   }
 
   var kvHTML = "";
-  for(var i in kv) {
+  for(var i in kv) { if(!(kv.hasOwnProperty(i))) { continue; }
     kvHTML += (kvHTML==""?"":"&nbsp;&nbsp;&nbsp;") + "<b>" + i + "=</b>" + kv[i];
   }
   return kvHTML;
@@ -614,7 +615,7 @@ ads.d.debugContentMobile = function() {
               +"</div><div class='adcase-block'>";
 
   var printedSlots = {};
-  for(var i in ads.d.data.rows) {
+  for(var i in ads.d.data.rows) { if(!(ads.d.data.rows.hasOwnProperty(i))) { continue; }
     var d = ads.d.data.rows[i];
     d.errorTxt = "";
     printedSlots[d.parentId] = true;
@@ -644,12 +645,12 @@ ads.d.debugContentMobile = function() {
   html += "<div class='adcase-block'>"
 
   if(ads.id) {
-    for(var i in ads.id) {
+    for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; }
       if(ads.id[i].format && ads.id[i].format!="default") {
         showFormat=true;
       }
     }
-    for(var i in ads.id) {
+    for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; }
       if(printedSlots[ads.id[i].parentId]) {
         continue;
       }
