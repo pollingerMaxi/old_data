@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.39. 20/Mar/2018
+// AdCase.js JavaScript Library v2.1.40. 27/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.39";
+ads.version = "adcase.js v2.1.40";
 var googletag = googletag || { cmd: [] };
 
 ads.log = function() {
@@ -27,7 +27,7 @@ ads.resetValues = function() {
     ads.scrollTimeout = true;
     ads.printedSlots = {}; // used by lazy loading
     ads.processedDivs = {} // used by pending
-    ads.startDisplay = ads.startDisplay || "";
+    ads.startDisplay = "" || "";
     ads.adEvents = [];
     ads.adTexts = [];
     ads.id = {};
@@ -174,6 +174,7 @@ ads.pageLoaded = function(params) {
 
     for(var i in divs) { if(!(divs.hasOwnProperty(i))) { continue; }
         var parent = divs[i];
+        parent.style.height="0px";
         var adType = parent.dataset.adtype;
         if(!adType || adType=="") { adType = parent.id; }
         if (!ads.adTypes[adType]) {
@@ -403,8 +404,8 @@ ads.setAdTypes = function() {
             }
         }
 
-        var width = ( ads.device.isMobile ? screen.width : window.innerWidth );
-        if (t.minWidth && t.minWidth > width) {
+        var width = (ads.device.isMobile? screen.width : window.innerWidth);
+        if (t.minWidth && t.minWidth > window.innerWidth) {
             continue;
         }
 
@@ -450,16 +451,13 @@ ads.scroll = function() {
 
 ads.elementInViewport = function(el) {
     var rect = el.getBoundingClientRect()
-    
-    return rect.left >= 0 && ((rect.top - 300) <= (window.innerHeight || document.documentElement.clientHeight) || (rect.bottom < 0) );
 
-/* OPTION: SHOW ONLY IF VISIBLE
-    return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.top <= (window.innerHeight || document.documentElement.clientHeight)
-    ) || (rect.top < 0 && rect.top > -300)
-*/
+    var tooLeft = (rect.left < 0);
+    var tooBottom = (rect.top - 300) > ( ads.device.isMobile ? screen.height : (window.innerHeight || document.documentElement.clientHeight));
+    var tooTop = (rect.bottom < 0)
+
+    var viewable = !tooLeft && !tooBottom && !tooTop;
+    return viewable;
 }
 
 ads.refresh = function(divId) {
