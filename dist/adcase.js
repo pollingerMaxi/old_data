@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.38. 20/Mar/2018
+// AdCase.js JavaScript Library v2.1.39. 20/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.38";
+ads.version = "adcase.js v2.1.39";
 var googletag = googletag || { cmd: [] };
 
 ads.log = function() {
@@ -403,8 +403,8 @@ ads.setAdTypes = function() {
             }
         }
 
-        var width = window.innerWidth;
-        if (t.minWidth && t.minWidth > window.innerWidth) {
+        var width = ( ads.device.isMobile ? screen.width : window.innerWidth );
+        if (t.minWidth && t.minWidth > width) {
             continue;
         }
 
