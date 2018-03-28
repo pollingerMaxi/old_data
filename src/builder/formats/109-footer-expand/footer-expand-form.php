@@ -35,9 +35,11 @@ table { width:90%;}
 -->		
 		<tr><td>Creative Width:</td>
 			<td><select type="text" id='width' name="width" class="form-control">
-				<option value='970'>970</option>
-				<option value='900'>900</option>
 				<option value='728'>728</option>
+				<option value='860'>860</option>
+				<option value='900'>900</option>
+				<option value='970'>970</option>
+				<option value='1000'>1000</option>
 			    </select> 
 			</td></tr>
 		<tr><td>Collapsed Height:</td>

@@ -52,7 +52,7 @@ table { width:90%;}
 			</td></tr>
 -->		
 		<tr><td>Zipfile</td>
-			<td><input type="file" name='zipfile'></td></tr>
+			<td><input type="file" name='zipfile'><br>Images for footer can be uploaded directly in DFP</td></tr>
 
 <!--
 		<tr><td>Expand button text or base64 image:</td>

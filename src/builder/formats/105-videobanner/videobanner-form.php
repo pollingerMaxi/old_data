@@ -32,6 +32,8 @@ table { width:90%;}
 				<option value='360x100'>360x100</option>
 				<option value='360x50'>360x50</option>
 				<option value='300x450'>300x450</option>
+				<option value='640x360'>640x360</option>
+				<option value='300x162'>300x162</option>
 				<!--<option value='fullscreen'>Fullscreen</option>-->
 			    </select> 
 			</td></tr>
@@ -49,10 +51,10 @@ table { width:90%;}
 -->		
 		<tr><td>MP4 Video file</td>
 			<td><input type="file" name='videofile'></td></tr>
-
+<!--
 		<tr><td>Background image:</td>
 			<td><input type="file" name='backgroundimage'></td></tr>
-
+-->
 <!--
 		<tr><td>Expand button text or base64 image:</td>
 			<td><input type="text" value='Abrir' name='expand_button'></td></tr>

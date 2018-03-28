@@ -15,7 +15,7 @@ function printHeader() {
 <html lang="en">
 
 <head>
-<style>
+<link rel="icon" href="/favicon.ico"><style>
 select {height:40px;}
 </style>
 <script
@@ -116,7 +116,7 @@ main { float:left;}
 <header>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <span onclick='w.go("/")' style='color:white;cursor:pointer' class="navbar-brand">adcase.io - Ad builder</span>
+        <span onclick='w.go("/")' style='color:white;cursor:pointer' class="navbar-brand"><img src='/icon.png' height=30> adcase.io - Ad builder</span>
         <span style='float:left;color:white;font-weight:bold' id='publisher_name'></span>
         <div style='float:right'>
 

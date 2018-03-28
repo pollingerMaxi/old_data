@@ -1,7 +1,7 @@
 <?php
 $count=0;
 while($count++<10000) {
-  $folder = rand(10000,99999);//f::conv(rand(1000000,2000000));
+  $folder = "{$formatId}-{$formatName}-".rand(10000,99999);//f::conv(rand(1000000,2000000));
   $dir = "/home/sites/adcase.io/src/public/files/" . $folder; 
   if(!file_exists($dir)) {
   	break;

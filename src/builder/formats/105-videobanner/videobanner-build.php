@@ -13,6 +13,7 @@ if($data["videofile"]["ext"] != "mp4") {
 	$vars["videofile"] = "video.mp4";
 }
 
+/*
 $ext = f::strtoken(strtolower($_FILES["backgroundimage"]["name"]),-1,".");
 $data["backgroundimage"]["file"] = $dir . "/bg." .$ext;
 if($ext!="jpg" && $ext!="png" && ext!="gif") {
@@ -22,7 +23,7 @@ if($ext!="jpg" && $ext!="png" && ext!="gif") {
 } else {
 	$vars["backgroundimage"] = "bg." .$ext;
 }
-
+*/
 
 $selectedWidth = f::strtoken(f::getparam("size"),1,"x");
 $selectedHeight = f::strtoken(f::getparam("size"),2,"x");
