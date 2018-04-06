@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.40. 27/Mar/2018
+// AdCase.js JavaScript Library v2.1.41. 27/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.40";
+ads.version = "adcase.js v2.1.41";
 var googletag = googletag || { cmd: [] };
 
 ads.log = function() {
@@ -54,6 +54,11 @@ ads.run = function() {
                     ads.slotRendered(event);
                 }
             );
+            if(ads.page_url_domain) {
+              googletag.pubads().set("page_url", window.location.origin || (window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '')));    
+            } else if (ads.page_url) {
+              googletag.pubads().set("page_url", ads.page_url);    
+            }
             googletag.pubads().setCentering(true);
             googletag.pubads().collapseEmptyDivs();
             googletag.pubads().enableAsyncRendering();
