@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.41. 27/Mar/2018
+// AdCase.js JavaScript Library v2.1.42. 9/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,9 @@
 //
 //
 
-ads.version = "adcase.js v2.1.41";
+ads.version = "adcase.js v2.1.42";
+
+ads.loaded = true;
 var googletag = googletag || { cmd: [] };
 
 ads.log = function() {
@@ -26,7 +28,6 @@ ads.setup = false;
 ads.resetValues = function() {
     ads.scrollTimeout = true;
     ads.printedSlots = {}; // used by lazy loading
-    ads.processedDivs = {} // used by pending
     ads.startDisplay = "" || "";
     ads.adEvents = [];
     ads.adTexts = [];
@@ -36,11 +37,9 @@ ads.resetValues = function() {
 
 
 ads.run = function() {
-
     if (ads.lazy) {
         ads.enableScroll();
     }
-
     if(!ads.setup) {
         ads.setup = true;
         googletag.cmd.push(function() {
@@ -82,33 +81,14 @@ ads.run = function() {
     
     for(var c in cmd) { if(!(cmd.hasOwnProperty(c))) { continue; }
         if (cmd[c].cmd == "run") {
-            if(!cmd[c].pending) {
+            //cmd[c].refresh = true; // enable to test SPA
+            if(cmd[c].refresh) {
               googletag.cmd.push(function() { googletag.destroySlots(); ads.setTargeting(); });
               ads.resetValues();
-              
             }
-            ads.pageLoaded({ path: "/" + ads.network + cmd[c].path, pending: cmd[c].pending});
+            ads.pageLoaded({ path: "/" + ads.network + cmd[c].path, refresh: cmd[c].refresh});
         }
     }
-}
-
-ads.checkDivList = function(divId, isManual, manualSlotList) {
-    if (manualSlotList) {
-        // there is a list, check if divId is included
-        for(var i in manualSlotList) { if(!(manualSlotList.hasOwnProperty(i))) { continue; }
-            if (manualSlotList[i] == divId) {
-                return true;
-            }
-        }
-        return false;
-    }
-    if (isManual) {
-        ads.log("There is no list and current slot is set as manual."+divId);
-        return false;
-    }
-    // default call: No list, item normal
-    return true;
-
 }
 
 ads.setTargeting = function() {
@@ -146,7 +126,6 @@ ads.setTargeting = function() {
 
 ads.pageLoaded = function(params) {
     var path = params.path;
-    var manualSlotList = params.manualSlotList;
 
     ads.log("pageLoaded");
     ads.googleTagSlots = {};
@@ -165,7 +144,6 @@ ads.pageLoaded = function(params) {
     if (d.length == 0) {
         d = document.getElementsByClassName("ad-slot");
     }
-
     for(var i in d) { if(!(d.hasOwnProperty(i))) { continue; }
         var divId = d.item(i).id;
         if(divs[divId]) {
@@ -193,16 +171,7 @@ ads.pageLoaded = function(params) {
             divDFPId = parent.id.split("#")[0];
         }
 
-
-
         var format = ads.adTypes[adType].adFormat || "default";
-
-        /*    if (!ads.checkDivList(parent.id, parent.dataset.manual, manualSlotList)) {
-              continue;
-            }
-        */
-        ads.processedDivs[parent.id] = true;
-        //ads.log("starting to work with "+parent.id);
 
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
@@ -214,10 +183,6 @@ ads.pageLoaded = function(params) {
         }
         parent.innerHTML = "<div id='" + parent.id + "_ad'></div>";
 
-        /*    if(ads.id[parent.id + "_ad"]) {
-              return false;
-            }
-         */
         var d = parent.id + "_ad";
         ads.id[d] = new ads.instanceAd(format);
         ads.id[d].slot = document.getElementById(d);
@@ -1181,4 +1146,3 @@ if(!ads.light || ads.loadGPT) {
 }
 
 window.addEventListener("message", ads.readMessage, false);
-ads.loaded = true;
