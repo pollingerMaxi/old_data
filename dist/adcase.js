@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.42. 9/Mar/2018
+// AdCase.js JavaScript Library v2.1.43. 9/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,17 +8,17 @@
 //
 //
 
-ads.version = "adcase.js v2.1.42";
+ads.version = "adcase.js v2.1.43";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
 
-ads.log = function() {
+ads.log = ads.log || (function() {
     if(!localStorage.getItem("ads.debug")) {
         return (function() {})
     }
     return Function.prototype.bind.call(console.log);
-}();
+}());
 
 ads.values = ads.values || {};
 ads.formats = {};
@@ -512,7 +512,7 @@ ads.debugButton = function() {
         +'.adcase-button button:hover, .adsbtn:focus { background-color: #2980b9; }'
         +'.adcase-button span { display: block;padding: 12px 24px;}'
         +'</style>'
-        +"<a href='javascript:ads.debug()' class='adcase-button' style='position:fixed;bottom:25px;left:15px;z-index:10000000'><button id='adcase-button-button'><span id='adcase-button-text'></span></button></a>";
+        +"<a href='javascript:ads.debug()' class='adcase-button' style='position:fixed;bottom:25px;left:15px;z-index:10000000'><button id='adcase-button-button'><span id='adcase-button-text' style='font-size:14px'></span></button></a>";
     document.body.appendChild(d);
 }
 
