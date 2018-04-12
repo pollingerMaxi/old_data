@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.43. 9/Mar/2018
+// AdCase.js JavaScript Library v2.1.44. 9/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 
-ads.version = "adcase.js v2.1.43";
+ads.version = "adcase.js v2.1.44";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -119,7 +119,7 @@ ads.setTargeting = function() {
         ads.log("Page level Key-values", kv);
     }
     for(var i in kv) { if(!(kv.hasOwnProperty(i))) { continue; }
-        googletag.pubads().setTargeting(i, kv[i].toString());
+        googletag.pubads().setTargeting(i, kv[i]);
     }
 
 }
