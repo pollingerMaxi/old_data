@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.44. 9/Mar/2018
+// AdCase.js JavaScript Library v2.1.45. 9/Mar/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,7 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-
-ads.version = "adcase.js v2.1.44";
+ads.version = "adcase.js v2.1.45";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -608,6 +607,8 @@ ads.formats.footerFixed = function(t) {
         newDiv.innerHTML = "<div id='footerFixed-adText' style='position:absolute;display:;right:50%;margin-right:"+iconMarginRight+"px;top:0px;cursor:pointer;' "
             + "onclick=\"document.getElementById('"+div.id+"').parentElement.style.display = 'none'\">"+ads.styles.footerFixed.closeImg+"</div>"
         containerDiv.appendChild(newDiv);
+        
+        div.style.marginTop = ads.styles.footerFixed.iconMarginTop + "px";
         containerDiv.style.display = "block"
     };
 
@@ -966,12 +967,14 @@ ads.styles.iconClose = ads.styles.iconClose || "data:image/png;base64,iVBORw0KGg
 
 ads.styles.footerFixed = ads.styles.footerFixed || {};
 ads.styles.footerFixed.closeImg = ads.styles.footerFixed.closeImg || "<img height=24 width=24 src='"+ads.styles.iconClose+"'>";
-ads.styles.footerFixed.openImg = ads.styles.footerFixed.openImg || "!OPEN!";
+ads.styles.footerFixed.openImg = ads.styles.footerFixed.openImg || "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+ads.styles.footerFixed.iconMarginTop = ads.styles.footerFixed.iconMarginTop || 0;
 
 ads.styles.interstitial = ads.styles.interstitial || { img:"<img src='"+ads.styles.iconClose+"' height=54 width=54 border=0>", top: -25, right:-25}
-ads.styles.push = ads.styles.push || {iconsStyle : "width:45px;position:absolute;left:917px;top:0;border:1px solid #ccc;font-family:Arial;font-size:11px;padding:3px;background-color:white;text-align:center;",
-    openIconHTML: "Abrir",
-    closeIconHTML: "Cerrar"
+ads.styles.push = ads.styles.push || {
+    iconsStyle : "width:45px;position:absolute;left:917px;top:0;border:1px solid #ccc;font-family:Arial;font-size:11px;padding:3px;background-color:white;text-align:center;",
+    openIconHTML: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
+    closeIconHTML: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
 }
 ads.styles.videoButtons = ads.styles.videoButtons || "<div id='overlay' style='width:100%;height:60px;background-color:white;opacity:0.9;position:absolute;bottom:0px ;z-index:5;display:none'></div>"
     +"<div id='overlay-txt' style='width:100%;height:50px;position:absolute;bottom:0px;z-index:6;display:none'>"
