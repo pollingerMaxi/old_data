@@ -592,6 +592,7 @@ ads.formats.footerFixed = function(t) {
         containerDiv.style.position = "fixed";
         containerDiv.style.textAlign = "center";
         containerDiv.style.bottom = "0px";
+        containerDiv.style.left = "0px";
         containerDiv.style.width = "100%";
         //containerDiv.style.height = "0px";
         containerDiv.style.minHeight = "0px";
