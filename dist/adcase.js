@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.45. 9/Mar/2018
+// AdCase.js JavaScript Library v2.1.46. 15/May/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,7 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = "adcase.js v2.1.45";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.46";
+ads.shorVersion = (ads.light?"L":"F")+".46";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -720,10 +721,14 @@ ads.formats.createInterstitial = function (params) {
 
 ads.formats.interstitial = function(t) {
 
-
     t.set("startDisplay", "none");
 
     t.msg = function(params) {
+        if(params.ittType && params.ittType == "joining-divs") {
+            t.createJoiningDivs(params);
+            return;
+        }
+
         params.height = params.height || t.height;
         params.width = params.width || t.width;
 
@@ -845,6 +850,88 @@ ads.formats.interstitial = function(t) {
 
         return video;
 
+    }
+
+    t.createJoiningDivs = function(params) {
+        params.joinSeconds =0.5;
+        console.log(params);
+        if(ads.device.isDesktop) {
+        	var layersTimeout = null;
+        	var layer1 = document.createElement("div");
+        	var layer2 = document.createElement("div");
+        	var layer3 = document.createElement("div");
+
+            ads.formats.joiningDivsEnd = function() {
+        	    layer1.style.display="none";
+        	    layer2.style.display="none";
+        	    layer3.style.display="table";
+        	}
+        	ads.formats.joiningDivsStart = function(params) {
+        	    layer1.style.marginLeft="calc(50% - "+params.leftWidth+"px)";
+        	    layer2.style.marginRight="calc(50% - "+params.leftWidth+"px)";
+        	    window.setTimeout(ads.formats.joiningDivsEnd,params.transitionTimeMs);
+        	}
+        	
+            if(params.joinMethod == "M") {
+            	layer1.onmouseover=function() { layersTimeout = window.setTimeout(function(){ads.formats.joiningDivsStart(params)},params.joinSeconds*1000) };
+            	layer2.onmouseover=function() { layersTimeout = window.setTimeout(function(){ads.formats.joiningDivsStart(params)},params.joinSeconds*1000) };
+            	layer1.onmouseout=function() { window.clearTimeout(layersTimeout) };
+            	layer2.onmouseout=function() { window.clearTimeout(layersTimeout) };
+            } else if(params.joinMethod == "A") {
+            	window.setTimeout(function(){ads.formats.joiningDivsStart(params)},params.joinSeconds*1000);
+            	window.setTimeout(function(){ads.formats.joiningDivsStart(params)},params.joinSeconds*1000);
+            }
+
+        	layer1.style="display:table;position:fixed;top:0px;left:0px;height:100%;width:"+params.leftWidth+"px;transition:margin-left "+(params.transitionTimeMs/1000)+"s ease-in;";
+        	if(params.leftImage) {
+            	layer1.innerHTML = "<div style='display:table-cell;vertical-align:middle'><img style='width:"+params.leftWidth+"px;height:"+params.leftHeight+"px;z-index:100;cursor:pointer' src='"+params.leftImage+"'></div>";
+        	} else if(params.leftURL){
+            	layer1.innerHTML = "<div style='display:table-cell;vertical-align:middle'><iframe style='width:"+params.leftWidth+"px;height:"+params.leftHeight+"px;z-index:100;cursor:pointer' src='"+params.leftImage+"'></iframe></div>";
+        	}
+        
+        	layer2.style="display:table;position:fixed;top:0px;right:0px;height:100%;width:"+params.leftWidth+"px;transition:margin-right "+(params.transitionTimeMs/1000)+"s ease-in;";
+        	if(params.rightImage) {
+            	layer2.innerHTML = "<div style='display:table-cell;vertical-align:middle'><img style='width:"+params.leftWidth+"px;height:"+params.leftHeight+"px;z-index:100;cursor:pointer' src='"+params.rightImage+"'></div>";
+        	} else if(params.rightURL){
+            	layer2.innerHTML = "<div style='display:table-cell;vertical-align:middle'><iframe style='width:"+params.leftWidth+"px;height:"+params.leftHeight+"px;z-index:100;cursor:pointer' src='"+params.rightImage+"'></iframe></div>";
+        	}
+        	
+        	layer3.style="display:none;position:fixed;top:0px;left:0px;height:100%;width:100%";
+        	if(params.rightImage) {
+            	layer3.innerHTML = "<div style='display:table-cell;vertical-align:middle;text-align:center'><img style='width:"+params.centerWidth+"px;height:"+params.centerHeight+"px;z-index:100;cursor:pointer;margin:0 auto' src='"+params.centerImage+"'></div>";
+        	} else if(params.rightURL){
+            	layer3.innerHTML = "<div style='display:table-cell;vertical-align:middle;text-align:center'><iframe style='width:"+params.centerWidth+"px;height:"+params.centerHeight+"px;z-index:100;cursor:pointer;margin:0 auto' src='"+params.centerImage+"'></iframe></div>";
+        	}
+        	
+        	layer1.firstChild.firstChild.addEventListener("click", function() { t.get("window").postMessage( { msg:"click" }, "*"); }) ;
+        	layer2.firstChild.firstChild.addEventListener("click", function() { t.get("window").postMessage( { msg:"click" }, "*"); }) ;
+        	layer3.firstChild.firstChild.addEventListener("click", function() { t.get("window").postMessage( { msg:"click" }, "*"); }) ;
+
+	        var iconDiv = document.createElement("div");
+            iconDiv.style.height = "1px";
+            iconDiv.style.width  = "1px";
+            iconDiv.style.left   = "calc(50% + "+(params.centerWidth/2)+"px)";
+            iconDiv.style.top    = "calc(50% - 1px - "+(params.centerHeight/2)+"px)";
+            iconDiv.style.position = "absolute";
+            iconDiv.style.marginLeft= "-55px";
+            iconDiv.style.marginTop= "0";
+    
+            var iconRight = (params.width/2-53) + ads.styles.interstitial.right;
+            var iconTop = -(params.height/2) + ads.styles.interstitial.top;
+
+            iconDiv.innerHTML = "<div id='interstitialIconDiv' style='position:absolute;display:;"
+                +"right:" + iconRight + "px; top:" + iconTop + "px;z-index:10000;cursor:pointer' onclick='this.parentElement.innerHTML=\"\";document.getElementById(\"" + layer3.id + '").style.display="none";document.body.style.overflow=""'
+                +';document.getElementById("' + layer3.id + "\").innerHTML=\"\"'>"
+                + ads.styles.interstitial.img + "</div>";
+            layer3.firstChild.appendChild(iconDiv);
+
+
+        	document.body.appendChild(layer1);
+        	document.body.appendChild(layer2);
+        	document.body.appendChild(layer3);
+            
+        }
+        
     }
 
 }
@@ -1105,6 +1192,9 @@ ads.resetValues();
 ads.checkDebug();
 
 if(ads.light) {
+    googletag.cmd.push(function() {
+        googletag.pubads().setTargeting('adcase', ads.shortVersion);
+    });
     ads.slotRendered = function(event) {
         ads.adEvents.push(event);
         var d = event.slot.getSlotElementId();
@@ -1139,6 +1229,8 @@ if(ads.light) {
     }
 
 } else {
+    ads.kv = ads.kv || {};
+    ads.kv.adcase = ads.shortVersion;
     ads.run();
 }
 
