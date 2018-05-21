@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.46. 15/May/2018
+// AdCase.js JavaScript Library v2.1.47. 21/May/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.46";
-ads.shorVersion = (ads.light?"L":"F")+".46";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.47";
+ads.shorVersion = (ads.light?"L":"F")+".47";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -175,6 +175,13 @@ ads.pageLoaded = function(params) {
 
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
+        }
+        
+        if(format=="interstitial" || format=="footerFixed") {
+            newParent = parent.cloneNode(true);
+            parent.parentNode.removeChild(parent);
+            parent = newParent;
+            document.body.appendChild(parent);
         }
 
         parent.style.overflow="hidden";
@@ -853,6 +860,7 @@ ads.formats.interstitial = function(t) {
     }
 
     t.createJoiningDivs = function(params) {
+        ads.set("oldBodyOverflow", document.body.style.overflow);
         params.joinSeconds =0.5;
         console.log(params);
         if(ads.device.isDesktop) {
@@ -920,8 +928,7 @@ ads.formats.interstitial = function(t) {
             var iconTop = -(params.height/2) + ads.styles.interstitial.top;
 
             iconDiv.innerHTML = "<div id='interstitialIconDiv' style='position:absolute;display:;"
-                +"right:" + iconRight + "px; top:" + iconTop + "px;z-index:10000;cursor:pointer' onclick='this.parentElement.innerHTML=\"\";document.getElementById(\"" + layer3.id + '").style.display="none";document.body.style.overflow=""'
-                +';document.getElementById("' + layer3.id + "\").innerHTML=\"\"'>"
+                +"right:" + iconRight + "px; top:" + iconTop + "px;z-index:10000;cursor:pointer' onclick='this.parentElement.parentElement.parentElement.style.display=\"none\";document.body.style.overflow=\""+ads.get("oldBodyOverflow")+"\"'>"
                 + ads.styles.interstitial.img + "</div>";
             layer3.firstChild.appendChild(iconDiv);
 
@@ -977,6 +984,52 @@ ads.formats.push = function(t) {
 
 }
 
+ads.formats.expandtovideo = function(t) {
+    
+    t.expandtovideoMsg = function(params) {
+        console.log("expandToVideo MSG:",params);
+        var d=params.expandDirection;
+        var vh=params.expandedHeight;
+        var vw=params.expandedWidth;
+        var mt=0;
+        var ml=0;
+        var h=t.height
+        var v = document.createElement("video");
+        v.autoplay="true";
+        v.muted="true";
+        v.id='video1';
+        v.style.left=0;
+        v.style.backgroundColor="#eee";
+        v.style.top=0;
+        v.style.position="absolute";
+        v.style.width=vw+"px";
+        v.style.height=vh+"px";
+        v.style.display="none";
+        v.style.zIndex="100";
+        v.style.cursor="pointer";
+        v.innerHTML='<source type="video/mp4" src="'+params.video+'">'
+        if(d=='NE') {
+          mt=t.height-vh;
+        } else if(d=='NW') {
+          mt=t.height-vh;
+          ml=t.width-vw;
+        } else if(d=='SW') {
+          ml=t.width-vw;
+        }
+        v.style.marginTop=mt+"px";
+        v.style.marginLeft=ml+"px";
+        v.addEventListener("click", function() { t.get("window").postMessage( { msg:"click" }, "*"); }) ;
+        v.onmouseout=function() { window.clearTimeout(t.timeout); t.timeout = window.setTimeout(function(){ v.style.display='none'},1000) };
+        v.onmouseover=function() { window.clearTimeout(t.timeout); }; 
+        v.addEventListener("ended", function() { v.currentTime=0; v.play();} );
+        t.parentSlot.style.overflow='';
+        t.parentSlot.style.position='relative';
+        t.parentSlot.appendChild(v);
+        window.setTimeout(function(){ v.style.display=''},1000);
+    }
+
+    
+}
 
 ads.formats.videobanner = function (t) {
 
@@ -1074,11 +1127,17 @@ ads.styles.default = ads.styles.default || { startDisplay: "none" };
 ads.formats.default = function (t) {
     ads.formats.videobanner(t);
     ads.formats.pushonclick(t);
+    ads.formats.expandtovideo(t);
+    ads.formats.parallax(t);
     t.set("startDisplay", ads.styles.default.startDisplay);
 
     t.msg = function(p) {
         if(p.action == "videobanner") {
             t.videobannerMsg(p);
+        } else if(p.action == "parallax") {
+            t.parallaxMsg(p);    
+        } else if(p.action == "expandtovideo") {
+            t.expandtovideoMsg(p);
         } else if(p.action == "pushonclick") {
             t.pushonclickMsg(p);
         }
@@ -1092,6 +1151,56 @@ ads.formats.default = function (t) {
     }
 };
 
+ads.formats.parallax = function(t) {
+    
+    t.parallaxMsg = function(p) {
+        window.addEventListener('scroll', function() { t.parallaxScroll(p)});
+        t.parallaxScroll(p);
+    }
+    t.parallaxScroll = function(p){
+        var i=t.parentSlot;
+        var ih = t.height; 
+        var w = i.contentWindow;
+        var i2h=p.internalHeight;
+        
+        var topThresh = p.headerHeight;
+        var bottomThresh = p.footerHeight;
+        var wh=window.top.innerHeight;
+        var deltaScroll = wh - topThresh - bottomThresh - ih;
+        var iTop = i.getBoundingClientRect().top;
+        var iBottom = i.getBoundingClientRect().bottom;
+        var iScroll=0;
+        
+        wh=window.top.innerHeight;
+         deltaScroll = wh - topThresh - bottomThresh - ih;
+         iTop = i.getBoundingClientRect().top;
+         iBottom = i.getBoundingClientRect().bottom;
+         iScroll = 0;
+        if(iTop<=topThresh) {
+          iScroll = 0.001;
+        } else if(iBottom>=wh-bottomThresh) {
+          iScroll = 1;
+        } else {
+          scrolled = iTop - topThresh;
+          iScroll = scrolled/deltaScroll;	
+        }
+        
+        var s2 = wh-bottomThresh-i2h; // -300
+        var s1 = topThresh; // 100
+        var delta2 = s1-s2; // 400
+        var pos2 = delta2*iScroll;
+        var i2Top = topThresh-pos2;
+        if(iTop<i2Top) {
+        	i2Top=Math.max(0,iTop);
+        } else if(iBottom>wh-bottomThresh) {
+          i2Top = Math.min(iBottom-i2h,wh-i2h);
+        }
+//console.log("Parallax scroll:",t.divId,i2Top-iTop);
+        t.get("window").postMessage({ msg:"scroll", scroll:i2Top-iTop },"*");
+
+    }
+    
+}
 ads.formats.doubletopsticky = function(t) {
 
     t.msg = function(p) {
