@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.47. 21/May/2018
+// AdCase.js JavaScript Library v2.1.48. 21/May/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.47";
-ads.shorVersion = (ads.light?"L":"F")+".47";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.48";
+ads.logData = (ads.light?"L":"F")+".48";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -121,7 +121,6 @@ ads.setTargeting = function() {
     for(var i in kv) { if(!(kv.hasOwnProperty(i))) { continue; }
         googletag.pubads().setTargeting(i, kv[i]);
     }
-
 }
 
 ads.pageLoaded = function(params) {
@@ -292,6 +291,9 @@ ads.slotRendered = function(event) {
 
         ads.id[divId].width = event.size[0];
         ads.id[divId].height = event.size[1];
+        if(ads.id[divId].format=="footerFixed" && event.size[1]>110) {
+            ads.id[divId].parentSlot.style.height = "0px";
+        }
         //ads.id[divId].startDisplay();
         div.parentElement.style.display = "";
 
@@ -1302,7 +1304,8 @@ ads.checkDebug();
 
 if(ads.light) {
     googletag.cmd.push(function() {
-        googletag.pubads().setTargeting('adcase', ads.shortVersion);
+        googletag.pubads().setTargeting('adcase', ads.logData);
+        googletag.pubads().addEventListener('slotRenderEnded', function(event) { ads.slotRendered(event); });
     });
     ads.slotRendered = function(event) {
         ads.adEvents.push(event);
@@ -1336,18 +1339,15 @@ if(ads.light) {
             ads.id[d].rendered(params);
         }
     }
-
 } else {
     ads.kv = ads.kv || {};
-    ads.kv.adcase = ads.shortVersion;
+    ads.kv.adcase = ads.logData;
     ads.run();
 }
 
-if(!ads.light || ads.loadGPT) {
-    var script = document.createElement('script');
-    script.async = true;
-    script.src = "https://www.googletagservices.com/tag/js/gpt.js";
-    document.head.appendChild(script);
-}
-
 window.addEventListener("message", ads.readMessage, false);
+
+var script = document.createElement('script');
+script.async = true;
+script.src = "https://www.googletagservices.com/tag/js/gpt.js";
+document.head.appendChild(script);
