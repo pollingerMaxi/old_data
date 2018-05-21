@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.38. 20/Mar/2018
+// AdCase.js DEBUG JavaScript Library v2.1.49. 21/May/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -448,7 +448,7 @@ ads.d.getSlotKV = function(slot) {
   }
 
   ads.d.pagekvHTML = "";
-  for(var i in pageKV) { if(!(pageKV.hasOwnProperty(i))) { continue; }
+  for(var i in pageKV) { if(i=="adcase" || !(pageKV.hasOwnProperty(i))) { continue; }
     ads.d.pagekvHTML += (ads.d.pagekvHTML==""?"":"&nbsp;&nbsp;&nbsp;") + "<b>" + i + "=</b>" + pageKV[i];
   }
 
