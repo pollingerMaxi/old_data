@@ -1,4 +1,4 @@
-Adcase.io  - a DFP addon for Rich Media, Debugging and modern tagging
+Adcase.io  - Rich Media, Debugging and modern tagging for DFP
 ======================================================
 
 Adcase script simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP). This is not an official Google product, and it is also not officially supported by Google.
