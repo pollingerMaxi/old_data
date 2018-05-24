@@ -1,4 +1,4 @@
-Adcase.js  - a DFP wrapper for Rich Media and PWA
+Adcase.io  - a DFP addon for Rich Media, Debugging and modern tagging
 ======================================================
 
 Adcase script simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP). This is not an official Google product, and it is also not officially supported by Google.
