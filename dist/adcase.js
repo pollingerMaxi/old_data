@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.48. 21/May/2018
+// AdCase.js JavaScript Library v2.1.50. 21/May/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.48";
-ads.logData = (ads.light?"L":"F")+".48";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.50";
+ads.logData = (ads.light?"L":"F")+".50";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -41,6 +41,16 @@ ads.run = function() {
         ads.enableScroll();
     }
     if(!ads.setup) {
+        if(ads.oopSlots) {
+            for(var i in ads.oopSlots) { if(!ads.oopSlots[i].id || !ads.oopSlots[i].adtype || document.getElementById(ads.oopSlots[i].id) || !(ads.oopSlots.hasOwnProperty(i))) { continue; }
+                var d = document.createElement("div");
+                d.classList.add("ad-slot");
+                d.id = ads.oopSlots[i].id;
+                d.dataset.adtype = ads.oopSlots[i].adtype;
+                document.body.appendChild(d);
+            }
+        }
+
         ads.setup = true;
         googletag.cmd.push(function() {
             googletag.destroySlots();
@@ -53,7 +63,7 @@ ads.run = function() {
                     ads.slotRendered(event);
                 }
             );
-            if(ads.page_url_domain) {
+            if(ads.addPageURL || ads.page_url_domain) {
               googletag.pubads().set("page_url", window.location.origin || (window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '')));    
             } else if (ads.page_url) {
               googletag.pubads().set("page_url", ads.page_url);    
@@ -375,6 +385,7 @@ ads.setAdTypes = function() {
     for(var i in ads.adTypesMap) { if(!(ads.adTypesMap.hasOwnProperty(i))) { continue; }
         var t = ads.adTypesMap[i];
         t.minWidth = t.minWidth || 0;
+        t.type = t.adtype || t.type || "";
 
         if (t.deviceType) {
             if (ads.device.isMobile && t.deviceType.toLowerCase().indexOf("mobile") < 0 ||
@@ -733,6 +744,12 @@ ads.formats.interstitial = function(t) {
     t.set("startDisplay", "none");
 
     t.msg = function(params) {
+        if(params.runFormat=="footerFixed") {
+            ads.formats.footerFixed(t);
+            t.rendered();
+            return;
+        }
+        
         if(params.ittType && params.ittType == "joining-divs") {
             t.createJoiningDivs(params);
             return;
