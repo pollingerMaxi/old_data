@@ -6,7 +6,7 @@ It also provides a high performance solution for safeframe, single request, sing
 Some ideas were inspired from [jquery.dfp](https://github.com/coop182/jquery.dfp.js) library.
 
 
-Demo Page
+Demo Page:::
 ---------
 
 You can use [this page](https://adcase.github.io/adcase.js/examples/simple.html) to test your DFP ads using the adcase.js script.
