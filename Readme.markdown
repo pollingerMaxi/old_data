@@ -9,7 +9,7 @@ It provides a high performance solution for safeframe, single request, single pa
 
 It also provides debug screens for both desktop and mobile web, that work on actual mobile devices.
 
-* [Adcase.io](https://github.com/Adcase/adcase.js/wiki/home)
+* [About Adcase.io](https://github.com/Adcase/adcase.js/wiki/home)
 * [Light version](https://github.com/Adcase/adcase.js/wiki/light)
 * [Full Version](https://github.com/Adcase/adcase.js/wiki/full)
 * [Debug only](https://github.com/Adcase/adcase.js/wiki/debug)
