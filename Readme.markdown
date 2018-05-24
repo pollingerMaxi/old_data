@@ -9,14 +9,9 @@ It provides a high performance solution for safeframe, single request, single pa
 
 It also provides debug screens for both desktop and mobile web, that work on actual mobile devices.
 
-
-Contributing
-------------
-
-Any and all contributions will be greatly appreciated.
-
-You can commit your changes and make a pull request and your feature/bug fix will be merged as soon as possible.
-
-Please feel free to write tests which will test your new code.
-
-Please take a look at CONTRIBUTING.md for more details.
+* [Adcase.io](https://github.com/Adcase/adcase.js/wiki/home)
+* [Light version](https://github.com/Adcase/adcase.js/wiki/light)
+* [Full Version](https://github.com/Adcase/adcase.js/wiki/full)
+* [Debug version](https://github.com/Adcase/adcase.js/wiki/debug)
+* [Ad Builder](https://github.com/Adcase/adcase.js/wiki/builder)
+* [Contributing](https://github.com/Adcase/adcase.js/wiki/contributing)
