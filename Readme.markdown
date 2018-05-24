@@ -9,7 +9,7 @@ It is a high performance solution for secure safeframe, single request, single p
 
 It also can create debug screens for both desktop and mobile web, that work on actual mobile devices and could be used by non technical users.
 
-Adcase.io can be implemented with standard DFP tags (light version) anf full new modern dfp tags (full version)
+Adcase.io can be implemented with standard DFP tags (light version) anf full new modern dfp tags (full version).
 
 This is not an official Google product, and it is also not officially supported by Google.
 
