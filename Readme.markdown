@@ -12,6 +12,6 @@ It also provides debug screens for both desktop and mobile web, that work on act
 * [Adcase.io](https://github.com/Adcase/adcase.js/wiki/home)
 * [Light version](https://github.com/Adcase/adcase.js/wiki/light)
 * [Full Version](https://github.com/Adcase/adcase.js/wiki/full)
-* [Debug version](https://github.com/Adcase/adcase.js/wiki/debug)
+* [Debug only](https://github.com/Adcase/adcase.js/wiki/debug)
 * [Ad Builder](https://github.com/Adcase/adcase.js/wiki/builder)
 * [Contributing](https://github.com/Adcase/adcase.js/wiki/contributing)
