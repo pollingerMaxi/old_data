@@ -16,3 +16,8 @@ Rich media, Debug and modern DFP implementations
 * [Support](https://github.com/Adcase/adcase.js/wiki/support)
 
 - This is not an official Google product, and it is also not officially supported by Google.
+
+&nbsp;
+## Problems, support and new ideas: 
+- Open a [Github issue](https://github.com/Adcase/adcase.js/issues), we'll do our best to solve your request asap.
+- Please remember adcase.io is given for free as is, with no contractual support. As it is not a Google product, it has no Google official support.
