@@ -7,12 +7,12 @@ Rich media, Debug and modern DFP implementations
 - It can create debug screens for both desktop and mobile web, that work on actual mobile devices and can be used by non technical users.
 - Adcase.io can be implemented with standard DFP tags (light version), full new modern dfp tags (full version) or even **no tags** (for real).
 
-- [Adcase.io](https://github.com/Adcase/adcase.js/wiki/home)
-- [Light version](https://github.com/Adcase/adcase.js/wiki/Light-version)
-- [Full Version](https://github.com/Adcase/adcase.js/wiki/Full-version)
-- [Extreme Version](https://github.com/Adcase/adcase.js/wiki/extreme-version)
-- [Debug only version](https://github.com/Adcase/adcase.js/wiki/Debug-only-version)
-- [Ad Builder](https://github.com/Adcase/adcase.js/wiki/builder)
-- [Support](https://github.com/Adcase/adcase.js/wiki/support)
+* [Adcase.io](https://github.com/Adcase/adcase.js/wiki/home)
+* [Light version](https://github.com/Adcase/adcase.js/wiki/Light-version)
+* [Full Version](https://github.com/Adcase/adcase.js/wiki/Full-version)
+* [Extreme Version](https://github.com/Adcase/adcase.js/wiki/extreme-version)
+* [Debug only version](https://github.com/Adcase/adcase.js/wiki/Debug-only-version)
+* [Ad Builder](https://github.com/Adcase/adcase.js/wiki/builder)
+* [Support](https://github.com/Adcase/adcase.js/wiki/support)
 
 - This is not an official Google product, and it is also not officially supported by Google.
