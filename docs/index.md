@@ -1,199 +1,109 @@
+# Adcase.io 
+## Rich media, Debug and Modern DFP Implementations
 
-Adcase script simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP). This is not an official Google product, and it is also not officially supported by Google.
+- Adcase.io script simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
+- It provides a builder application to help build rich media creatives that work seamlessly in DFP, with no technical coding knowledge needed.
+- It is a high performance solution that uses secure safeframes, for standard websites as well as for single page apps and PWAs.
+- It can create debug screens for both desktop and mobile web, that work on actual mobile devices and can be used by non technical users.
+- Adcase.io can be implemented with standard DFP tags (light version), full new modern dfp tags (full version) or even **no tags** (for real).
 
-It also provides a high performance solution for safeframe, single request, single page app HTML5 creatives. 
+&nbsp;
+- This is not an official Google product, and it is also not officially supported by Google.
 
-Some ideas were inspired from [jquery.dfp](https://github.com/coop182/jquery.dfp.js) library.
+&nbsp;
+### Adcase.io versions 
+- [Light version](https://github.com/Adcase/adcase.js/wiki/Light-version)
+- [Full Version](https://github.com/Adcase/adcase.js/wiki/Full-version)
+- [Extreme Version](https://github.com/Adcase/adcase.js/wiki/extreme-version)
+- [Debug only version](https://github.com/Adcase/adcase.js/wiki/Debug-only-version)
 
+&nbsp;
+## Features
+### Declarative tagging 
+Just add the divs to your page. It works with React and many other frameworks out of the box.
 
-Demo Page:::
----------
-
-You can use [this page](https://adcase.github.io/adcase.js/examples/simple.html) to test your DFP ads using the adcase.js script.
-
-You can also use the [Google Console](https://support.google.com/dfp_sb/answer/181070?hl=en-GB) to debug your ad units. This is done by by adding a "google_console=1" or "google_debug=1" to the url, and toggling the console by pressing CTRL + F10. Subsequent pagerequests will not require the parameters, and the console can be toggled. Adding the querystring "googfc" to an url, will also load the console, but also show it, without having to press CTRL + F10.
-
-Ad Builder
-----------
-
-Once you have implemented DFP, you can use the [Ad Builder](https://adcase.io/builder) to build your HTML5 creatives.
-
-
-Page Setup
-----------
-
-You can add ad units to your page in any location that you would like to display an ad.
-
-This script will look for objects with class `ad-slot`. It will then use the data-adtype attribute to declare the detailed slot properties, i.e available sizes.
-
-```html
 <div id='box1' class='ad-slot' data-adtype='box'></div>
 <div id='box2' class='ad-slot' data-adtype='box'></div>
 <div id='box3' class='ad-slot' data-adtype='box'></div>
-```
 
-In the example above the ID of the div elements will be used to look up a corresponding ad units in DFP. The dimensions are shared, defined by the `box` properties.
-
-
-Configuration Script
---------------------
-The whole library resides inside the `window.ads` object. You should not have another `window.ads` in your application.
-
-The configuration setup is made in `config.js` file.
-
-The minimum configuration you need to set:
-- Ad slot sizes
-- DFP Network Id
-- Ad unit path
-
-
-Using the divs defined above, we'll set the `box` ad type to handle both 300x250, and `bigbox` both 300x250 and 300x600 sizes. We'll then serve ads from these ad units:
-
-
-```html
-/21634433536/sports/right1
-/21634433536/sports/right2
-/21634433536/sports/right3
-```
-
-
-```html
-//config.js
+&nbsp;
+### Separate display logic from ad logic
+adsconfig.js configuration file or GTM tag:
+```js
 var ads = { 
-      adTypesMap: [ { type:"box",  sizes: [300,250] } ],
-      network: 21634433536
-      }; 
-```
-
-and then, set the ad unit path change the ads.router() method
-
-
-```html
-ads.router = function(url) {
-  return "/sports/";
-}
-```
-
-
-
-
-
-Usage
------
-
-An example html page:
-
-```html
-<!DOCTYPE HTML> 
-<html lang="en-us">
-<style>body { text-align:center;font-family:Verdana;}</style>
-<body>
-
-box1 (type "box", 300x250)
-<div id='box1' class='ad-slot' data-adtype='box'></div>
-
-box2 (type "box", 300x250)
-<div id='box2' class='ad-slot' data-adtype='box'></div>
-
-box3 (type "bigbox", 300x250 or 300x600)
-<div id='box3' class='ad-slot' data-adtype='box'></div>
-
-expanding 1
-<div id='push_tag' class='ad-slot' data-adtype='970x90x250'></div>
-
-<script>let s = document.createElement('script'); s.async = true; s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@latest/config.js"; document.head.appendChild(s);</script>
-</body> 
-</html>
-``` 
-
-With the corresponding config.js
-```html
-var ads = { cmd:[], 
-  // please change to your own js location
-  lib: "https://adcase.io/adcase.js?",
-  
-  // ad slot types. This must be the same as 'data-adtype' attributes
   adTypesMap: [
-      { type:"box",  sizes: [300,250] },
-      { type:"bigbox",  sizes: [300,600] }
-    ],
-  
-  // dfp network ID
-  network: 21634433536, 
-
-}; 
-
-// router may use if/case/regex to select the correct DFP path, depending on document url
-// in this example it is fixed 
-ads.router = function(url) {
-  return "/special/";
-}
-
-// no need to change anything from here to end of file
-ads.ready = function(params) {
-  params = params || {};
-  if(!ads.loaded) { 
-    var s = document.createElement('script');s.async = true; 
-    s.src = ads.lib; document.head.appendChild(s); 
-  } 
-  ads.cmd.push( {cmd:"run", path: ads.router(), manualSlotList: (params.slots || false) } ); 
-  ads.run && ads.run();
-}
-
-
-ads.ready();
+     { deviceType: "desktop", type:"box",  sizes: [300,250] },
+     { deviceType: "desktop", minWidth:1024, type:"box",  sizes: [[300,250],[300,600]] },
+     { deviceType: "mobile", type:"box",  sizes: [[300,250]] },
 ```
 
+&nbsp;
+### Declarative map for automatic device type and size detection 
+```js
+{ deviceType: "desktop", minWidth:1024, type:"box",  sizes: [[300,250],[300,600]] },
+{ deviceType: "mobile", type:"box",  sizes: [[300,250]] },
+```
 
-More configuration examples:
-----------------------------
+&nbsp;
+### PWA and SPA (Progressive Web Apps and Single Page Apps)
+- adcase.io library is prepared to serve in single page and pwa environments, out of the box. Just call ads.ready();  any time a page is refreshed. Googletag library keeps resident. The cleanup of the previous slots is done automatically by adcase.io. This is necessary to prevent js errors and memory leaks.
 
-There are some more options that can be set in `config.js` file
+&nbsp;
+### Lazy loading
+In adsconfig.js, just add the option: 
+```js
+ads.lazy = true;
+```
+adcase.io takes care of scroll positioning and calling gpt as necessary, as single request and keeping correlation for roadblocks. There is no need of extra code from the website.
 
+&nbsp;
+### Custom ad slot ordering
+- In pages with many creatives, define a special order to render them.
+- Instead of rendering first the lefts, then the mids and finally the rights, adcase.io allows to define a custom order, so unfilled slots remain all at bottom of page.
+
+&nbsp;
+### Infinite scrolling
+On new pages, just call: 
+ads.ready({slots: [“newSlotA”,”newSlotB”] });
+
+&nbsp;
+### VAST and VMAP url builder
+Just call:
+```js
+ads.getVideoURL(“vmap”)
+ads.getVideoURL(“vast”, “preroll”)
+```
+
+&nbsp;
+### Light Version
+- All features detailed below are available with both the full version library, and the light version that can be implemented in existing, (normal, with js) dfp implementations.
+
+&nbsp;
+### Safeframes
+- All Rich Media formats are designed to run inside safeframes, to increase site security.
+
+&nbsp;
+### User created Rich Media formats:
+- adcase.io is an open source library, enabling publishers to create their own ad formats.
+
+&nbsp;
+### Built in Rich Media formats with builders:
+- Builders convert the creatives into a zip file, that can be trafficked as a standard HTML5 in DFP.
+
+&nbsp;
+## Working examples: 
+Try the [Full Version](https://builder.adcase.io/demo/full) and [Light Version](https://builder.adcase.io/demo/light)
+
+&nbsp;
+## Support and new ideas: 
+- Open a [Github issue](https://github.com/Adcase/adcase.js/issues), we'll do our best to solve your request asap.
+- Please remember adcase.io is given for free as is, with no contractual support. As it is not a Google product, it has no Google official support.
+
+&nbsp;
+## Request for new creative types: 
+- Open a [Github issue](https://github.com/Adcase/adcase.js/issues) with your request, adding a link to a plain no-dfp working example. We'll do our best to solve your request asap.
+
+&nbsp;
 ```html
-
-var ads = { 
-
-  
-  // set sizes depending on device Type and/or window width:
-
-  adTypesMap: [
-      { deviceType: "desktop", type:"box",  sizes: [300,250] },
-      { deviceType: "desktop", type:"box",  sizes: [300,600] },
-      { deviceType: "mobile", type:"box",  sizes: [[300,600]] },
-      { deviceType: "desktop,mobile", type:"bigbox",  sizes: [[300,250],[300,600]] },
-    ]
-  ,
-
-
-  adTypesMap: [
-      { deviceType: "desktop", type:"box",  sizes: [300,250] },
-      { deviceType: "desktop", minWidth:1024, type:"box",  sizes: [300,600] },
-      { deviceType: "mobile", minWidth:640, type:"box",  sizes: [[300,600]] },
-      { deviceType: "desktop,mobile", type:"bigbox",  sizes: [[300,250],[300,600]] },
-    ]
-  ,
-
-
-
-  // callback functions, can be set for each ad slot. In this example, 'box1' is a slot ID
-  slotRenderedCallback: {
-    box1 : function(event) { console.log("slotID box1 has been rendered. Slot " + (event.isEmpty?"is":"is not") + " empty.") }
-  },
-
-  // page level key-values. These are sent to DFP for targeting.
-  kv: { section:"sports", article:"1234" }
-}
+<!-- enjoy -->
 ```
-
-
-Contributing
-------------
-
-Any and all contributions will be greatly appreciated.
-
-You can commit your changes and make a pull request and your feature/bug fix will be merged as soon as possible.
-
-Please feel free to write tests which will test your new code.
-
-Please take a look at CONTRIBUTING.md for more details.
