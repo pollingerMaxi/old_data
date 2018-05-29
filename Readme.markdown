@@ -1,4 +1,4 @@
-Rich media, Debug and modern DFP implementations
+Rich media, Debug and Modern DFP Implementations
 ======================================================
 
 - Adcase.io script simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
