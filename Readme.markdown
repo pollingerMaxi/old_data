@@ -15,8 +15,6 @@ Rich media, Debug and modern DFP implementations
 * [Ad Builder](https://github.com/Adcase/adcase.js/wiki/builder)
 * [Support](https://github.com/Adcase/adcase.js/wiki/support)
 
-- This is not an official Google product, and it is also not officially supported by Google.
-
 &nbsp;
 ## Problems, support and new ideas: 
 - Open a [Github issue](https://github.com/Adcase/adcase.js/issues), we'll do our best to solve your request asap.
