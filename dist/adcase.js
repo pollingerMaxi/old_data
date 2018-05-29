@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.49. 21/May/2018
+// AdCase.js JavaScript Library v2.1.50. 29/May/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -1387,9 +1387,7 @@ if(ads.light) {
             ads.id[d].rendered(params);
         }
     }
-    console.log(1);
     googletag.cmd.push(function() {
-    console.log(2);
         googletag.pubads().setTargeting('adcase', ads.logData);
         googletag.pubads().addEventListener('slotRenderEnded', function(event) { ads.slotRendered(event); });
     });
