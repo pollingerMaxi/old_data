@@ -8,9 +8,6 @@ Rich media, Debug and modern DFP implementations
 - Adcase.io can be implemented with standard DFP tags (light version), full new modern dfp tags (full version) or even **no tags** (for real).
 
 &nbsp;
-- This is not an official Google product, and it is also not officially supported by Google.
-
-&nbsp;
 * [Adcase.io](https://github.com/Adcase/adcase.js/wiki/home)
 * [Light version](https://github.com/Adcase/adcase.js/wiki/Light-version)
 * [Full Version](https://github.com/Adcase/adcase.js/wiki/Full-version)
@@ -19,3 +16,5 @@ Rich media, Debug and modern DFP implementations
 * [Ad Builder](https://github.com/Adcase/adcase.js/wiki/builder)
 * [Support](https://github.com/Adcase/adcase.js/wiki/support)
 
+&nbsp;
+- This is not an official Google product, and it is also not officially supported by Google.
