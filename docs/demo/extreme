@@ -1,0 +1,39 @@
+
+
+<!DOCTYPE HTML> 
+<html lang="en-us">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5N8C7N8');</script>
+<!-- End Google Tag Manager -->
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+.c { width:100%;height:100px;display:inline-block}
+.c1 {background-color:#eee}
+.c2 {background-color:#dee}
+.c3 {background-color:#cee}
+.c4 {background-color:#bee}
+.c5 {background-color:#aee}
+
+</style>
+</head>
+<body>
+
+<div id='someSiteContent1' class='c c1'>SOME SITE CONTENT 1</div> 
+<div id='someSiteContent2' class='c c2'>SOME SITE CONTENT 2</div> 
+<div id='someSiteContent3'>SOME SITE CONTENT 3<br>
+	<p>PARAGRAPH 1</p>
+	<p class='important'>PARAGRAPH 2 important</p>
+	<p class='important'>PARAGRAPH 3 important</p>
+	<p>PARAGRAPH 4</p>
+	<p>PARAGRAPH 5</p>
+</div> 
+<div id='someSiteContent4' class='c c3'>SOME SITE CONTENT 4</div> 
+<div id='lastContent' class='c c4'>LAST CONTENT</div> 
+
+</body>	
+</html>
+
+
