@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.50. 21/May/2018
+// AdCase.js JavaScript Library v2.1.49. 21/May/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -35,19 +35,54 @@ ads.resetValues = function() {
     ads.startTime = new Date().getTime();
 }
 
-
 ads.run = function() {
     if (ads.lazy) {
         ads.enableScroll();
     }
     if(!ads.setup) {
-        if(ads.oopSlots) {
-            for(var i in ads.oopSlots) { if(!ads.oopSlots[i].id || !ads.oopSlots[i].adtype || document.getElementById(ads.oopSlots[i].id) || !(ads.oopSlots.hasOwnProperty(i))) { continue; }
+        if(ads.slots) {
+            for(var i in ads.slots) { var s = ads.slots[i];  
+//                debugger;
+                if(!s.id || !s.adtype || document.getElementById(s.id) || !(ads.slots.hasOwnProperty(i))) { continue; }
                 var d = document.createElement("div");
                 d.classList.add("ad-slot");
-                d.id = ads.oopSlots[i].id;
-                d.dataset.adtype = ads.oopSlots[i].adtype;
-                document.body.appendChild(d);
+                d.id = s.id;
+                d.dataset.adtype = s.adtype;
+                s.position&&console.log("in:",s.position.in,"after:",s.position&&s.position.after,"before:",s.position&&s.position.before);
+                if(s.position && s.position.in) {
+                  //d.innerHTML="IN "+s.position.in +" - FINDTAG:"+s.position.findTag+" - FINDCLASS:"+s.position.findClass+" - beforePOSITION:"+s.position.beforePosition;
+                  var e = document.getElementById(s.position.in);
+                  if(s.position.in=='body') { e=document.body; }
+                  if(e && e.childNodes) {
+                    var c=1;
+                    var created = false;
+                    for(var j in e.childNodes) { if(e.childNodes[j].nodeType!=1 || !e.childNodes.hasOwnProperty(j)) { continue; }
+//                      debugger;
+                      if(s.position.findTag && e.childNodes[j].tagName.toLowerCase()!=s.position.findTag.toLowerCase()) { continue; }
+                      if(s.position.findClass && !e.childNodes[j].classList.contains(s.position.findClass)) { continue; }
+                      if(c==s.position.beforePosition) {
+                        e.insertBefore(d, e.childNodes[j]);
+                        created=true;
+                        break;
+                      }
+                      c++;
+                    }
+                    if(!created) {
+                        e.insertBefore(d, null);
+                    }
+                  }
+                  
+                } else if(s.position && s.position.after) {
+                  var e = document.getElementById(s.position.after);
+                  //d.innerHTML="AFTER "+s.position.after;
+                  e && e.parentElement && e.nextSibling && e.parentElement.insertBefore(d, e.nextSibling);
+                } else if(s.position && s.position.before) {
+                  var e = document.getElementById(s.position.before);
+                  //d.innerHTML="BEFORE "+s.position.before;
+                  e && e.parentElement && e.parentElement.insertBefore(d, e);
+                } else {
+                  document.body.appendChild(d);
+                }
             }
         }
 
@@ -1320,10 +1355,6 @@ ads.resetValues();
 ads.checkDebug();
 
 if(ads.light) {
-    googletag.cmd.push(function() {
-        googletag.pubads().setTargeting('adcase', ads.logData);
-        googletag.pubads().addEventListener('slotRenderEnded', function(event) { ads.slotRendered(event); });
-    });
     ads.slotRendered = function(event) {
         ads.adEvents.push(event);
         var d = event.slot.getSlotElementId();
@@ -1356,6 +1387,12 @@ if(ads.light) {
             ads.id[d].rendered(params);
         }
     }
+    console.log(1);
+    googletag.cmd.push(function() {
+    console.log(2);
+        googletag.pubads().setTargeting('adcase', ads.logData);
+        googletag.pubads().addEventListener('slotRenderEnded', function(event) { ads.slotRendered(event); });
+    });
 } else {
     ads.kv = ads.kv || {};
     ads.kv.adcase = ads.logData;
