@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.50. 29/May/2018
+// AdCase.js JavaScript Library v2.1.52. 29/May/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.50";
-ads.logData = (ads.light?"L":"F")+".50";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.52";
+ads.logData = (ads.light?"L":"F")+".52";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -774,11 +774,69 @@ ads.formats.createInterstitial = function (params) {
 
 }
 
+ads.ittonResize = function() {
+  var myVideo=document.getElementById("adcase_itt_video");
+  var w = window.innerHeight / window.innerWidth;
+  var v = myVideo.clientHeight / myVideo.clientWidth;
+  if (w<=v) {
+  	myVideo.style.width=window.innerWidth+"px";
+  	myVideo.style.height="";
+    myVideo.style.marginTop = (- (myVideo.clientHeight - window.innerHeight) / 2)+"px";
+    myVideo.style.marginLeft = "0px";
+
+  } else {
+  	myVideo.style.width="";
+  	myVideo.style.height= window.innerHeight+"px";
+    myVideo.style.marginLeft = (- (myVideo.clientWidth - window.innerWidth) / 2)+"px";
+    myVideo.style.marginTop = "0px";
+
+  }
+}
+
+ads.ittClose = function() {
+  window.clearInterval(ads.get("ittInterval"));
+  window.clearInterval(ads.get("ittCloseTimeout"));
+  document.getElementById("adcase_itt_video").parentElement.innerHTML="";
+  document.body.style.overflow=ads.get("previousOverflow");
+}
+ads.ittClick=function() {
+    window.open(ads.get("ittClickTag"));
+}
 ads.formats.interstitial = function(t) {
 
     t.set("startDisplay", "none");
+    //ads.addEvent(window, "resize", function(event) {ads.ittonResize();});
 
+    t.videoFullscreen = function(params) { 
+        console.log("PARAMS",params);
+        ads.set("ittClickTag",params.clickTag);
+        if(params.closeTimeout && params.closeTimeout>0) {
+            ads.set("ittCloseTimeout", window.setTimeout(ads.ittClose, params.closeTimeout));
+        }
+        
+        ads.set("previousOverflow",document.body.style.overflow);
+        document.body.style.overflow="hidden";
+        
+        t.parentSlot.innerHTML = "<video onclick='ads.ittClick()' autoplay "+(params.muted&&params.muted=="muted"?"muted":"")+" src='"+params.videoSRC+"' id='adcase_itt_video' style='cursor:pointer;position:fixed;top:0px;left:0px;width:100%;height:100%;z-index:10000;'></video>";
+       // window.setTimeout(function() { document.getElementById("adcase_itt_video").play(); },500);
+        
+        ads.set("ittInterval", window.setInterval(ads.ittonResize,50));
+        
+        var iconDiv = document.createElement("div");
+        iconDiv.innerHTML = "<div id='interstitialIconDiv' style='position:fixed;right:10px;top:10px;z-index:10001;cursor:pointer' onclick='ads.ittClose()'>"
+            + ads.styles.interstitial.img + "</div>";
+        t.parentSlot.appendChild(iconDiv);
+    }
+    
+    
     t.msg = function(params) {
+        var div = t.slot;
+        var iframe = div.getElementsByTagName("iframe")[0];
+        var parent = t.parentSlot;
+        if(params.videoSRC && params.videoSRC!="") {
+            t.videoFullscreen(params);
+            return;
+        }
         if(params.runFormat=="footerFixed") {
             ads.formats.footerFixed(t);
             t.rendered();
@@ -793,8 +851,6 @@ ads.formats.interstitial = function(t) {
         params.height = params.height || t.height;
         params.width = params.width || t.width;
 
-        var div = t.slot;
-        var parent = t.parentSlot;
         div.style.position = "fixed";
         div.style.left = "0px";
         div.style.top = "0px";
@@ -809,7 +865,6 @@ ads.formats.interstitial = function(t) {
         var iconRight = (params.width/2-53) + ads.styles.interstitial.right;
         var iconTop = -(params.height/2) + ads.styles.interstitial.top;
 
-        var iframe = div.getElementsByTagName("iframe")[0];
         if(params.videoURL) {
             if(!params.clicktagURL) {
                 return;
