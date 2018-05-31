@@ -302,7 +302,7 @@ ads.d.debugContent = function() {
                     + "<td valign=top  style='padding:0;width:1px;'>"
                          +(ads.router?"<a class='adcase-button' onclick='javascript:document.getElementById(\"configWindow\").style.display=\"\"'><button><span>Config</span></button></a>":"")+"</td>"
                      +"<td valign=top style='padding:0;width:1px;'><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button><span>Troubleshoot</span></button></A></td>"
-                     +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></td>"
+                    // +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></td>"
                      +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.closeModal()'><button><span>X</span></button></a></td>"
              +"</tr>"
              +"<tr><td colspan=4><div id='adcase-debug-main' style='display:inline-block'></div></td></tr>"
