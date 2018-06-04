@@ -1,12 +1,11 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.49. 21/May/2018
+// AdCase.js DEBUG JavaScript Library v2.1.53. 21/May/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
 // AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
 // This is not an official Google product, and it is also not officially supported by Google.
 //
-
 ads.version = ads.version || ""; // please update adcase.js
 
 ads.d = ads.d || {};
@@ -64,6 +63,13 @@ ads.d.closeModal = function() {
   ads.d.run();
 }
 ads.d.run = function() {
+  var savedKey = localStorage.getItem("ads.debugKey")||""; 
+  if(ads.debugKey && ads.debugKey!=savedKey) {
+    ads.d.s("requestKey",true);
+  } else {
+    ads.d.s("requestKey",false);
+  }
+  
   if(!ads.network && ads.adEvents && ads.adEvents[0] && ads.adEvents[0].slot) {
     ads.network = ads.d.strtoken(ads.adEvents[0].slot.getAdUnitPath(),2,"/");
   }
@@ -140,12 +146,14 @@ ads.d.runOverlay = function () {
 
 ads.d.runModal = function() {
 
-ads.d.checkInventory();
+if(!ads.d.g("requestKey",true)) {
+  ads.d.checkInventory();
 
-if(ads.d.g("modalContainer")) { 
-  ads.d.updateModal();
-  ads.d.g("modalContainer").style.display = "block";
-  return;
+  if(ads.d.g("modalContainer")) { 
+    ads.d.updateModal();
+    ads.d.g("modalContainer").style.display = "block";
+    return;
+  }
 }
 
 if( ads.d.g("isMobile") ) {
@@ -207,13 +215,33 @@ document.head.appendChild(s);
 
   var d = document.createElement("div");
   d.id = "adcaseContainer";
-  d.innerHTML = "<div id='adcaseContainer2'>"+ads.d.configWindow()+"<div id='adcaseContent'>"+ads.d.debugContent()+"</div></div>";
+  if(ads.d.g("requestKey")) {
+    d.innerHTML = "<div id='adcaseContainer2'><div id='adcaseContent'>"+ads.d.requestKeyHTML()+"</div></div>";
+  } else {
+    d.innerHTML = "<div id='adcaseContainer2'>"+ads.d.configWindow()+"<div id='adcaseContent'>"+ads.d.debugContent()+"</div></div>";
+  }
   document.body.appendChild(d);
   ads.d.s("modalContent", document.getElementById("adcaseContent"));
   ads.d.s("modalContainer", document.getElementById("adcaseContainer"));
 
   ads.d.setIpInfo();
 }
+
+ads.d.requestKeyHTML = function() {
+  var out = "<h1>Please enter Debug key:</h1><br><input size=20 id='adcase_debug_key'><br><br>"  
+    + "<a class='adcase-button' href='javascript:ads.d.saveKey()'><button><span>Set Key</span></button></a>";
+  return out; 
+}
+ads.d.saveKey = function() {
+  var newKey = document.getElementById("adcase_debug_key").value;
+  if(ads.md5(newKey)==ads.debugKey) {
+    localStorage.setItem("ads.debugKey",ads.debugKey);
+  }
+  localStorage.setItem("adcase-debug-mode",0);
+  ads.d.clickButton();
+}
+
+
 ads.d.formatSizes = function (s) {
   var txt ="";
   for(var i in s) {  if(!(s.hasOwnProperty(i))) { continue; }
@@ -302,7 +330,7 @@ ads.d.debugContent = function() {
                     + "<td valign=top  style='padding:0;width:1px;'>"
                          +(ads.router?"<a class='adcase-button' onclick='javascript:document.getElementById(\"configWindow\").style.display=\"\"'><button><span>Config</span></button></a>":"")+"</td>"
                      +"<td valign=top style='padding:0;width:1px;'><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button><span>Troubleshoot</span></button></A></td>"
-                    // +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></td>"
+                     //+"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></td>"
                      +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.closeModal()'><button><span>X</span></button></a></td>"
              +"</tr>"
              +"<tr><td colspan=4><div id='adcase-debug-main' style='display:inline-block'></div></td></tr>"
@@ -428,24 +456,29 @@ ads.d.getSlotKV = function(slot) {
   }
 
   var kv = {};  
-  var url = new URL(url);
-  var scp = decodeURIComponent(url.searchParams.get("scp")).split("&");
-  for(var i in scp) { if(!(scp.hasOwnProperty(i))) { continue; }
-    try {
-      var k = scp[i].split("=")[0];
-      var v = scp[i].split("=")[1];
-      v && (kv[k] = v);
-    } catch(e) {}
-  }
-  var custParams = decodeURIComponent(url.searchParams.get("cust_params")).split("&");
   var pageKV = {};
-  for(var i in custParams) { if(!(custParams.hasOwnProperty(i))) { continue; }
-    try {
-      var k = custParams[i].split("=")[0];
-      var v = custParams[i].split("=")[1];
-      v && (pageKV[k] = v);
-    } catch(e) {}
-  }
+  var url = "";
+  try {
+    url = new URL(url);
+    var scp = decodeURIComponent(url.searchParams.get("scp")).split("&");
+    for(var i in scp) { if(!(scp.hasOwnProperty(i))) { continue; }
+      try {
+        var k = scp[i].split("=")[0];
+        var v = scp[i].split("=")[1];
+        v && (kv[k] = v);
+      } catch(e) {}
+    }
+
+    var custParams = decodeURIComponent(url.searchParams.get("cust_params")).split("&");
+    for(var i in custParams) { if(!(custParams.hasOwnProperty(i))) { continue; }
+      try {
+        var k = custParams[i].split("=")[0];
+        var v = custParams[i].split("=")[1];
+        v && (pageKV[k] = v);
+      } catch(e) {}
+    }
+  } catch(e) {} 
+
 
   ads.d.pagekvHTML = "";
   for(var i in pageKV) { if(i=="adcase" || !(pageKV.hasOwnProperty(i))) { continue; }
@@ -550,7 +583,9 @@ ads.d.runModalMobile = function() {
 }
 #adcaseContainer2 a { color:#0652DD  }
 #adcaseContainer2 a:hover { color:#800040  }
- 
+#adcaseContent {
+    padding:10px
+} 
 /* The Close Button */
 #adcaseClose {
     color: #aaaaaa;
@@ -593,7 +628,12 @@ document.head.appendChild(s);
 
   var d = document.createElement("div");
   d.id = "adcaseContainer";
-  d.innerHTML = "<div id='adcaseContainer2'>"+ads.d.configWindow()+"<div id='adcaseContent'>"+ads.d.debugContentMobile()+"</div></div>";
+  if(ads.d.g("requestKey")) {
+    d.innerHTML = "<div id='adcaseContainer2'><div id='adcaseContent'>"+ads.d.requestKeyHTML()+"</div></div>";
+  } else {
+    d.innerHTML = "<div id='adcaseContainer2'>"+ads.d.configWindow()+"<div id='adcaseContent'>"+ads.d.debugContentMobile()+"</div></div>";
+  }
+
   document.body.appendChild(d);
   ads.d.s("modalContent", document.getElementById("adcaseContent"));
   ads.d.s("modalContainer", document.getElementById("adcaseContainer"));
@@ -674,8 +714,8 @@ ads.d.debugContentMobile = function() {
                +"</div></div>";
   }
 
-  html += "<td valign=top style='padding:0;width:1px;'><center><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></center></td>"
-       +"<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>";
+  html += //"<td valign=top style='padding:0;width:1px;'><center><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></center></td>"+
+       "<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>";
 
   return html;
 }
@@ -687,6 +727,7 @@ ads.d.shareStop = function() {
 }
 
 ads.d.shareSession = function() {
+    return;
   window.scrollTo(0,0);
   d = document.getElementById("adcase-debug-main");
   if(localStorage.getItem("ads-debug-share-code")) {
@@ -753,11 +794,8 @@ ads.d.postAjax = function (url, data, success) {
     return xhr;
 }
 
-// example request
-//postAjax('http://foo.bar/', 'p1=1&p2=Hello+World', function(data){ console.log(data); });
-
-// example request with data object
-//postAjax('http://foo.bar/', { p1: 1, p2: 'Hello World' }, function(data){ console.log(data); });
+ads.md5= ads.md5 || (function(){for(var m=[],l=0;64>l;)m[l]=0|4294967296*Math.abs(Math.sin(++l));return function(c){var e,g,f,a,h=[];c=unescape(encodeURI(c));for(var b=c.length,k=[e=1732584193,g=-271733879,~e,~g],d=0;d<=b;)h[d>>2]|=(c.charCodeAt(d)||128)<<8*(d++%4);h[c=16*(b+8>>6)+14]=8*b;for(d=0;d<c;d+=16){b=k;for(a=0;64>a;)b=[f=b[3],(e=b[1]|0)+((f=b[0]+[e&(g=b[2])|~e&f,f&e|~f&g,e^g^f,g^(e|~f)][b=a>>4]+(m[a]+(h[[a,5*a+1,3*a+5,7*a][b]%16+d]|0)))<<(b=[7,12,17,22,5,9,14,20,4,11,16,23,6,10,15,21][4*b+a++%4])|f>>>32-b),e,g];for(a=4;a;)k[--a]=k[a]+b[a]}for(c="";32>a;)c+=(k[a>>3]>>4*(1^a++&7)&15).toString(16);return c}}());
 
 
 ads.d.clickButton();
+
