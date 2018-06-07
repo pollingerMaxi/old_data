@@ -1,11 +1,12 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.54. 6/Jun/2018
+// AdCase.js DEBUG JavaScript Library v2.1.55. 7/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
 // AdCase.js simplifies the use of both Rich Media and display creatives in Double Click for Publishers (DFP).
 // This is not an official Google product, and it is also not officially supported by Google.
 //
+var ads = ads || adcase;
 ads.version = ads.version || ""; // please update adcase.js
 
 ads.d = ads.d || {};
@@ -338,7 +339,7 @@ ads.d.debugContent = function() {
 
    + "<table class='adcaseTable'>"
    +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
-   +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td>Slot KV</td></tr></thead>";
+   +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td style='width:200px'>Slot KV</td></tr></thead>";
   var printedSlots = {};
   
   for(var i in ads.d.data.rows) { if(!(ads.d.data.rows.hasOwnProperty(i))) { continue; }
