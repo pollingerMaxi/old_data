@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.50. 5/Mar/2018
+// AdCase.js JavaScript Library v2.1.55. 7/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -8,7 +8,7 @@
 //
 //
 var googletag = googletag || { cmd: [] };
-var adcase = adcase || ads;
+//var adcase = adcase || ads;
 adcase.version = (adcase.light?"adcase.js light":"adcase.js full")+" v2.1.50";
 adcase.logData = (adcase.light?"L":"F")+".50";
 
@@ -31,7 +31,7 @@ adcase.openDebug = function() {
         adcase.d.clickButton();
     } else {
         var s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@2/dist/debug-only-screen.js?"+Math.random();
+        s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@2.1.54/dist/debug.js?"+Math.random();
         document.head.appendChild(s);
     }
 }
@@ -55,7 +55,7 @@ adcase.debugButton = function() {
 }
 
 
-adcase.runDebug = function() {
+adcase.runDebugOnly = function() {
   if(document.location.href.indexOf("adcase.debug=false")>0) {
     localStorage.removeItem("adcase.debug");
     localStorage.removeItem("adcase-debug-mode");
@@ -74,19 +74,17 @@ adcase.runDebug = function() {
     document.head.appendChild(s);
 
     googletag.cmd.push(function() {
-    googletag.pubads().addEventListener('slotRenderEnded',
-      function(event) {
-        adcase.adEvents.push(event);
-      }
-    );
+      googletag.pubads().addEventListener('slotRenderEnded',
+        function(event) {
+          adcase.adEvents.push(event);
+        }
+      );
     });
   
-  console.log("create button");
   if(document.body) {
     adcase.debugButton(); 
   } else {
-    window.setTimeout(adcase.debugButton, 3000);
+    window.setTimeout(adcase.debugButton, 1000);
   }
 }
-
-adcase.runDebug();
+adcase.runDebugOnly();
