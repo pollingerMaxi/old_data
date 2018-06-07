@@ -9,8 +9,8 @@
 //
 var googletag = googletag || { cmd: [] };
 //var adcase = adcase || ads;
-adcase.version = (adcase.light?"adcase.js light":"adcase.js full")+" v2.1.50";
-adcase.logData = (adcase.light?"L":"F")+".50";
+adcase.version = (adcase.light?"adcase.js light":"adcase.js full")+" v2.2.1";
+adcase.logData = (adcase.light?"L":"F")+"2.1";
 
 adcase.log = function() {
     if(!localStorage.getItem("adcase.debug")) {
