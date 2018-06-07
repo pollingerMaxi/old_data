@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.55. 7/Jun/2018
+// AdCase.js DEBUG JavaScript Library v2.2.1 7/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
