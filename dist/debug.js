@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v2.1.53. 21/May/2018
+// AdCase.js DEBUG JavaScript Library v2.1.54. 6/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -457,7 +457,6 @@ ads.d.getSlotKV = function(slot) {
 
   var kv = {};  
   var pageKV = {};
-  var url = "";
   try {
     url = new URL(url);
     var scp = decodeURIComponent(url.searchParams.get("scp")).split("&");
@@ -798,4 +797,3 @@ ads.md5= ads.md5 || (function(){for(var m=[],l=0;64>l;)m[l]=0|4294967296*Math.ab
 
 
 ads.d.clickButton();
-
