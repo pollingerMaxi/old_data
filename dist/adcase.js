@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.1.52. 29/May/2018
+// AdCase.js JavaScript Library v2.2.1. 9/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.1.52";
-ads.logData = (ads.light?"L":"F")+".52";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.2.1";
+ads.logData = (ads.light?"L":"F")+".2.2.1";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -410,7 +410,6 @@ ads.getIdFromFormat = function(format) {
 }
 
 ads.setAdTypes = function() {
-    ads.setDevice();
 
     if (!ads.adTypesMap) {
         return;
@@ -904,7 +903,7 @@ ads.formats.interstitial = function(t) {
             iframe.style.left = "50%";
             iframe.style.top = "50%";
 
-            iconDiv.style.height = params.height+"px";
+            iconDiv.style.height = "0px";
             iconDiv.style.width  = params.width+"px";
             iconDiv.style.left   = "50%";
             iconDiv.style.top    = "50%";
@@ -923,6 +922,12 @@ ads.formats.interstitial = function(t) {
             + ads.styles.interstitial.img + "</div>";
         div.appendChild(iconDiv);
 
+        var screenWidth = (ads.device.isMobile? screen.width : window.innerWidth);
+        var screenHeight = (ads.device.isMobile? screen.height : window.innerHeight);
+        if(params.width>screenWidth || params.height>screenHeight) {
+            t.fixButtonTopRight();
+        }
+
         window.clearTimeout(ads.interstitialTimeout);
         if(params.autoclose > 0) {
             ads.interstitialTimeout = window.setTimeout(function() {
@@ -933,6 +938,12 @@ ads.formats.interstitial = function(t) {
         }
         window.setTimeout(function() { parent.style.display = "block"; document.body.style.overflow="hidden"; }, 1000); // show interstitial
         window.setTimeout(function() { document.getElementById("interstitialIconDiv") && (document.getElementById("interstitialIconDiv").style.display=""); }, 500); // show [X]
+    }
+    t.fixButtonTopRight = function() {
+      var b = document.getElementById("interstitialIconDiv");
+      b.style.top="10px";
+      b.style.right="10px";
+      b.style.position="fixed";
     }
 
     t.createVideo = function(params) {
@@ -1408,6 +1419,7 @@ ads.checkDebug = function() {
 
 ads.resetValues();
 ads.checkDebug();
+ads.setDevice();
 
 if(ads.light) {
     ads.slotRendered = function(event) {
