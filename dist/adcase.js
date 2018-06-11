@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.2.1. 9/Jun/2018
+// AdCase.js JavaScript Library v2.2.2. 9/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.2.1";
-ads.logData = (ads.light?"L":"F")+".2.2.1";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.2.2";
+ads.logData = (ads.light?"L":"F")+".2.2.2";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -924,7 +924,7 @@ ads.formats.interstitial = function(t) {
 
         var screenWidth = (ads.device.isMobile? screen.width : window.innerWidth);
         var screenHeight = (ads.device.isMobile? screen.height : window.innerHeight);
-        if(params.width>screenWidth || params.height>screenHeight) {
+        if(params.width>(screenWidth-20) || params.height>(screenHeight-20)) {
             t.fixButtonTopRight();
         }
 
