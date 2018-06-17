@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v2.2.2. 9/Jun/2018
+// AdCase.js JavaScript Library v3.0.1. 17/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v2.2.2";
-ads.logData = (ads.light?"L":"F")+".2.2.2";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v3.0.1";
+ads.logData = (ads.light?"L":"F")+".3.0.1";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -42,7 +42,6 @@ ads.run = function() {
     if(!ads.setup) {
         if(ads.slots) {
             for(var i in ads.slots) { var s = ads.slots[i];  
-//                debugger;
                 if(!s.id || !s.adtype || document.getElementById(s.id) || !(ads.slots.hasOwnProperty(i))) { continue; }
                 var d = document.createElement("div");
                 d.classList.add("ad-slot");
@@ -57,7 +56,6 @@ ads.run = function() {
                     var c=1;
                     var created = false;
                     for(var j in e.childNodes) { if(e.childNodes[j].nodeType!=1 || !e.childNodes.hasOwnProperty(j)) { continue; }
-//                      debugger;
                       if(s.position.findTag && e.childNodes[j].tagName.toLowerCase()!=s.position.findTag.toLowerCase()) { continue; }
                       if(s.position.findClass && !e.childNodes[j].classList.contains(s.position.findClass)) { continue; }
                       if(c==s.position.beforePosition) {
@@ -234,6 +232,15 @@ ads.pageLoaded = function(params) {
         }
         parent.innerHTML = "<div id='" + parent.id + "_ad'></div>";
 
+        var kv={};
+        if(parent.dataset.kv) {
+            try {
+                kv = JSON.parse(parent.dataset.kv);
+            } catch(e) { 
+                ads.log("*** ERROR: wrong KV in "+parent.id,parent.dataset.kv); 
+            }
+        }
+        
         var d = parent.id + "_ad";
         ads.id[d] = new ads.instanceAd(format);
         ads.id[d].slot = document.getElementById(d);
@@ -245,12 +252,12 @@ ads.pageLoaded = function(params) {
         ads.id[d].dfpPath = path + divDFPId;
         ads.id[d].sizes = ads.adTypes[adType].sizes;
         ads.id[d].format = format;
+        ads.id[d].kv = kv;
         ads.id[d].startDisplay();
 
         ads.adSlotList.push (ads.id[d]);
 
     }
-
     // Actual DFP slot creation
     googletag.cmd.push(function() {
         for(var i in divs) { if(!(divs.hasOwnProperty(i))) { continue; }
@@ -261,6 +268,9 @@ ads.pageLoaded = function(params) {
                 ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).setTargeting("divposition",d.divPosition).addService(googletag.pubads());
             } else {
                 ads.googleTagSlots[d.divId] = googletag.defineSlot(d.dfpPath, d.sizes, d.divId).addService(googletag.pubads());
+            }
+            for(var j in d.kv) { if(!(d.kv.hasOwnProperty(j))) { continue; }
+                ads.googleTagSlots[d.divId].setTargeting(j,d.kv[j]);
             }
             ads.id[i+"_ad"].requestedSizes = d.sizes;
         }
@@ -309,6 +319,14 @@ ads.readMessage = function(e) {
         } else if (params.text){
             ads.adTexts.push({text:params.text, slotWindow: e.source});
             ads.matchAds();
+        } else if (format && format=="push" && params.action && params.action=="pushSetup") {  // force a push buttons setup 
+          e.source.postMessage(ads.styles.push, "*");
+        } else if (format && format=="push") {  // it only gets here in special cases where handle has not been correctly set 
+            for(var i in ads.id) { if(!(ads.id.hasOwnProperty(i))) { continue; }
+              if(ads.id[i].format && ads.id[i].format=="push") {
+                ads.id[i].msg(params);
+              }
+            }
         } else if (format) {
             ads.id[ads.getIdFromFormat(format)] && ads.id[ads.getIdFromFormat(format)].msg(params);
         }
@@ -547,7 +565,7 @@ ads.debug = function() {
         ads.d.clickButton();
     } else {
         var s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@2/dist/debug.js?"+Math.random();
+        s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@3/dist/debug.js?"+Math.random();
         document.head.appendChild(s);
     }
 }
@@ -1234,8 +1252,8 @@ ads.styles.footerFixed.iconMarginTop = ads.styles.footerFixed.iconMarginTop || 0
 ads.styles.interstitial = ads.styles.interstitial || { img:"<img src='"+ads.styles.iconClose+"' height=54 width=54 border=0>", top: -25, right:-25}
 ads.styles.push = ads.styles.push || {
     iconsStyle : "width:45px;position:absolute;left:917px;top:0;border:1px solid #ccc;font-family:Arial;font-size:11px;padding:3px;background-color:white;text-align:center;",
-    openIconHTML: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;",
-    closeIconHTML: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    openIconHTML: "[ OPEN ]",
+    closeIconHTML: "[ CLOSE ]"
 }
 ads.styles.videoButtons = ads.styles.videoButtons || "<div id='overlay' style='width:100%;height:60px;background-color:white;opacity:0.9;position:absolute;bottom:0px ;z-index:5;display:none'></div>"
     +"<div id='overlay-txt' style='width:100%;height:50px;position:absolute;bottom:0px;z-index:6;display:none'>"
@@ -1455,8 +1473,19 @@ if(ads.light) {
         }
     }
     googletag.cmd.push(function() {
-        googletag.pubads().setTargeting('adcase', ads.logData);
-        googletag.pubads().addEventListener('slotRenderEnded', function(event) { ads.slotRendered(event); });
+        googletag.pubads().addEventListener('slotRenderEnded', function(event) { 
+            ads.slotRendered(event); 
+            if(googletag.pubads().getTargeting('adcase').length==0) {
+                ads.log("******   ERROR   ****   Please set adcase key   *******");
+                ads.log("googletag.pubads().setTargeting('adcase', ads.logData);");
+                var d = event.slot.getSlotElementId();
+                var slot = document.getElementById(d);
+                slot.style.display="none";
+                slot.style.height="0px";
+                slot.parentElement.style.display="none";
+                slot.parentElement.style.height="0px";
+            }
+        });
     });
 } else {
     ads.kv = ads.kv || {};
