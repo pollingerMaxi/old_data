@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v3.0.2. 17/Jun/2018
+// AdCase.js JavaScript Library v3.0.3. 17/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v3.0.2";
-ads.logData = (ads.light?"L":"F")+".3.0.2";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v3.0.3";
+ads.logData = (ads.light?"L":"F")+".3.0.3";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -1260,8 +1260,8 @@ ads.styles.footerFixed.iconMarginTop = ads.styles.footerFixed.iconMarginTop || 0
 ads.styles.interstitial = ads.styles.interstitial || { img:"<img src='"+ads.styles.iconClose+"' height=54 width=54 border=0>", top: -25, right:-25}
 ads.styles.push = ads.styles.push || {
     iconsStyle : "width:45px;position:absolute;left:917px;top:0;border:1px solid #ccc;font-family:Arial;font-size:11px;padding:3px;background-color:white;text-align:center;",
-    openIconHTML: "[ OPEN ]",
-    closeIconHTML: "[ CLOSE ]"
+    openIconHTML: "[OPEN]",
+    closeIconHTML: "[CLOSE]"
 }
 ads.styles.videoButtons = ads.styles.videoButtons || "<div id='overlay' style='width:100%;height:60px;background-color:white;opacity:0.9;position:absolute;bottom:0px ;z-index:5;display:none'></div>"
     +"<div id='overlay-txt' style='width:100%;height:50px;position:absolute;bottom:0px;z-index:6;display:none'>"
