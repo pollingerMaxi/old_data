@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.7 17/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.8 17/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -327,7 +327,7 @@ ads.d.prepareData = function() {
     try {
       row.slotTime = Number.isInteger(ads.id[row.divId].renderedTime) ? Math.round(ads.id[row.divId].renderedTime) : "";
       var startTimeSec = ((ads.id[row.divId].startTime-ads.startTime)/1000).toFixed(1)+"s";
-      if(row.slotTime!=""){ row.slotTime+=" ("+startTimeSec+"+"+row.slotTime+"ms)"; }
+      if(row.slotTime!=""){ row.slotTime =" ("+startTimeSec+"+"+row.slotTime+"ms)"; }
     } catch(e) {}
     ads.d.data.rows[row.parentId] = row;
   }
@@ -446,7 +446,7 @@ ads.d.debugContent = function() {
     printedSlots[d.parentId] = true;
 
     html += "<tr class='adcaseRow' style='background-color:"+(d.size=="unfilled"?"#ffd394":"")+"'><td><b>"+d.parentId+"</b></td>"
-             +"<td>"+d.adUnit+"<br>"+d.qid+"</td><td>"+d.errorTxt+"</td>"
+             +"<td>"+d.adUnit+"<br>"+d.qid+d.slotTime+"</td><td>"+d.errorTxt+"</td>"
              +"<td>"+d.sizes+"</td>"
              +(showFormat?"<td>"+d.format+"</td>":"")
              +"<td style='text-align:center'>"+d.size+"</td>"
