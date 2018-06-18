@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.6 17/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.7 17/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -186,6 +186,7 @@ if( ads.d.g("isMobile") ) {
     padding: 10px 20px 40px 20px;
     border: 1px solid #888;
     width: 90%;
+    display: table
 }
 #adcaseContainer2 a { color:#0652DD  }
 #adcaseContainer2 a:hover { color:#800040  }
@@ -196,7 +197,7 @@ if( ads.d.g("isMobile") ) {
 .adcaseTable td {
   font-family:Poppins;
   font-size:11px;
-  padding:8px 20px 8px 20px;
+  padding:4px 10px 4px 10px;
   border-bottom:1px solid #ccc;
 }
 table#adcasekv td {padding:4px}
@@ -361,8 +362,15 @@ ads.d.testPage = function() {
   googletag.cmd.push(function() {`;
   var count=0;
   var divs = "";
+  var singleRequest=false;
+  var singleRequestQId={};
+  
   for(var i in ads.d.data.rows) { if(!(ads.d.data.rows.hasOwnProperty(i))) { continue; }
     var d = ads.d.data.rows[i];
+
+    if(singleRequestQId[d.qid.substr(d.qid.length - 12)]){ singleRequest=true; }
+    singleRequestQId[d.qid.substr(d.qid.length - 12)]=true;
+
     html +="\n\n  googletag.defineSlot('"+d.adUnit+"', "+d.jsSizes+", '"+d.parentId+"')";
     for(var j in d.slotKVArray) { if(!( d.slotKVArray.hasOwnProperty(j))) { continue; }
         html +=".setTargeting('"+j+"', "+JSON.stringify(d.slotKVArray[j])+")";    
@@ -372,10 +380,9 @@ ads.d.testPage = function() {
     divs +="\n\n  <hr><h4>"+d.adUnit+" - "+d.sizes+"</h4>\n  <div id='"+d.parentId+"'><script>googletag.cmd.push(function() { googletag.display('"+d.parentId+"'); });</script></div>";
     count++;
   }
-html +=`
 
-  googletag.pubads().enableSingleRequest();
-  googletag.pubads().collapseEmptyDivs();`;
+html +=(singleRequest?"\n\n  googletag.pubads().enableSingleRequest();":"\n")
+     +"\n  googletag.pubads().collapseEmptyDivs();";
     for(var i in ads.d.pagekvArray) { if(!(ads.d.pagekvArray.hasOwnProperty(i))) { continue; }
       html +="\n  googletag.pubads().setTargeting('"+i+"', "+JSON.stringify(ads.d.pagekvArray[i])+");"    
     }
@@ -415,28 +422,21 @@ ads.d.debugContent = function() {
   var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
 
   var html = "<table id='1' class='adcaseTable' width=100%>"
-               + "<tr><td style='vertical-align:top' rowspan=2>"
+               + "<tr><td style='vertical-align:top;'>"
                     +"<table id='2'>"
-                      +"<tr><td style='width:300px'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
-                          +"<td style='vertical-align:top;padding-right:0px;word-break:break-all' colspan=10>"
+                      +"<tr><td style='width:300px;border:0'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
+                          +"<td style='vertical-align:top;padding-right:0px;word-break:break-all;border:0' colspan=10>"
                               +(ads.d.pagekvHTML!=""?"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>":"")+"<br><b>User Agent:</b> " + navigator.userAgent
                           +"</td></tr>"
                     +"</table></td>"
-                    + "<td valign=top  style='padding:0;width:1px;'>"
-                    //     +(ads.router?"<a class='adcase-button' onclick='javascript:document.getElementById(\"configWindow\").style.display=\"\"'><button><span>Config</span></button></a>":"")
-                    +"</td>"
                      +"<td valign=top style='padding:0;width:1px;'>"
-                       +"<a class='adcase-button' href='javascript:ads.d.testPage()'><button style='width:100%'><span>Test&nbsp;Page</span></button></a>"
-                       +"<br><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button><span>Troubleshoot</span></button></A>"
-                     + "</td>"
-                     //+"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></td>"
-                     +"<td valign=top style='padding:0;width:1px;'></td>"
-                     +"<td valign=top style='padding:0;width:1px;'><a class='adcase-button' href='javascript:ads.d.closeModal()'><button><span>X</span></button></a></td>"
-             +"</tr>"
-             +"<tr><td colspan=4><div id='adcase-debug-main' style='display:inline-block'></div></td></tr>"
-             +"</table>"
+                       +"<a class='adcase-button' href='javascript:ads.d.closeModal()'><button style='width:100%;background-color:#e74c3c'><span style='padding:12px'>X</span></button></a>"
+                       +"<br><a class='adcase-button' href='javascript:ads.d.testPage()'><button style='width:100%;background-color:#3498db;margin:4px 0 4px 0'><span style='padding:12px'>Test</span></button></a>"
+                       +"<br><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button style='width:100%;background-color:#1abc9c;margin-bottom:4px'><span style='padding:12px'>DFP</span></button></A>"
+                //     +(ads.router?"<a class='adcase-button' onclick='javascript:document.getElementById(\"configWindow\").style.display=\"\"'><button><span>Config</span></button></a>":"")
+                     + "</td></tr>"
 
-   + "<table class='adcaseTable'>"
+   + "<tr><td colspan=2 style='padding:0'><table class='adcaseTable' width='100%'>"
    +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
    +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td style='max-width:300px'>Slot KV</td></tr></thead>";
   var printedSlots = {};
@@ -446,7 +446,7 @@ ads.d.debugContent = function() {
     printedSlots[d.parentId] = true;
 
     html += "<tr class='adcaseRow' style='background-color:"+(d.size=="unfilled"?"#ffd394":"")+"'><td><b>"+d.parentId+"</b></td>"
-             +"<td>"+d.adUnit+"<br>"+d.qid+d.slotTime+"</td><td>"+d.errorTxt+"</td>"
+             +"<td>"+d.adUnit+"<br>"+d.qid+"</td><td>"+d.errorTxt+"</td>"
              +"<td>"+d.sizes+"</td>"
              +(showFormat?"<td>"+d.format+"</td>":"")
              +"<td style='text-align:center'>"+d.size+"</td>"
@@ -489,7 +489,7 @@ ads.d.debugContent = function() {
 
    html +="</table>"
         +(ads.version!=""?"<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>":"") 
-        +"</td></tr></table>";
+        +"</td></tr></table></td></tr></table>";
 
   return html;
 }
