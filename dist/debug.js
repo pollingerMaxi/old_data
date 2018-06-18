@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.4 18/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.6 17/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -373,16 +373,16 @@ ads.d.testPage = function() {
     count++;
   }
 html +=`
-    googletag.pubads().enableSingleRequest();
-    googletag.pubads().collapseEmptyDivs();
-`;
+
+  googletag.pubads().enableSingleRequest();
+  googletag.pubads().collapseEmptyDivs();`;
     for(var i in ads.d.pagekvArray) { if(!(ads.d.pagekvArray.hasOwnProperty(i))) { continue; }
-      html +="\n    googletag.pubads().setTargeting('"+i+"', "+JSON.stringify(ads.d.pagekvArray[i])+");"    
+      html +="\n  googletag.pubads().setTargeting('"+i+"', "+JSON.stringify(ads.d.pagekvArray[i])+");"    
     }
 
 html +=`    //googletag.pubads().enableSyncRendering();
-    googletag.pubads().set("page_url", "`+document.location.href+`"); 
-    googletag.enableServices();
+  googletag.pubads().set("page_url", "`+document.location.href+`"); 
+  googletag.enableServices();
   });
 </script>
 </head>
@@ -578,10 +578,8 @@ ads.d.getSlotKVArray = function(slot) {
   } catch(e) {} 
 
 
-  ads.d.pagekvHTML = "";
-  for(var i in pageKV) { if(i=="adcase" || !(pageKV.hasOwnProperty(i))) { continue; }
-    ads.d.pagekvHTML += (ads.d.pagekvHTML==""?"":"&nbsp;&nbsp;&nbsp;") + "<b>" + i + "=</b>" + pageKV[i];
-  }
+  ads.d.pagekvArray = pageKV;
+  
   return kv;
 }
 
