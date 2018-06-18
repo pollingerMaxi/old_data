@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v3.0.1. 17/Jun/2018
+// AdCase.js JavaScript Library v3.0.2. 17/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v3.0.1";
-ads.logData = (ads.light?"L":"F")+".3.0.1";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v3.0.2";
+ads.logData = (ads.light?"L":"F")+".3.0.2";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -141,16 +141,24 @@ ads.setTargeting = function() {
     googletag.pubads().clearTargeting();
 
     var adsTest = localStorage.getItem("adcase-adstest");
+    var saveAdstest=false;
     try {
         var url = new URL(document.location.href);
-        if(url.searchParams.get("adstest") && url.searchParams.get("adstest")!="") { adsTest = url.searchParams.get("adstest"); }
+        if(url.searchParams.get("adstest") && url.searchParams.get("adstest")!="") { 
+          adsTest = url.searchParams.get("adstest"); 
+          saveAdstest = url.searchParams.get("save");
+        }
     } catch(e) {}
 
     if(adsTest=="false") {
         localStorage.removeItem("adcase-adstest")
     } else {
         if (adsTest && adsTest!="") {
-            localStorage.setItem("adcase-adstest", adsTest);
+            if(saveAdstest=="0") {
+                localStorage.removeItem("adcase-adstest");
+            } else {
+                localStorage.setItem("adcase-adstest", adsTest);
+            }
             var d = document.createElement("div");
             d.style="position:fixed;bottom:0;right:0;background-color:#0984e3;color:white;font-weight:bold;font-family:Arial;font-size:13px;padding:4px 10px 4px 10px;z-index:10000000";
             d.innerHTML = "adstest = "+adsTest;
