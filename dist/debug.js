@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.14 19/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.17 19/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -881,7 +881,13 @@ ads.d.debugContentMobile = function() {
       if(printedSlots[ads.id[i].parentId]) {
         continue;
       }
-      var adUnit = "/" + ads.network + ads.router() + ads.id[i].parentId;
+      var adUnit = "";
+      if(ads.network && ads.router) {
+        adUnit = "/" + ads.network + ads.router() + ads.id[i].parentId;
+      } else {
+        adUnit = ads.id[i].event.slot.getAdUnitPath();
+      }
+
       var errorTxt = "";//(ads.d.g("debugErrors")[ads.id[i].parentId] ? " <span style='color:red;font-weight:bold'>[WRONG ID]</span>" : "");
       var sizes = ""; try{ sizes = (ads.id[i].sizes?JSON.stringify(ads.id[i].sizes):"");} catch(e){}
       html += "<div class='line'>"
