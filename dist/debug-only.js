@@ -38,7 +38,7 @@ adcase.openDebug = function() {
 
 adcase.debugButton = function() {
     var d = document.createElement("link");
-    d.href = 'https://fonts.googleapis.com/css?family=Poppins';
+    d.href = 'https://fonts.googleapis.com/css?family=Roboto%20Mono';
     d.rel='stylesheet';
     d.type='text/css';
     document.head.appendChild(d);
