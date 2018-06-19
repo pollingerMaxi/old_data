@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v3.0.3. 17/Jun/2018
+// AdCase.js JavaScript Library v3.0.15. 17/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -580,7 +580,7 @@ ads.debug = function() {
 
 ads.debugButton = function() {
     var d = document.createElement("link");
-    d.href = 'https://fonts.googleapis.com/css?family=Poppins';
+    d.href = 'https://fonts.googleapis.com/css?family=Roboto%20Mono';
     d.rel='stylesheet';
     d.type='text/css';
     document.head.appendChild(d);
