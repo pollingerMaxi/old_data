@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.11 18/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.12 19/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -342,7 +342,7 @@ ads.d.prepareData = function() {
 ads.d.testPage = function() {
 
   var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
-  var screenSize = "<b>Screen Size:</b> " + (ads.device.isMobile? (screen.width+"x"+screen.height) : (window.innerWidth+"x"+window.innerHeight));
+  var screenSize = "<b>Screen Size:</b> " + (ads.d.g("isMobile")? (screen.width+"x"+screen.height) : (window.innerWidth+"x"+window.innerHeight));
 
   var logData = "\n\n\n\n<table width=100%><caption>USER PREVIOUS REQUEST LOG DATA</caption>"
                + "<tr><td style='vertical-align:top;'>"
@@ -464,7 +464,7 @@ ads.d.debugContent = function() {
 
   var showFormat=false;
   var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
-  var screenSize = "<b>Screen Size:</b> " + (ads.device.isMobile? (screen.width+"x"+screen.height) : (window.innerWidth+"x"+window.innerHeight));
+  var screenSize = "<b>Screen Size:</b> " + (ads.d.g("isMobile")? (screen.width+"x"+screen.height) : (window.innerWidth+"x"+window.innerHeight));
 
   var html = "<table id='1' class='adcaseTable' width=100%>"
                + "<tr><td style='vertical-align:top;'>"
