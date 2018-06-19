@@ -344,10 +344,10 @@ ads.d.testPage = function() {
   var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
   var screenSize = "<b>Screen Size:</b> " + (ads.d.g("isMobile")? (screen.width+"x"+screen.height) : (window.innerWidth+"x"+window.innerHeight));
 
-  var logData = "\n\n\n\n<table width=100%><caption>USER PREVIOUS REQUEST LOG DATA</caption>"
+  var logData = "\n\n\n\n<table width=100%><caption>THIS IS THE LOG FROM THE ORIGINAL USER REQUEST (it's not from the ads above)</caption>"
                + "<tr><td style='vertical-align:top;'>"
                     +"<table id='2'>"
-                      +"<tr><td style='width:300px;border:0'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
+                      +"<tr><td style='width:300px;border:0'><b>"+dfpPath+"</b></td>"
                           +"<td style='vertical-align:top;padding-right:0px;word-break:break-all;border:0' colspan=10>"
                               +(ads.d.pagekvHTML!=""?"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>":"")+"<br><b>User Agent:</b> " + navigator.userAgent + "<br>" + screenSize
                           +"</td></tr>"
@@ -434,6 +434,7 @@ html +=`    //googletag.pubads().enableSyncRendering();
 </script>
 </head>
 <body>
+<h4>Plain DFP implementation simulating the requests of `+document.location.href+`</h4>
 `+divs+`
 
 <br><br>
