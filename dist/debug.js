@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.17 19/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.18 19/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -251,6 +251,11 @@ ads.d.formatSizes = function (s) {
   for(var i in s) {  if(!(s.hasOwnProperty(i))) { continue; }
     var size = s[i];
     var line = "";
+    if((size[0]+"").toLowerCase()=='f') {
+      txt += (txt==""?"":", ") + 'fluid';
+      continue;
+    }
+    
     for(var j in size) { if(!(size.hasOwnProperty(j))) { continue; }
       if(line=="") {
         line = size[j];
@@ -268,6 +273,10 @@ ads.d.formatJsSizes = function (s) {
   var txt ="[";
   for(var i in s) {  if(!(s.hasOwnProperty(i))) { continue; }
     var size = s[i];
+    if((size[0]+"").toLowerCase()=='f') {
+      txt += (txt=="["?"":", ") + '"fluid"';
+      continue;
+    }
     var line = "[";
     for(var j in size) { if(!(size.hasOwnProperty(j))) { continue; }
       if(line=="[") {
