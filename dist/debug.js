@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.8 17/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.9 18/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -349,7 +349,7 @@ ads.d.testPage = function() {
 <html lang="en-us">
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8"> 
-<title>Widgets Magazine</title> 
+<title>DFP Test Page</title> 
 <style type="text/css" media="screen"> 
 </style>
 
@@ -420,18 +420,19 @@ ads.d.debugContent = function() {
 
   var showFormat=false;
   var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
+  var screenSize = "<b>Screen Size:</b> " + (ads.device.isMobile? (screen.width+"x"+screen.height) : (window.innerWidth+"x"+window.innerHeight));
 
   var html = "<table id='1' class='adcaseTable' width=100%>"
                + "<tr><td style='vertical-align:top;'>"
                     +"<table id='2'>"
                       +"<tr><td style='width:300px;border:0'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
                           +"<td style='vertical-align:top;padding-right:0px;word-break:break-all;border:0' colspan=10>"
-                              +(ads.d.pagekvHTML!=""?"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>":"")+"<br><b>User Agent:</b> " + navigator.userAgent
+                              +(ads.d.pagekvHTML!=""?"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>":"")+"<br><b>User Agent:</b> " + navigator.userAgent + "<br>" + screenSize
                           +"</td></tr>"
                     +"</table></td>"
-                     +"<td valign=top style='padding:0;width:1px;'>"
-                       +"<a class='adcase-button' href='javascript:ads.d.closeModal()'><button style='width:100%;background-color:#e74c3c'><span style='padding:12px'>X</span></button></a>"
-                       +"<br><a class='adcase-button' href='javascript:ads.d.testPage()'><button style='width:100%;background-color:#3498db;margin:4px 0 4px 0'><span style='padding:12px'>Test</span></button></a>"
+                     +"<td valign=middle style='padding:0;width:1px;'>"
+                       //+"<a class='adcase-button' href='javascript:ads.d.closeModal()'><button style='width:100%;background-color:#ccc'><span style='padding:12px'>X</span></button></a>"
+                       +"<a class='adcase-button' href='javascript:ads.d.testPage()'><button style='width:100%;background-color:#3498db;margin:4px 0 4px 0'><span style='padding:12px'>Test</span></button></a>"
                        +"<br><A class='adcase-button' target=_blank HREF='https://www.google.com/dfp/"+ads.network+"#delivery/TroubleshootingTools/url="+document.location.href+"'><button style='width:100%;background-color:#1abc9c;margin-bottom:4px'><span style='padding:12px'>DFP</span></button></A>"
                 //     +(ads.router?"<a class='adcase-button' onclick='javascript:document.getElementById(\"configWindow\").style.display=\"\"'><button><span>Config</span></button></a>":"")
                      + "</td></tr>"
@@ -786,11 +787,13 @@ ads.d.debugContentMobile = function() {
 
   var showFormat=false;
   var dfpPath = (ads.router ? "/"+ads.network+ads.router() : ""); 
+  
+  var screenSize = "<b>Screen Size:</b> " + (ads.device.isMobile? (screen.width+"x"+screen.height) : (window.innerWidth+"x"+window.innerHeight));
 
   var html = "<div class='adcase-title'>Debug</div>"
              +"<div class='adcase-block' style='display:block'><div id='adcase-debug-main' style='display:block;margin:20px'></div>"
               +"<div><b>"+dfpPath+"</b><div id='adcase-ipinfo' style='font-size:12px;margin-top:5px'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></div>"
-              +"<div style='font-size:12px;margin-top:5px'><b>User Agent:</b> " + navigator.userAgent + "</div>"
+              +"<div style='font-size:12px;margin-top:5px'><b>User Agent:</b> " + navigator.userAgent + "<br>"+screenSize+"</div>"
               +"</div><div class='adcase-block'>";
 
   var printedSlots = {};
@@ -853,8 +856,9 @@ ads.d.debugContentMobile = function() {
                +"</div></div>";
   }
 
-  html += //"<td valign=top style='padding:0;width:1px;'><center><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></center></td>"+
-       "<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>";
+  //html += //"<td valign=top style='padding:0;width:1px;'><center><a class='adcase-button' href='javascript:ads.d.shareSession()'><button><span>Share</span></button></a></center></td>"+
+  html += "<td valign=top style='padding:0;width:1px;'><center><a class='adcase-button' href='javascript:ads.d.testPage()'><button style='width:100%;background-color:#3498db;margin:4px 0 4px 0'><span style='padding:12px'>Testpage</span></button></a></center></td>"
+       + "<div class='adcase-block' style='margin:10px'>"+ads.version+"</div>";
 
   return html;
 }
