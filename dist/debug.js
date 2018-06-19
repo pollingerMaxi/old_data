@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.10 18/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.11 18/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -340,6 +340,39 @@ ads.d.prepareData = function() {
 }
 
 ads.d.testPage = function() {
+
+  var dfpPath = "<div>"+(ads.router ? "/"+ads.network+ads.router() : "")+"</div>"; 
+  var screenSize = "<b>Screen Size:</b> " + (ads.device.isMobile? (screen.width+"x"+screen.height) : (window.innerWidth+"x"+window.innerHeight));
+
+  var logData = "\n\n\n\n<table width=100%><caption>USER PREVIOUS REQUEST LOG DATA</caption>"
+               + "<tr><td style='vertical-align:top;'>"
+                    +"<table id='2'>"
+                      +"<tr><td style='width:300px;border:0'><b>"+dfpPath+"</b><br><div id='adcase-ipinfo'>"+(sessionStorage.getItem("adcase-ipinfo")||"")+"</div></td>"
+                          +"<td style='vertical-align:top;padding-right:0px;word-break:break-all;border:0' colspan=10>"
+                              +(ads.d.pagekvHTML!=""?"<b>Page Level key-values:</b><br><div style='margin-top:6px;font-family:Courier New'>" + ads.d.pagekvHTML +"</div>":"")+"<br><b>User Agent:</b> " + navigator.userAgent + "<br>" + screenSize
+                          +"</td></tr>"
+                    +"</table></td></tr>"
+
+   + "<tr><td colspan=2 style='padding:0'><table width='100%'>"
+   +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><td>Req.Size</td><td style='text-align:center'>Ad Size</td>"
+   +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td style='max-width:300px'>Slot KV</td></tr></thead>";
+
+  for(var i in ads.d.data.rows) { if(!(ads.d.data.rows.hasOwnProperty(i))) { continue; }
+    var d = ads.d.data.rows[i];
+    
+    logData += "<tr><td><b>"+d.parentId+"</b></td>"
+             +"<td>"+d.adUnit+"<br>"+d.qid+d.slotTime+"</td>"
+             +"<td>"+d.sizes+"</td>"
+             +"<td style='text-align:center'>"+d.size+"</td>"
+             +"<td style='text-align:center'>"+d.orderURL+"</td>"
+             +"<td style='text-align:center'>"+d.lineItemURL+"</td>"
+             +"<td style='text-align:center'>"+d.creativeURL+"</td>"
+             +"<td style='font-family:Courier New;word-break:break-all'>"+d.slotKV+"</td>"
+             +"</tr>";
+  }
+  logData +="</table></td></tr></table>";
+    
+    
     var html = `
 <form action="//jsfiddle.net/api/post/library/pure/" method="post" target="_blank" id="adcase_jsfiddler" style="display:none">
   <input type="text" name="title" value="Test page" >
@@ -352,7 +385,12 @@ ads.d.testPage = function() {
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8"> 
 <title>DFP Test Page</title> 
-<style type="text/css" media="screen"> 
+<link href='https://fonts.googleapis.com/css?family=Roboto Mono' rel='stylesheet' type='text/css'>
+<style type="text/css" media="screen">
+body,td { font-family:Roboto Mono;font-size:13px } 
+table {border-collapse: collapse;}
+td { border:1px solid #ccc; }
+caption { padding:5px;vertical-align:middle;background-color:#ccc;font-weight:bold}
 </style>
 
 <script src='https://www.googletagservices.com/tag/js/gpt.js'></script>
@@ -379,7 +417,7 @@ ads.d.testPage = function() {
     }
     html +=".addService(googletag.pubads());"
 
-    divs +="\n\n  <hr><h4>"+d.adUnit+" - "+d.sizes+"</h4>\n  <div id='"+d.parentId+"'><script>googletag.cmd.push(function() { googletag.display('"+d.parentId+"'); });</script></div>";
+    divs +="\n\n  <hr><b>"+d.adUnit+" - "+d.sizes+"</b><br>\n  <div id='"+d.parentId+"'><script>googletag.cmd.push(function() { googletag.display('"+d.parentId+"'); });</script></div>";
     count++;
   }
 
@@ -397,6 +435,10 @@ html +=`    //googletag.pubads().enableSyncRendering();
 </head>
 <body>
 `+divs+`
+
+<br><br>
+
+`+logData+`
 </body>
 </html>
 </textarea>
