@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.12 19/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.14 19/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -195,7 +195,7 @@ if( ads.d.g("isMobile") ) {
 .adcaseTable { border-collapse: collapse; }
 .adcaseTable tr.adcaseRow:hover { background-color:#eee; cursor:pointer }
 .adcaseTable td {
-  font-family:Poppins;
+  font-family:Roboto Mono;
   font-size:11px;
   padding:5px 10px 5px 10px;
   border-bottom:1px solid #ccc;
@@ -209,7 +209,7 @@ table#adcasekv td {padding:4px}
 #adcase-ipinfo { padding-top:10px}
 #adcase-ipinfo td { font-size:11px; padding:4px; }
 
-.adcase-block { width:100%;padding:5px;font-family:Arial;font-size:12px;  font-family:Poppins }
+.adcase-block { width:100%;padding:5px;font-family:Arial;font-size:12px;  font-family:Roboto Mono }
 
 `;
 
@@ -799,7 +799,7 @@ table#adcasekv td {padding:4px}
 #adcase-ipinfo td { font-size:11px; padding:4px; }
 
 .adcase-title { font-size:14px;width:100%;background-color:#00a8ff;color:white; height:28px;text-align:center;padding-top:6px;font-weight:bold;}
-.adcase-block { width:100%;padding:5px;font-family:Arial;font-size:12px;  font-family:Poppins }
+.adcase-block { width:100%;padding:5px;font-family:Arial;font-size:12px;  font-family:Roboto Mono }
 .adcase-block .line { width:100%;margin-top:25px; line-height:1.3; }
 .adcase-block .unfilled { background-color:#e67e22; }
 .adcase-block .pending { background-color:#bdc3c7; color:black }
@@ -983,5 +983,10 @@ ads.d.postAjax = function (url, data, success) {
 
 ads.md5= ads.md5 || (function(){for(var m=[],l=0;64>l;)m[l]=0|4294967296*Math.abs(Math.sin(++l));return function(c){var e,g,f,a,h=[];c=unescape(encodeURI(c));for(var b=c.length,k=[e=1732584193,g=-271733879,~e,~g],d=0;d<=b;)h[d>>2]|=(c.charCodeAt(d)||128)<<8*(d++%4);h[c=16*(b+8>>6)+14]=8*b;for(d=0;d<c;d+=16){b=k;for(a=0;64>a;)b=[f=b[3],(e=b[1]|0)+((f=b[0]+[e&(g=b[2])|~e&f,f&e|~f&g,e^g^f,g^(e|~f)][b=a>>4]+(m[a]+(h[[a,5*a+1,3*a+5,7*a][b]%16+d]|0)))<<(b=[7,12,17,22,5,9,14,20,4,11,16,23,6,10,15,21][4*b+a++%4])|f>>>32-b),e,g];for(a=4;a;)k[--a]=k[a]+b[a]}for(c="";32>a;)c+=(k[a>>3]>>4*(1^a++&7)&15).toString(16);return c}}());
 
+var d = document.createElement("link");
+d.href = 'https://fonts.googleapis.com/css?family=Roboto%20Mono';
+d.rel = 'stylesheet';
+d.type = 'text/css';
+document.head.appendChild(d);
 
 ads.d.clickButton();
