@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.9 18/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.10 18/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -191,14 +191,16 @@ if( ads.d.g("isMobile") ) {
 #adcaseContainer2 a { color:#0652DD  }
 #adcaseContainer2 a:hover { color:#800040  }
  
-.adcaseTable thead td { background-color:#ccc;font-weight:bold;padding:6px 20px 4px 20px }
+.adcaseTable thead td { background-color:#ccc;font-weight:bold;padding:6px 20px 6px 20px; }
 .adcaseTable { border-collapse: collapse; }
 .adcaseTable tr.adcaseRow:hover { background-color:#eee; cursor:pointer }
 .adcaseTable td {
   font-family:Poppins;
   font-size:11px;
-  padding:4px 10px 4px 10px;
+  padding:5px 10px 5px 10px;
   border-bottom:1px solid #ccc;
+  vertical-align:middle;
+  line-height:16px;
 }
 table#adcasekv td {padding:4px}
 .adsIp { width:300px}
@@ -438,7 +440,7 @@ ads.d.debugContent = function() {
                      + "</td></tr>"
 
    + "<tr><td colspan=2 style='padding:0'><table class='adcaseTable' width='100%'>"
-   +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><td style='padding:6px 0 4px 0'></td><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
+   +"<thead><tr><td>Slot id / Time</td><td>Ad Unit / Query Id</td><!--<td style='padding:6px 0 4px 0'></td>--><td>Req.Size</td><td>Ad Size</td>"+(showFormat?"<td>Format</td>":"")
    +"<td style='text-align:center'>Order</td><td style='text-align:center'>Line Item</td><td style='text-align:center'>Creative</td><td style='max-width:300px'>Slot KV</td></tr></thead>";
   var printedSlots = {};
   
@@ -447,7 +449,7 @@ ads.d.debugContent = function() {
     printedSlots[d.parentId] = true;
 
     html += "<tr class='adcaseRow' style='background-color:"+(d.size=="unfilled"?"#ffd394":"")+"'><td><b>"+d.parentId+"</b></td>"
-             +"<td>"+d.adUnit+"<br>"+d.qid+d.slotTime+"</td><td>"+d.errorTxt+"</td>"
+             +"<td>"+d.adUnit+"<br>"+d.qid+d.slotTime+"</td><!--<td>"+d.errorTxt+"</td>-->"
              +"<td>"+d.sizes+"</td>"
              +(showFormat?"<td>"+d.format+"</td>":"")
              +"<td style='text-align:center'>"+d.size+"</td>"
