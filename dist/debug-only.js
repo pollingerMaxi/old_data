@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v3.0.5. 7/Jun/2018
+// AdCase.js JavaScript Library v3.0.20. 20/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -9,8 +9,8 @@
 //
 var googletag = googletag || { cmd: [] };
 //var adcase = adcase || ads;
-adcase.version = (adcase.light?"adcase.js light":"adcase.js full")+" v3.0.5";
-adcase.logData = (adcase.light?"L":"F")+"3.0.5";
+adcase.version = (adcase.light?"adcase.js light":"adcase.js full")+" v3.0.20";
+adcase.logData = (adcase.light?"L":"F")+"3.0.20";
 
 adcase.log = function() {
     if(!localStorage.getItem("adcase.debug")) {
