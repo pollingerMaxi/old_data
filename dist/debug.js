@@ -1,5 +1,5 @@
 //
-// AdCase.js DEBUG JavaScript Library v3.0.18 19/Jun/2018
+// AdCase.js DEBUG JavaScript Library v3.0.19 19/Jun/2018
 // Copyright 2018 adcase.io 
 // https://adcase.io
 // https://adcase.io/license 
@@ -7,7 +7,7 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 var ads = ads || adcase;
-ads.version = ads.version || ""; // please update adcase.js
+ads.version = ads.version || ""; 
 
 ads.d = ads.d || {};
 ads.d.values = ads.d.values || {};
@@ -24,7 +24,6 @@ ads.d.updateModal = function() {
     ads.d.g("modalContent").innerHTML = ads.d.debugContent();
   } 
 }
-
 ads.d.configWindow = function() {
   var html = "<div id='configWindow' style='display:none;margin-bottom:100px'>Paste inventory CSV here (as plain text):<br><textarea id='configInventory' style='width:400px;height:100px'></textarea>"
   +"<br><a href='javascript:ads.d.saveConfig()'><button class='adsbtn' type=button'><span>Save</span></button></a></div>";
@@ -618,6 +617,7 @@ ads.d.getSlotKVArray = function(slot) {
       try {
         var k = scp[i].split("=")[0];
         var v = scp[i].split("=")[1];
+        v && (v.indexOf(",")>0) && (v = v.split(","));
         v && (kv[k] = v);
       } catch(e) {}
     }
@@ -627,6 +627,7 @@ ads.d.getSlotKVArray = function(slot) {
       try {
         var k = custParams[i].split("=")[0];
         var v = custParams[i].split("=")[1];
+        v && (v.indexOf(",")>0) && (v = v.split(","));
         v && (pageKV[k] = v);
       } catch(e) {}
     }
