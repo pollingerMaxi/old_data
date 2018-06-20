@@ -1,5 +1,5 @@
 //
-// AdCase.js JavaScript Library v3.0.15. 17/Jun/2018
+// AdCase.js JavaScript Library v3.0.20. 20/Jun/2018
 // Copyright 2018 adcase.io
 // https://adcase.io
 // https://adcase.io/license
@@ -7,8 +7,8 @@
 // This is not an official Google product, and it is also not officially supported by Google.
 //
 //
-ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v3.0.3";
-ads.logData = (ads.light?"L":"F")+".3.0.3";
+ads.version = (ads.light?"adcase.js light":"adcase.js full")+" v3.0.20";
+ads.logData = (ads.light?"L":"F")+".3.0.20";
 
 ads.loaded = true;
 var googletag = googletag || { cmd: [] };
@@ -573,7 +573,7 @@ ads.debug = function() {
         ads.d.clickButton();
     } else {
         var s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@3/dist/debug.js?"+Math.random();
+        s.src = "https://storage.googleapis.com/adcase.io/dist/3/debug.js?"+Math.random();
         document.head.appendChild(s);
     }
 }
