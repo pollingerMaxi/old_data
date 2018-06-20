@@ -31,7 +31,7 @@ adcase.openDebug = function() {
         adcase.d.clickButton();
     } else {
         var s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/gh/adcase/adcase.js@3/dist/debug.js?"+Math.random();
+        s.src = "https://storage.googleapis.com/adcase.io/dist/3/debug.js?"+Math.random();
         document.head.appendChild(s);
     }
 }
