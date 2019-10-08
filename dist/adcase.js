@@ -751,6 +751,7 @@ adcase.helpers.ittVideo = function(t, params) {
 
   var v = document.createElement("video");
   v.muted = "true";
+  v.controls = "true";
   v.src = params.videoURL;
   v.style.width = "100%";
   v.style.height = "100%";
